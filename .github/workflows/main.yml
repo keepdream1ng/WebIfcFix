@@ -23,6 +23,9 @@ jobs:
 
     - name: Debug PWD
       run: pwd
+      
+    - name: Debug LS
+      run: ls -r
 
     # publishes Blazor project to the release-folder
     - name: Publish .NET Core Project
