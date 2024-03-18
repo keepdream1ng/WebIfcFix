@@ -1,5 +1,8 @@
 name: Deploy to GitHub Pages
 
+env:
+  PUBLISH_DIR: bin/Release/net8.0\publish\wwwroot
+  
 # Run workflow on every push to the master branch
 on:
   push:
@@ -21,19 +24,16 @@ jobs:
       with:
         dotnet-version: 8.0
 
-    - name: Debug PWD
-      run: pwd
-      
-    - name: Debug LS
-      run: ls -r
-
     # publishes Blazor project to the release-folder
     - name: Publish .NET Core Project
-      run: dotnet publish .\WebIfcFix\WebIfcFix.csproj -c Release -o release --nologo
+      run: dotnet publish -c Release
     
     # changes the base-tag in index.html to match GitHub Pages repository subdirectory
-    - name: Change base-tag in index.html
-      run: sed -i 's/<base href="\/" \/>/<base href="\/WebIfcFix.App\/" \/>/g' release/wwwroot/index.html
+    - name: Rewrite base href
+      uses: SteveSandersonMS/ghaction-rewrite-base-href@v1
+      with:
+        html_path: ${{ env.PUBLISH_DIR }}/index.html
+        base_href: /WebIfcFix.App/
     
     # copy index.html to 404.html to serve the same file when a file is not found
     - name: Copy index.html to 404.html
@@ -46,4 +46,4 @@ jobs:
     - name: Commit wwwroot to GitHub Pages
       uses: JamesIves/github-pages-deploy-action@v4.5.0
       with:
-        folder: release/wwwroot
+        folder: ${{ env.PUBLISH_DIR }}
