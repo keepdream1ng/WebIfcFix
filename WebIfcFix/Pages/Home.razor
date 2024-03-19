@@ -18,7 +18,7 @@
     <ValidationSummary />
     <InputText class="form-control mb-4" placeholder="Title" @bind-Value="@Ticket.Title" />
     <InputText class="form-control mb-4" placeholder="Description" @bind-Value="@Ticket.Description" />
-    <InputFile class="form-control mb-4" multiple OnChange="SetFile" />
+    <InputFile class="form-control mb-4" OnChange="SetFile" accept=".ifc" />
     <button class="btn btn-primary" type="submit">Submit</button>
 </EditForm>
 
