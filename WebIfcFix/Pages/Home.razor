@@ -1,7 +1,59 @@
 ﻿@page "/"
+@using System.ComponentModel.DataAnnotations
 
 <PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
+<div>
+    <h2 class="display-4">WebAssembly Upload</h2>
+    <p>Read a file using Blazor WebAssembly.</p>
+</div>
 
-Welcome to your new app.
+@if(Message.Length > 0)
+{
+    <p class="alert alert-secondary" role="alert">@Message</p>
+}
+
+<EditForm Model="@Ticket" method="post" OnValidSubmit="@OnSubmit" enctype="multipart/form-data">
+    <DataAnnotationsValidator />
+    <ValidationSummary />
+    <InputText class="form-control mb-4" placeholder="Title" @bind-Value="@Ticket.Title" />
+    <InputText class="form-control mb-4" placeholder="Description" @bind-Value="@Ticket.Description" />
+    <InputFile class="form-control mb-4" multiple OnChange="SetFile" />
+    <button class="btn btn-primary" type="submit">Submit</button>
+</EditForm>
+
+@code {
+    private WebAssemblyFile Ticket { get; set; } = new();
+    private long maxFileSize = 5120000;
+    private string Message { get; set; } = String.Empty;
+
+    private void SetFile(InputFileChangeEventArgs e)
+    {
+        Ticket.FileInput = e.File;
+    }
+
+    private async Task OnSubmit()
+    {
+        try
+        {
+            System.IO.Stream fileStream = Ticket.FileInput.OpenReadStream(maxFileSize);
+            using var reader = new StreamReader(fileStream);
+            var content = await reader.ReadToEndAsync();
+            Message = $"{Ticket.FileInput.Name} read successful! {content}";
+        } 
+        catch(Exception e)
+        {
+            Message = "Read failed. Error: " + e.Message;
+        }
+    }
+
+    private class WebAssemblyFile
+    {
+        [Required]
+        public string Title { get; set; } = String.Empty;
+        [Required]
+        public string Description { get; set; } = String.Empty;
+        
+        public IBrowserFile FileInput { get; set; }
+    }
+}
