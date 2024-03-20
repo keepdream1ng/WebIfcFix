@@ -1,5 +1,8 @@
 ﻿@page "/"
 @using System.ComponentModel.DataAnnotations
+@using System.Text
+
+@inject IJSRuntime JS;
 
 <PageTitle>Home</PageTitle>
 
@@ -22,6 +25,17 @@
     <button class="btn btn-primary" type="submit">Submit</button>
 </EditForm>
 
+<script type="text/javascript">
+	function saveAsFile(filename, bytesBase64) {
+		var link = document.createElement('a');
+		link.download = filename;
+		link.href = "data:application/octet-stream;base64," + bytesBase64;
+		document.body.appendChild(link);
+		link.click();
+		document.body.removeChild(link);
+	}
+</script>
+
 @code {
     private WebAssemblyFile Ticket { get; set; } = new();
     private long maxFileSize = 5120000;
@@ -40,6 +54,17 @@
             using var reader = new StreamReader(fileStream);
             var content = await reader.ReadToEndAsync();
             Message = $"{Ticket.FileInput.Name} read successful! {content}";
+            // Update content (replace with your desired logic)
+            var updatedContent = content + "\n** This file has been updated!**";
+
+            // Convert content to Base64 for download
+            var byteArray = Encoding.UTF8.GetBytes(updatedContent);
+
+			await JS.InvokeVoidAsync(
+						"saveAsFile",
+						"updated.ifc",
+						Convert.ToBase64String(byteArray));
+
         } 
         catch(Exception e)
         {
