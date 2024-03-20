@@ -54,15 +54,16 @@
             using var reader = new StreamReader(fileStream);
             var content = await reader.ReadToEndAsync();
             Message = $"{Ticket.FileInput.Name} read successful! {content}";
-            // Update content (replace with your desired logic)
+
             var updatedContent = content + "\n** This file has been updated!**";
+            string newFileName = $"{Ticket.FileInput.Name.Replace(".ifc", "")}_updated.ifc";
 
             // Convert content to Base64 for download
             var byteArray = Encoding.UTF8.GetBytes(updatedContent);
 
 			await JS.InvokeVoidAsync(
 						"saveAsFile",
-						"updated.ifc",
+                        newFileName,
 						Convert.ToBase64String(byteArray));
 
         } 
