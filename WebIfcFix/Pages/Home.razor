@@ -16,11 +16,11 @@
     <p class="alert alert-secondary" role="alert">@Message</p>
 }
 
-<EditForm Model="@Ticket" method="post" OnValidSubmit="@OnSubmit" enctype="multipart/form-data">
+<EditForm Model="@IfcFile" method="post" OnValidSubmit="@OnSubmit" enctype="multipart/form-data">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <InputText class="form-control mb-4" placeholder="Title" @bind-Value="@Ticket.Title" />
-    <InputText class="form-control mb-4" placeholder="Description" @bind-Value="@Ticket.Description" />
+    <InputText class="form-control mb-4" placeholder="Search string" @bind-Value="@IfcFile.CheckString" />
+    <InputText class="form-control mb-4" placeholder="Check type" @bind-Value="@IfcFile.CheckType" />
     <InputFile class="form-control mb-4" OnChange="SetFile" accept=".ifc" />
     <button class="btn btn-primary" type="submit">Submit</button>
 </EditForm>
@@ -37,35 +37,48 @@
 </script>
 
 @code {
-    private WebAssemblyFile Ticket { get; set; } = new();
+    private WebAssemblyFile IfcFile { get; set; } = new();
     private long maxFileSize = 5120000;
     private string Message { get; set; } = String.Empty;
+    private IfcFilter Filter = new IfcFilter(); 
 
     private void SetFile(InputFileChangeEventArgs e)
     {
-        Ticket.FileInput = e.File;
+        IfcFile.FileInput = e.File;
     }
 
     private async Task OnSubmit()
     {
         try
         {
-            System.IO.Stream fileStream = Ticket.FileInput.OpenReadStream(maxFileSize);
+            var checker = new NameChecker();
+            checker.FilterType = NameFilterType.Equals;
+            Filter.Checker = checker;
+            Filter.SearchString = IfcFile.CheckString;
+
+            System.IO.Stream fileStream = IfcFile.FileInput.OpenReadStream(maxFileSize);
             using var reader = new StreamReader(fileStream);
-            var content = await reader.ReadToEndAsync();
-            Message = $"{Ticket.FileInput.Name} read successful! {content}";
+            int numberObjectsFiltered = Filter.FilterStreamToString(reader, out string filteredIfcContent);
 
-            var updatedContent = content + "\n** This file has been updated!**";
-            string newFileName = $"{Ticket.FileInput.Name.Replace(".ifc", "")}_updated.ifc";
+            if (numberObjectsFiltered > 0)
+            {
+                Message = $"{IfcFile.FileInput.Name} read successful, elements filtered: {numberObjectsFiltered}";
 
-            // Convert content to Base64 for download
-            var byteArray = Encoding.UTF8.GetBytes(updatedContent);
+                string newFileName = $"{IfcFile.FileInput.Name.Replace(".ifc", "")}_updated.ifc";
 
-			await JS.InvokeVoidAsync(
-						"saveAsFile",
-                        newFileName,
-						Convert.ToBase64String(byteArray));
+                // Convert content to Base64 for download`
+                var encodingISO_8859_1 = Encoding.GetEncoding("ISO-8859-1");
+                var byteArray = encodingISO_8859_1.GetBytes(filteredIfcContent);
 
+                await JS.InvokeVoidAsync(
+                            "saveAsFile",
+                            newFileName,
+                            Convert.ToBase64String(byteArray));
+            }
+            else
+            {
+                Message = $"{IfcFile.FileInput.Name} read successful, but zero elements were filtered successfully";
+            }
         } 
         catch(Exception e)
         {
@@ -76,9 +89,9 @@
     private class WebAssemblyFile
     {
         [Required]
-        public string Title { get; set; } = String.Empty;
+        public string CheckString { get; set; } = String.Empty;
         [Required]
-        public string Description { get; set; } = String.Empty;
+        public string CheckType { get; set; } = String.Empty;
         
         public IBrowserFile FileInput { get; set; }
     }
