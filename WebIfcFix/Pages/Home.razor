@@ -56,9 +56,17 @@
             Filter.Checker = checker;
             Filter.SearchString = IfcFile.CheckString;
 
+            int numberObjectsFiltered = 0;
+            string filtered = String.Empty;
             System.IO.Stream fileStream = IfcFile.FileInput.OpenReadStream(maxFileSize);
             using var reader = new StreamReader(fileStream);
-            int numberObjectsFiltered = Filter.FilterStreamToString(reader, out string filteredIfcContent);
+            string str = await reader.ReadToEndAsync();
+			string[] ifcContent = str.Split('\n');
+			numberObjectsFiltered = Filter.FilterIfcString(ifcContent, out string filteredIfcContent);
+			if (!String.IsNullOrEmpty(filteredIfcContent))
+			{
+				filtered = filteredIfcContent;
+			}
 
             if (numberObjectsFiltered > 0)
             {
@@ -67,8 +75,8 @@
                 string newFileName = $"{IfcFile.FileInput.Name.Replace(".ifc", "")}_updated.ifc";
 
                 // Convert content to Base64 for download`
-                var encodingISO_8859_1 = Encoding.GetEncoding("ISO-8859-1");
-                var byteArray = encodingISO_8859_1.GetBytes(filteredIfcContent);
+				var encodingISO_8859_1 = Encoding.GetEncoding("ISO-8859-1");
+                var byteArray = encodingISO_8859_1.GetBytes(filtered);
 
                 await JS.InvokeVoidAsync(
                             "saveAsFile",

@@ -7,10 +7,10 @@ public class IfcFilter
     public string SearchString { get; set; }
     public NameChecker Checker { get; set; }
 
-    public int FilterStreamToString(TextReader ifcFileReader, out string ifcString)
+    public int FilterIfcString(string[] ifcContent, out string ifcString)
     {
         ifcString = string.Empty;
-        DatabaseIfc db = new DatabaseIfc(ifcFileReader);
+        DatabaseIfc db = new DatabaseIfc(ifcContent);
 
         DuplicateOptions options = new DuplicateOptions(db.Tolerance);
         options.DuplicateDownstream = false;
