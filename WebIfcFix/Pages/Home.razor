@@ -38,7 +38,7 @@
 
 @code {
     private WebAssemblyFile IfcFile { get; set; } = new();
-    private long maxFileSize = 5120000;
+    private long maxFileSize = 5120000000;
     private string Message { get; set; } = String.Empty;
     private IfcFilter Filter = new IfcFilter(); 
 
@@ -61,8 +61,7 @@
             System.IO.Stream fileStream = IfcFile.FileInput.OpenReadStream(maxFileSize);
             using var reader = new StreamReader(fileStream);
             string str = await reader.ReadToEndAsync();
-			string[] ifcContent = str.Split('\n');
-			numberObjectsFiltered = Filter.FilterIfcString(ifcContent, out string filteredIfcContent);
+			numberObjectsFiltered = Filter.FilterIfcString(str, out string filteredIfcContent);
 			if (!String.IsNullOrEmpty(filteredIfcContent))
 			{
 				filtered = filteredIfcContent;
