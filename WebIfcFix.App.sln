@@ -5,7 +5,7 @@ VisualStudioVersion = 17.9.34622.214
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebIfcFix", "WebIfcFix\WebIfcFix.csproj", "{66B22C9D-19EF-4E50-8CBC-CB0D15ACE971}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeometryGymIFCcore", "GeometryGymIFC\DLL Projects\GeometryGymIFCcore\GeometryGymIFCcore.csproj", "{53B98FC6-92FD-4D1A-936E-2355352CD3A6}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeometryGymIFCcore", "..\GeometryGymIFC\DLL Projects\GeometryGymIFCcore\GeometryGymIFCcore.csproj", "{360A5551-E5B0-4C9B-8871-D24CD36ECB9A}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -17,10 +17,10 @@ Global
 		{66B22C9D-19EF-4E50-8CBC-CB0D15ACE971}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{66B22C9D-19EF-4E50-8CBC-CB0D15ACE971}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{66B22C9D-19EF-4E50-8CBC-CB0D15ACE971}.Release|Any CPU.Build.0 = Release|Any CPU
-		{53B98FC6-92FD-4D1A-936E-2355352CD3A6}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
-		{53B98FC6-92FD-4D1A-936E-2355352CD3A6}.Debug|Any CPU.Build.0 = Debug|Any CPU
-		{53B98FC6-92FD-4D1A-936E-2355352CD3A6}.Release|Any CPU.ActiveCfg = Release|Any CPU
-		{53B98FC6-92FD-4D1A-936E-2355352CD3A6}.Release|Any CPU.Build.0 = Release|Any CPU
+		{360A5551-E5B0-4C9B-8871-D24CD36ECB9A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{360A5551-E5B0-4C9B-8871-D24CD36ECB9A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{360A5551-E5B0-4C9B-8871-D24CD36ECB9A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{360A5551-E5B0-4C9B-8871-D24CD36ECB9A}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
