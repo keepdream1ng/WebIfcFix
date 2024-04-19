@@ -12,7 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\GeometryGymIFC\DLL Projects\GeometryGymIFCcore\GeometryGymIFCcore.csproj" />
+    <ProjectReference Include="..\IfcFixLib\IfcFixLib.csproj" />
   </ItemGroup>
 
 </Project>

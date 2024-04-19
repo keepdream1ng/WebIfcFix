@@ -1,6 +1,6 @@
 ﻿using GeometryGym.Ifc;
 
-namespace WebIfcFix;
+namespace IfcFixLib;
 
 public class IfcFilter
 {

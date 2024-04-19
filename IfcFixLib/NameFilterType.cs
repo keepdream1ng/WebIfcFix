@@ -1,4 +1,4 @@
-﻿namespace WebIfcFix;
+﻿namespace IfcFixLib;
 
 public enum NameFilterType
 {

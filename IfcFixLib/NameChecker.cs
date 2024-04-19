@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace WebIfcFix;
+namespace IfcFixLib;
 
 public class NameChecker
 {
