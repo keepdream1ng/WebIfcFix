@@ -51,17 +51,17 @@
     {
         try
         {
-            var checker = new NameChecker();
-            checker.FilterType = NameFilterType.Equals;
+            var checker = new StringChecker();
+            checker.FilterType = StringFilterType.Equals;
             Filter.Checker = checker;
             Filter.SearchString = IfcFile.CheckString;
 
             int numberObjectsFiltered = 0;
             string filtered = String.Empty;
             System.IO.Stream fileStream = IfcFile.FileInput.OpenReadStream(maxFileSize);
-            using var reader = new StreamReader(fileStream);
-            string str = await reader.ReadToEndAsync();
-			numberObjectsFiltered = Filter.FilterIfcString(str, out string filteredIfcContent);
+            var parser = new IfcParser();
+            var database = await parser.ParseFromStreamAsync(fileStream);
+            numberObjectsFiltered = Filter.FilterIfcString(database, out string filteredIfcContent);
 			if (!String.IsNullOrEmpty(filteredIfcContent))
 			{
 				filtered = filteredIfcContent;

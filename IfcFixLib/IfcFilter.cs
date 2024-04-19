@@ -5,13 +5,11 @@ namespace IfcFixLib;
 public class IfcFilter
 {
     public string SearchString { get; set; }
-    public NameChecker Checker { get; set; }
+    public StringChecker Checker { get; set; }
 
-    public int FilterIfcString(string ifcContent, out string ifcString)
+    public int FilterIfcString(DatabaseIfc db, out string ifcString)
     {
         ifcString = string.Empty;
-        DatabaseIfc db = DatabaseIfc.ParseString(ifcContent);
-
         DuplicateOptions options = new DuplicateOptions(db.Tolerance);
         options.DuplicateDownstream = false;
         DatabaseIfc newDb = new DatabaseIfc(db);

@@ -1,6 +1,6 @@
 ﻿namespace IfcFixLib;
 
-public enum NameFilterType
+public enum StringFilterType
 {
     Equals,
     Contains,

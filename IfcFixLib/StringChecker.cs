@@ -2,25 +2,25 @@
 
 namespace IfcFixLib;
 
-public class NameChecker
+public class StringChecker
 {
-    public NameFilterType FilterType
+    public StringFilterType FilterType
     {
         get { return _nameFilterType; }
         set
         {
             switch (value)
             {
-                case NameFilterType.Equals:
+                case StringFilterType.Equals:
                     CheckDelegate = EqualsCheck;
                     break;
-                case NameFilterType.Contains:
+                case StringFilterType.Contains:
                     CheckDelegate = ContainsCheck;
                     break;
-                case NameFilterType.Contains_Any:
+                case StringFilterType.Contains_Any:
                     CheckDelegate = ContainsAnyCheck;
                     break;
-                case NameFilterType.Regex_expression:
+                case StringFilterType.Regex_expression:
                     CheckDelegate = CheckRegex;
                     break;
                 default:
@@ -29,7 +29,7 @@ public class NameChecker
             _nameFilterType = value;
         }
     }
-    private NameFilterType _nameFilterType;
+    private StringFilterType _nameFilterType;
     private delegate bool FilterNameCheckerDelegate(string name, string searchString);
     private FilterNameCheckerDelegate CheckDelegate;
     private string? _containsCasheValue = null;
