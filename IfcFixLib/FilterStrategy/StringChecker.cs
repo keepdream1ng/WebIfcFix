@@ -1,6 +1,6 @@
 ﻿using System.Text.RegularExpressions;
 
-namespace IfcFixLib;
+namespace IfcFixLib.FilterStrategy;
 
 public class StringChecker
 {
@@ -52,7 +52,7 @@ public class StringChecker
     }
     private bool ContainsAnyCheck(string prop, string searchString)
     {
-        if ((searchString != _containsCasheValue))
+        if (searchString != _containsCasheValue)
         {
             _containsCasheValue = searchString;
             _containsCashe = searchString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);

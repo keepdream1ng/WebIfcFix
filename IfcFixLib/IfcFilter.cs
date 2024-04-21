@@ -1,12 +1,10 @@
 ﻿using GeometryGym.Ifc;
+using IfcFixLib.FilterStrategy;
 
 namespace IfcFixLib;
 
-public class IfcFilter
+public class IfcFilter(IFilterStrategy FilterStrategy)
 {
-    public string SearchString { get; set; }
-    public StringChecker Checker { get; set; }
-
     public int FilterIfcString(DatabaseIfc db, out string ifcString)
     {
         ifcString = string.Empty;
@@ -21,7 +19,7 @@ public class IfcFilter
         int count = 0;
         foreach(IfcBuiltElement el in modelElements)
         {
-            if (Checker.Check(el.Name, SearchString))
+            if (FilterStrategy.IsMatch(el))
             {
                 count++;
                 newDb.Factory.Duplicate(el, options);

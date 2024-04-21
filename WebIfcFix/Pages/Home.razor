@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using System.ComponentModel.DataAnnotations
 @using System.Text
+@using IfcFixLib.FilterStrategy
 
 @inject IJSRuntime JS;
 
@@ -40,7 +41,6 @@
     private WebAssemblyFile IfcFile { get; set; } = new();
     private long maxFileSize = 5120000000;
     private string Message { get; set; } = String.Empty;
-    private IfcFilter Filter = new IfcFilter(); 
 
     private void SetFile(InputFileChangeEventArgs e)
     {
@@ -53,8 +53,13 @@
         {
             var checker = new StringChecker();
             checker.FilterType = StringFilterType.Equals;
-            Filter.Checker = checker;
-            Filter.SearchString = IfcFile.CheckString;
+            var valueGetter = new StringValueGetter();
+            valueGetter.ValueType = IfcElementStringValueType.Name;
+            var strategy = new StringFilterStrategy();
+            strategy.StringChecker = checker;
+            strategy.FilteredString = IfcFile.CheckString;
+            strategy.StringValueGetter = valueGetter;
+            IfcFilter Filter = new IfcFilter(strategy);
 
             int numberObjectsFiltered = 0;
             string filtered = String.Empty;
