@@ -1,6 +1,7 @@
 ﻿@page "/"
 @using System.ComponentModel.DataAnnotations
 @using System.Text
+@using GeometryGym.Ifc
 @using IfcFixLib.FilterStrategy
 
 @inject IJSRuntime JS;
@@ -54,26 +55,25 @@
             var checker = new StringChecker();
             checker.FilterType = StringFilterType.Equals;
             var valueGetter = new StringValueGetter();
-            valueGetter.ValueType = IfcElementStringValueType.Name;
+            valueGetter.ValueType = ElementStringValueType.Name;
             var strategy = new StringFilterStrategy();
             strategy.StringChecker = checker;
             strategy.FilteredString = IfcFile.CheckString;
             strategy.StringValueGetter = valueGetter;
-            IfcFilter Filter = new IfcFilter(strategy);
+            ElementsFilter Filter = new ElementsFilter(strategy);
 
-            int numberObjectsFiltered = 0;
-            string filtered = String.Empty;
             System.IO.Stream fileStream = IfcFile.FileInput.OpenReadStream(maxFileSize);
-            var parser = new IfcParser();
+            var parser = new DbParser();
             var database = await parser.ParseFromStreamAsync(fileStream);
-            numberObjectsFiltered = Filter.FilterIfcString(database, out string filteredIfcContent);
-			if (!String.IsNullOrEmpty(filteredIfcContent))
-			{
-				filtered = filteredIfcContent;
-			}
+            var filteredData = await Filter.ProcessAsync(database, database.Project.Extract<IfcBuiltElement>());
+            int numberObjectsFiltered = filteredData.Elements.Count;
+
+            string filtered = String.Empty;
 
             if (numberObjectsFiltered > 0)
             {
+                var newDb = await DbDuplicator.DuplicateDbWithElementsAsync(filteredData.DatabaseIfc, filteredData.Elements);
+                filtered = newDb.ToString(FormatIfcSerialization.STEP);
                 Message = $"{IfcFile.FileInput.Name} read successful, elements filtered: {numberObjectsFiltered}";
 
                 string newFileName = $"{IfcFile.FileInput.Name.Replace(".ifc", "")}_updated.ifc";

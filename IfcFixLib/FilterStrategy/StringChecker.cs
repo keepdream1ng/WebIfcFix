@@ -35,6 +35,13 @@ public class StringChecker
     private string? _containsCasheValue = null;
     private string[]? _containsCashe = null;
     private Dictionary<string, Regex> _regexCache = new Dictionary<string, Regex>();
+    private object _lock = new();
+
+    public StringChecker(StringFilterType filterType = StringFilterType.Equals)
+    {
+        CheckDelegate = EqualsCheck;
+        FilterType = filterType;
+    }
 
     public bool Check(string prop, string searchString)
     {
@@ -54,27 +61,32 @@ public class StringChecker
     {
         if (searchString != _containsCasheValue)
         {
-            _containsCasheValue = searchString;
-            _containsCashe = searchString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
-        }
-        foreach (string word in _containsCashe)
-        {
-            if (prop.Contains(word))
+            lock (_lock)
             {
-                return true;
+                if (_containsCasheValue != searchString)
+                {
+                    _containsCasheValue = searchString;
+                    _containsCashe = searchString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                }
             }
         }
-        return false;
+        return _containsCashe!.Any(word => word.Equals(prop));
     }
 
     private bool CheckRegex(string prop, string searchString)
     {
-        if (!_regexCache.TryGetValue(searchString, out Regex regex))
+        if (!_regexCache.TryGetValue(searchString, out var regex))
         {
-            regex = new Regex(searchString);
-            _regexCache[searchString] = regex;
+            lock (_lock)
+            {
+                if (!_regexCache.ContainsKey(searchString))
+                {
+                    regex = new Regex(searchString);
+                    _regexCache[searchString] = regex;
+                }
+            }
         }
 
-        return regex.IsMatch(prop);
+        return regex!.IsMatch(prop);
     }
 }

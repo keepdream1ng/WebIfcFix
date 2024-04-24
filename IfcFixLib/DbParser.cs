@@ -1,10 +1,11 @@
 ﻿using GeometryGym.Ifc;
+using IfcFixLib.IfcPipelineDefinition;
 
 namespace IfcFixLib;
-public class IfcParser
+public class DbParser : IPipeOut
 {
     public event EventHandler? ProcessDone;
-    public DatabaseIfc Output { get; private set; }
+    public DataIFC? Output { get; private set; }
     public async Task<DatabaseIfc> ParseFromStreamAsync(Stream stream)
     {
         string ifcString;
@@ -12,9 +13,11 @@ public class IfcParser
         {
             ifcString = await reader.ReadToEndAsync();
         }
-        Output = DatabaseIfc.ParseString(ifcString);
+        DatabaseIfc db = DatabaseIfc.ParseString(ifcString);
+        var elements = db.Project.Extract<IfcBuiltElement>();
+        Output = new DataIFC(db, elements);
         OnProcessDone();
-        return Output;
+        return db;
     }
 
     protected virtual void OnProcessDone()

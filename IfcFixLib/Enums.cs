@@ -7,7 +7,7 @@ public enum StringFilterType
     Regex_expression
 }
 
-public enum IfcElementStringValueType
+public enum ElementStringValueType
 {
     Name,
     Description,
