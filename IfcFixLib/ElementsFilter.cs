@@ -7,8 +7,7 @@ namespace IfcFixLib;
 
 public class ElementsFilter(IFilterStrategy FilterStrategy) : PipeFilter
 {
-    public async Task<DataIFC> ProcessAsync(
-        DatabaseIfc db,
+    public async Task<List<IfcBuiltElement>> ProcessAsync(
         List<IfcBuiltElement> elements,
         CancellationToken cancellationToken = default)
     {
@@ -23,12 +22,14 @@ public class ElementsFilter(IFilterStrategy FilterStrategy) : PipeFilter
             }
             return ValueTask.CompletedTask;
         });
-        return new DataIFC(db, filtered.ToList());
+        return filtered.ToList();
     }
-    protected override Func<CancellationToken, Task> ProcessInput =>
-        async (cancellationToken) =>
+    protected override Func<DataIFC, CancellationToken, Task<DataIFC>> ProcessData =>
+        async (data, cancellationToken) =>
         {
-            Output = await ProcessAsync(Input!.DatabaseIfc, Input!.Elements, cancellationToken);
+            List<IfcBuiltElement> elements = await ProcessAsync(data.Elements, cancellationToken);
+            cancellationToken.ThrowIfCancellationRequested();
+            return new DataIFC(data.DatabaseIfc, elements);
         };
 }
 

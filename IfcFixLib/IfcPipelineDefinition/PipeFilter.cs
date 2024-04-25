@@ -8,13 +8,13 @@ public abstract class PipeFilter : IPipeFilter
         async (cancellationToken) =>
         {
             if (Input is null) return;
-            await this.ProcessInput(cancellationToken).ConfigureAwait(false);
+            Output = await this.ProcessData(Input, cancellationToken).ConfigureAwait(false);
             if (!cancellationToken.IsCancellationRequested)
             {
                 OnProcessDone();
             }
         };
-    protected abstract Func<CancellationToken, Task> ProcessInput { get; }
+    protected abstract Func<DataIFC, CancellationToken, Task<DataIFC>> ProcessData { get; }
     protected virtual void OnProcessDone()
     {
         ProcessDone?.Invoke(this, EventArgs.Empty);

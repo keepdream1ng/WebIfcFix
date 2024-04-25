@@ -65,14 +65,14 @@
             System.IO.Stream fileStream = IfcFile.FileInput.OpenReadStream(maxFileSize);
             var parser = new DbParser();
             var database = await parser.ParseFromStreamAsync(fileStream);
-            var filteredData = await Filter.ProcessAsync(database, database.Project.Extract<IfcBuiltElement>());
-            int numberObjectsFiltered = filteredData.Elements.Count;
+            var filteredElements = await Filter.ProcessAsync(database.Project.Extract<IfcBuiltElement>());
+            int numberObjectsFiltered = filteredElements.Count;
 
             string filtered = String.Empty;
 
             if (numberObjectsFiltered > 0)
             {
-                var newDb = await DbDuplicator.DuplicateDbWithElementsAsync(filteredData.DatabaseIfc, filteredData.Elements);
+                var newDb = await DbDuplicator.DuplicateDbWithElementsAsync(database, filteredElements);
                 filtered = newDb.ToString(FormatIfcSerialization.STEP);
                 Message = $"{IfcFile.FileInput.Name} read successful, elements filtered: {numberObjectsFiltered}";
 
