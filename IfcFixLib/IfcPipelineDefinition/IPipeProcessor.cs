@@ -1,5 +1,5 @@
 ﻿namespace IfcFixLib.IfcPipelineDefinition;
 public interface IPipeProcessor
 {
-    public Func<Task> StartProcess { get; }
+    public Func<CancellationToken, Task> StartProcess { get; }
 }

@@ -7,24 +7,28 @@ namespace IfcFixLib;
 
 public class ElementsFilter(IFilterStrategy FilterStrategy) : PipeFilter
 {
-    public async Task<DataIFC> ProcessAsync(DatabaseIfc db, List<IfcBuiltElement> elements)
+    public async Task<DataIFC> ProcessAsync(
+        DatabaseIfc db,
+        List<IfcBuiltElement> elements,
+        CancellationToken cancellationToken = default)
     {
+        cancellationToken.ThrowIfCancellationRequested();
         ConcurrentBag<IfcBuiltElement> filtered = [];
-        await Task.Run(() =>
-            Parallel.ForEach(elements, el =>
+        await Parallel.ForEachAsync(elements, cancellationToken, (el, token) =>
+        {
+            token.ThrowIfCancellationRequested();
+            if (FilterStrategy.IsMatch(el))
             {
-                if (FilterStrategy.IsMatch(el))
-                {
-                    filtered.Add(el);
-                }
-            })
-        );
+                filtered.Add(el);
+            }
+            return ValueTask.CompletedTask;
+        });
         return new DataIFC(db, filtered.ToList());
     }
-    protected override Func<Task> ProcessData =>
-        async () =>
+    protected override Func<CancellationToken, Task> ProcessInput =>
+        async (cancellationToken) =>
         {
-            Output = await ProcessAsync(Input!.DatabaseIfc, Input!.Elements);
+            Output = await ProcessAsync(Input!.DatabaseIfc, Input!.Elements, cancellationToken);
         };
 }
 

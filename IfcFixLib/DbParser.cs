@@ -6,14 +6,18 @@ public class DbParser : IPipeOut
 {
     public event EventHandler? ProcessDone;
     public DataIFC? Output { get; private set; }
-    public async Task<DatabaseIfc> ParseFromStreamAsync(Stream stream)
+    public async Task<DatabaseIfc> ParseFromStreamAsync(
+        Stream stream,
+        CancellationToken cancellationToken = default)
     {
         string ifcString;
         using (var reader = new StreamReader(stream))
         {
-            ifcString = await reader.ReadToEndAsync();
+            ifcString = await reader.ReadToEndAsync(cancellationToken);
         }
+        cancellationToken.ThrowIfCancellationRequested();
         DatabaseIfc db = DatabaseIfc.ParseString(ifcString);
+        cancellationToken.ThrowIfCancellationRequested();
         var elements = db.Project.Extract<IfcBuiltElement>();
         Output = new DataIFC(db, elements);
         OnProcessDone();
