@@ -14,3 +14,12 @@ public enum ElementStringValueType
     Tag,
     Property
 }
+
+public enum ProcessStatus
+{
+    Waiting,
+    Processing,
+    Done,
+    Cancelled,
+    Error
+}
