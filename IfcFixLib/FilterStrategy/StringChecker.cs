@@ -50,12 +50,12 @@ public class StringChecker
 
     private bool EqualsCheck(string prop, string searchString)
     {
-        return prop == searchString;
+        return String.Equals(prop, searchString);
     }
 
     private bool ContainsCheck(string prop, string searchString)
     {
-        return prop.Contains(searchString);
+        return prop.Contains(searchString, StringComparison.InvariantCultureIgnoreCase);
     }
     private bool ContainsAnyCheck(string prop, string searchString)
     {
@@ -66,11 +66,12 @@ public class StringChecker
                 if (_containsCasheValue != searchString)
                 {
                     _containsCasheValue = searchString;
-                    _containsCashe = searchString.Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
+                    _containsCashe = searchString
+                        .Split(new char[] { ' ' }, StringSplitOptions.RemoveEmptyEntries);
                 }
             }
         }
-        return _containsCashe!.Any(word => word.Equals(prop));
+        return _containsCashe!.Any(word => prop.Contains(word, StringComparison.InvariantCultureIgnoreCase));
     }
 
     private bool CheckRegex(string prop, string searchString)
