@@ -9,6 +9,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeometryGymIFCcore", "..\Ge
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IfcFixLib", "IfcFixLib\IfcFixLib.csproj", "{FFBF3457-FF8A-458A-BA78-6350B454A3CF}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IfcFixLib.Tests", "IfcFixLib.Tests\IfcFixLib.Tests.csproj", "{C7A3344A-03EB-4331-BC45-994FBC5652FF}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,6 +29,10 @@ Global
 		{FFBF3457-FF8A-458A-BA78-6350B454A3CF}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{FFBF3457-FF8A-458A-BA78-6350B454A3CF}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{FFBF3457-FF8A-458A-BA78-6350B454A3CF}.Release|Any CPU.Build.0 = Release|Any CPU
+		{C7A3344A-03EB-4331-BC45-994FBC5652FF}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{C7A3344A-03EB-4331-BC45-994FBC5652FF}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{C7A3344A-03EB-4331-BC45-994FBC5652FF}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{C7A3344A-03EB-4331-BC45-994FBC5652FF}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
