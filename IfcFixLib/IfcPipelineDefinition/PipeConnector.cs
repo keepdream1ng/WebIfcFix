@@ -17,7 +17,6 @@ public class PipeConnector : IPipeConnector
     {
         TearDownCurrentConnetion();
         _previousPipeLink = pipeFilterToConnectTo;
-        Filter.Input = _previousPipeLink.Output;
         _previousPipeLink.ProcessDone += InitiateOwnProcess;
     }
     public void TearDownCurrentConnetion()
@@ -32,6 +31,7 @@ public class PipeConnector : IPipeConnector
     {
         try
         {
+            Filter.Input = _previousPipeLink!.Output;
             Status = ProcessStatus.Processing;
             Filter.StartProcess(ct);
         }
