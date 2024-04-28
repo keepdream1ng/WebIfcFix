@@ -20,7 +20,7 @@ public class PipeConnector : IPipeConnector
         Filter.Input = _previousPipeLink.Output;
         _previousPipeLink.ProcessDone += InitiateOwnProcess;
     }
-    private void TearDownCurrentConnetion()
+    public void TearDownCurrentConnetion()
     {
         if (_previousPipeLink is null) return;
         _previousPipeLink.ProcessDone -= InitiateOwnProcess;

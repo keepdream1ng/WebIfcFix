@@ -7,4 +7,5 @@ public interface IPipeConnector
     string StatusDescription { get; }
 
     void SetUpConnetion(IPipeOut pipeFilterToConnectTo);
+    void TearDownCurrentConnetion();
 }
