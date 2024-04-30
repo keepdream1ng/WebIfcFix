@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "WebIfcFix",
   "resources": {
-    "hash": "sha256-caeu6DDwLI2UDnxv34IRuBRXsfe0u5fr6wLh//s5Mlw=",
+    "hash": "sha256-/gtNF7rQDsuK+e1qqvPpn+rXz2gxk9pHcHrsjc31V5Q=",
     "jsModuleNative": {
       "dotnet.native.8.0.4.6vlmefabfv.js": "sha256-ju0+XWE0ihz554eKEj0HQ8Opa61xpbUIaX5/MNo8we4="
     },
@@ -48,7 +48,7 @@
       "System.Text.Encodings.Web.wasm": "sha256-r3ODjquYz1kv8rmEvFqbp3+c06aeq4b4whv1G4aX+to=",
       "System.Text.Json.wasm": "sha256-afloHyRbFvfJXuRQoF12ESLoyWUAGipfq+t1LsfjqZM=",
       "System.Text.RegularExpressions.wasm": "sha256-stDxclhSlIn03K9QkMr+8gMVLPJL679NvRYPrYAC43k=",
-      "WebIfcFix.wasm": "sha256-uN9F1hlpmO/uH7OAjOeO8l6KkzvdfmQ8s8A846whB2A="
+      "WebIfcFix.wasm": "sha256-kRibNnMugX1kGlPsnZTYZZzxV+J0uDehdcFjX6azFZU="
     }
   },
   "cacheBootResources": true,

@@ -10,7 +10,7 @@ main[b-t0m9ntieea] {
 }
 
 .sidebar[b-t0m9ntieea] {
-    background-image: linear-gradient(180deg, rgb(5, 39, 103) 0%, #3a0647 70%);
+    background-color: inherit;
 }
 
 .top-row[b-t0m9ntieea] {
@@ -83,7 +83,7 @@ main[b-t0m9ntieea] {
 
 .top-row[b-jlka3uamec] {
     height: 3.5rem;
-    background-color: rgba(0,0,0,0.4);
+    background-color: inherit;
 }
 
 .navbar-brand[b-jlka3uamec] {
