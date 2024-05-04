@@ -1,0 +1,19 @@
+﻿@page "/dragging"
+
+<h3>Dragging</h3>
+
+<TestDragableDiv/>
+
+<div
+	id="dropZone"
+	@ondragover=OnDragOver
+	@ondragover:preventDefault
+	style="height: 400px; width: 400px; background-color:dimgray;">
+    drop something here!
+</div>
+
+@code {
+	void OnDragOver(DragEventArgs e)
+	{
+	}
+}

@@ -7,9 +7,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "WebIfcFix", "WebIfcFix\WebI
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "GeometryGymIFCcore", "..\GeometryGymIFC\DLL Projects\GeometryGymIFCcore\GeometryGymIFCcore.csproj", "{360A5551-E5B0-4C9B-8871-D24CD36ECB9A}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IfcFixLib", "IfcFixLib\IfcFixLib.csproj", "{FFBF3457-FF8A-458A-BA78-6350B454A3CF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IfcFixLib", "IfcFixLib\IfcFixLib.csproj", "{FFBF3457-FF8A-458A-BA78-6350B454A3CF}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IfcFixLib.Tests", "IfcFixLib.Tests\IfcFixLib.Tests.csproj", "{C7A3344A-03EB-4331-BC45-994FBC5652FF}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "IfcFixLib.Tests", "IfcFixLib.Tests\IfcFixLib.Tests.csproj", "{C7A3344A-03EB-4331-BC45-994FBC5652FF}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

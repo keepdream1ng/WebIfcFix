@@ -1,0 +1,42 @@
+﻿<div 
+	draggable="true"
+	@ondragend="OnDragEnd"
+	@ondragstart="OnDragStart"
+	@ontouchstart="OnTouchStart"
+	@ontouchmove="OnTouchMove"
+	style="position:absolute; top: @(offsetY)px; left: @(offsetX)px; border-color: black; touch-action: none">
+	Drag me!
+</div>
+
+@code {
+	private double startX, startY, offsetX, offsetY;
+
+	private void OnDragStart(DragEventArgs args)
+	{
+		startX = args.ClientX;
+		startY = args.ClientY;
+	}
+
+	private void OnDragEnd(DragEventArgs args)
+	{
+		offsetX += args.ClientX - startX;
+		offsetY += args.ClientY - startY;
+	}
+
+	private void OnTouchStart(TouchEventArgs args)
+	{
+		var singleTouch = args.Touches[0];
+		startX = singleTouch.ClientX;
+		startY = singleTouch.ClientY;
+	}
+
+	private void OnTouchMove(TouchEventArgs args)
+	{
+		var singleTouch = args.Touches[0];
+		offsetX += singleTouch.ClientX - startX;
+		offsetY += singleTouch.ClientY - startY;
+
+		startX = singleTouch.ClientX;
+		startY = singleTouch.ClientY;
+	}
+}
