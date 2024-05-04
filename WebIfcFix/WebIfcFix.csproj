@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
+﻿<Project Sdk="Microsoft.NET.Sdk.BlazorWebAssembly">
 
   <PropertyGroup>
     <TargetFramework>net8.0</TargetFramework>
@@ -12,6 +12,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\..\GeometryGymIFC\DLL Projects\GeometryGymIFCcore\GeometryGymIFCcore.csproj" />
     <ProjectReference Include="..\IfcFixLib\IfcFixLib.csproj" />
   </ItemGroup>
 

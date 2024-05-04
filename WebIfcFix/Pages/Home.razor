@@ -28,17 +28,6 @@
     <button class="btn btn-primary" type="submit">Submit</button>
 </EditForm>
 
-<script type="text/javascript">
-	function saveAsFile(filename, bytesBase64) {
-		var link = document.createElement('a');
-		link.download = filename;
-		link.href = "data:application/octet-stream;base64," + bytesBase64;
-		document.body.appendChild(link);
-		link.click();
-		document.body.removeChild(link);
-	}
-</script>
-
 @code {
     private WebAssemblyFile IfcFile { get; set; } = new();
     private long maxFileSize = 5120000000;
