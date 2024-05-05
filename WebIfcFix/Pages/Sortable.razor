@@ -1,0 +1,45 @@
+﻿@page "/sortable"
+@using System.Linq
+@using BlazorSortableList
+
+<h3>Sortable list tryout</h3>
+
+<SortableList Id="sortable" Items="items" OnUpdate="@SortList" Context="item">
+	<SortableItemTemplate>
+		<div class="has-border has-background-white has-cursor-pointer">
+			<p class="alert alert-info">@item.Name</p>
+		</div>
+	</SortableItemTemplate>
+</SortableList>
+
+@code {
+	public List<Item> items = Enumerable.Range(1, 10)
+		.Select(x => new Item() {Id = x, Name = $"Item {x}"})
+		.ToList();
+
+	public class Item
+	{
+		public int Id { get; set; }
+		public string Name { get; set; }
+	}
+
+	private void SortList((int oldIndex, int newIndex) indices)
+	{
+		var (oldIndex, newIndex) = indices;
+
+		var items = this.items;
+		var itemToMove = items[oldIndex];
+		items.RemoveAt(oldIndex);
+
+		if (newIndex < items.Count)
+		{
+			items.Insert(newIndex, itemToMove);
+		}
+		else
+		{
+			items.Add(itemToMove);
+		}
+
+		StateHasChanged();
+	}
+}
