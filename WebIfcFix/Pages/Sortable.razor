@@ -31,19 +31,28 @@
 		await base.OnInitializedAsync();
 
 		Items1 = Enumerable.Range(1, 10)
-			.Select(x => new Item() { Id = x, Name = $"Filter {x}" })
+			.Select(x => new Item(x))
 			.ToList();
 		Items2 = Enumerable.Range(1, 10)
-			.Select(x => new Item() { Id = x, Name = $"Component {x}" })
+			.Select(x => new ItemPrototype(x))
 			.ToList();
 	}
 
 	public List<Item> Items1 { get; set; }
-	public List<Item> Items2 { get; set; }
-	public class Item
+	public List<ItemPrototype> Items2 { get; set; }
+	public class Item(int id)
 	{
-		public int Id { get; set; }
-		public string Name { get; set; }
+		public int Id { get; set; } = id;
+		public string Name => $"Filter {Id}";
+	}
+	public class ItemPrototype(int id)
+	{
+		public int Id { get; set; } = id;
+		public string Name => $"Component {Id}";
+		public Item GetClone()
+		{
+			return new Item(Id);
+		}
 	}
 	private void ListOneRemove((int oldIndex, int newIndex) indices)
 	{
@@ -53,8 +62,8 @@
 
 	private void ListTwoClone((int oldIndex, int newIndex) indices)
 	{
-		var clone = Items2[indices.oldIndex];
-		Items1.Insert(indices.newIndex, clone);
+		var prototype = Items2[indices.oldIndex];
+		Items1.Insert(indices.newIndex, prototype.GetClone());
 	}
 
 	private void SortListOne((int oldIndex, int newIndex) indices)
