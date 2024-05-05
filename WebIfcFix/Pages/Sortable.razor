@@ -8,7 +8,7 @@
 
 		<div class="col-6">
 			<p class="alert alert-info">Items1 start</p>
-			<SortableList Items="Items1" Group="g1" OnUpdate="@SortList1" OnRemove="@ListOneRemove" Context="item">
+			<SortableList Items="Items1" Group="g1" OnUpdate="@SortListOne" OnRemove="@ListOneRemove" Context="item">
 				<SortableItemTemplate>
 					<p class="alert alert-info">@item.Name</p>
 				</SortableItemTemplate>
@@ -16,7 +16,7 @@
 			<p class="alert alert-info">Items1 end</p>
 		</div>
 		<div class="col-6">
-			<SortableList Items="Items2" Group="g1" OnUpdate="@SortList2" OnRemove="@ListTwoRemove" Context="item">
+			<SortableList Items="Items2" Group="g1" Pull="clone" Sort="false" OnRemove="@ListTwoClone" Context="item">
 				<SortableItemTemplate>
 					<p class="alert alert-info">@item.Name</p>
 				</SortableItemTemplate>
@@ -31,10 +31,10 @@
 		await base.OnInitializedAsync();
 
 		Items1 = Enumerable.Range(1, 10)
-			.Select(x => new Item() { Id = x, Name = $"Item 1-{x}" })
+			.Select(x => new Item() { Id = x, Name = $"Filter {x}" })
 			.ToList();
 		Items2 = Enumerable.Range(1, 10)
-			.Select(x => new Item() { Id = x, Name = $"Item 2-{x}" })
+			.Select(x => new Item() { Id = x, Name = $"Component {x}" })
 			.ToList();
 	}
 
@@ -48,25 +48,18 @@
 	private void ListOneRemove((int oldIndex, int newIndex) indices)
 	{
 		var item = Items1[indices.oldIndex];
-		Items2.Insert(indices.newIndex, item);
 		Items1.Remove(item);
 	}
 
-	private void ListTwoRemove((int oldIndex, int newIndex) indices)
+	private void ListTwoClone((int oldIndex, int newIndex) indices)
 	{
-		var item = Items2[indices.oldIndex];
-		Items1.Insert(indices.newIndex, item);
-		Items2.Remove(item);
+		var clone = Items2[indices.oldIndex];
+		Items1.Insert(indices.newIndex, clone);
 	}
 
-	private void SortList1((int oldIndex, int newIndex) indices)
+	private void SortListOne((int oldIndex, int newIndex) indices)
 	{
 		SortList(indices, Items1);
-	}
-
-	private void SortList2((int oldIndex, int newIndex) indices)
-	{
-		SortList(indices, Items2);
 	}
 
 	private void SortList((int oldIndex, int newIndex) indices, List<Item> items)
