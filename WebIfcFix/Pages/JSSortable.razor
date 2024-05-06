@@ -34,10 +34,11 @@
 </ul>
 
 <script>
+	var useOnMove = confirm('Do you want to enable the onMove functionality for SortableJS?');
 	// Initialize SortableJS for both lists
 	var sortable1 = new Sortable(document.getElementById('sortable1'), {
 		group: 'shared', // Add the same group name for both lists
-		onMove: function (evt) {
+		onMove: !useOnMove? null : function (evt) {
 			var fromList = evt.from;
 			var toList = evt.to;
 
