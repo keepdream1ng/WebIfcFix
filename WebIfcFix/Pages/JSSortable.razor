@@ -1,0 +1,63 @@
+﻿@page "/sortableJS"
+
+<h3>JS_Sortable</h3>
+<style>
+	.sortable {
+		list-style-type: none;
+		margin: 0;
+		padding: 0;
+	}
+
+		.sortable li {
+			background-color: dimgrey;
+			margin: 0 0 5px;
+			padding: 10px;
+		}
+
+	.sortable2.drag-over {
+		background-color: rebeccapurple;
+	}
+</style>
+
+<h2>First List</h2>
+<ul id="sortable1" class="sortable">
+	<li>Item 1</li>
+	<li>Item 2</li>
+	<li>Item 3</li>
+</ul>
+
+<h2>Second List</h2>
+<ul id="sortable2" class="sortable sortable2">
+	<li>Item A</li>
+	<li>Item B</li>
+	<li>Item C</li>
+</ul>
+
+<script>
+	// Initialize SortableJS for both lists
+	var sortable1 = new Sortable(document.getElementById('sortable1'), {
+		group: 'shared', // Add the same group name for both lists
+		onMove: function (evt) {
+			var fromList = evt.from;
+			var toList = evt.to;
+
+			// Check if the item is being dragged over the second list
+			if (toList.id === 'sortable2') {
+				// Add a class to the second list when an item is dragged over it
+				toList.classList.add('drag-over');
+			}
+			else {
+				binList = document.getElementById('sortable2')
+				binList.classList.remove('drag-over');
+			}
+		},
+	});
+
+	var sortable2 = new Sortable(document.getElementById('sortable2'), {
+		group: 'shared' // Add the same group name for both lists
+	});
+</script>
+
+@code {
+
+}
