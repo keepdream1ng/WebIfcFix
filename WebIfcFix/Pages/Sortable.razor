@@ -2,12 +2,21 @@
 @using System.Linq
 
 <h3 class="text-center">Sortable list tryout</h3>
+<h5 class="text-center">Target id: @targetId</h5>
 <div class="container">
 	<div class="row">
 
 		<div class="col-6">
 			<p class="alert alert-info">Items1 start</p>
-			<SortableList Items="Items1" Group="g1" OnUpdate="@SortListOne" OnRemove="@ListOneRemove" Context="item">
+			<SortableList
+				Id="pipeline"
+				Items="Items1"
+				Group="g1"
+				OnUpdate=SortListOne
+				OnRemove=ListOneRemove
+				DoCallbackOnMoveToId="true"
+				OnMoveToId=OnMoveToId
+				Context="item">
 				<SortableItemTemplate>
 					<p class="alert alert-info">@item.Name</p>
 				</SortableItemTemplate>
@@ -15,14 +24,16 @@
 			<p class="alert alert-info">Items1 end</p>
 		</div>
 		<div
-			style="height: 50vh; overflow-y: auto; background-color: @componentsBG"
+			style="height: 50vh; overflow-y: auto"
 			class="col-6">
 			<SortableList
+				Id="@componentsId"
+				Class="@componentClass"
 				Items="Items2"
 				Group="g1"
 				Pull="clone"
 				Sort="false"
-				OnRemove="@ListTwoClone"
+				OnRemove=ListTwoClone
 				Context="item">
 				<SortableItemTemplate>
 					<p class="alert alert-info">@item.Name</p>
@@ -32,6 +43,7 @@
 
 	</div>
 </div>
+
 @code {
 	protected override async Task OnInitializedAsync()
 	{
@@ -47,8 +59,11 @@
 
 	public List<Item> Items1 { get; set; }
 	public List<ItemPrototype> Items2 { get; set; }
-	private string componentsBG => componentsHover ? "red" : "inherit";
+	private string componentClass => componentsHover ? "bg-success" : ".bg-transparent";
 	private bool componentsHover { get; set; }
+	private string componentsId { get; } = "componentsCollection";
+	private string targetId { get; set; } = string.Empty;
+
 	public class Item(int id)
 	{
 		public int Id { get; set; } = id;
@@ -64,10 +79,29 @@
 		}
 	}
 
+	private void OnMoveToId(string id)
+	{
+		targetId = id;
+		if (!componentsHover)
+		{
+			componentsHover = id == componentsId;
+			StateHasChanged();
+		}
+		else
+		{
+			if (id != componentsId)
+			{
+				componentsHover = false;
+				StateHasChanged();
+			}
+		}
+	}
+
 	private void ListOneRemove((int oldIndex, int newIndex) indices)
 	{
 		var item = Items1[indices.oldIndex];
 		Items1.Remove(item);
+		componentsHover = false;
 	}
 
 	private void ListTwoClone((int oldIndex, int newIndex) indices)

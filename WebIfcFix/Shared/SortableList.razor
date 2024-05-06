@@ -5,7 +5,7 @@
 
 @typeparam T
 
-<div id="@Id">
+<div id="@Id" class="@Class">
     @foreach (var item in Items)
     {
         @if (SortableItemTemplate is not null)
@@ -34,6 +34,9 @@
 
     [Parameter]
     public string Id { get; set; } = Guid.NewGuid().ToString();
+
+    [Parameter]
+    public string Class { get; set; } = string.Empty;
 
     [Parameter]
     public string Group { get; set; } = Guid.NewGuid().ToString();
