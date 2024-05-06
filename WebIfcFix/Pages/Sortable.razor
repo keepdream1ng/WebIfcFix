@@ -8,15 +8,29 @@
 
 		<div class="col-6">
 			<p class="alert alert-info">Items1 start</p>
-			<SortableList Items="Items1" Group="g1" OnUpdate="@SortListOne" OnRemove="@ListOneRemove" Context="item">
+			<SortableList Items="Items1" Group="g1" OnUpdate="@SortListOne" OnRemove="@ListOneRemove" Context="item" ForceFallback="false">
 				<SortableItemTemplate>
 					<p class="alert alert-info">@item.Name</p>
 				</SortableItemTemplate>
 			</SortableList>
 			<p class="alert alert-info">Items1 end</p>
 		</div>
-		<div class="col-6">
-			<SortableList Items="Items2" Group="g1" Pull="clone" Sort="false" OnRemove="@ListTwoClone" Context="item">
+		<div
+			style="height: 50vh; overflow-y: auto; background-color: @componentsBG"
+			@ondragover=OnDragOver
+			@ondragenter=OnDragOver
+			@ondragleave=OnDragLeave
+			@ondrop=OnDragLeave
+			@ondragover:preventDefault
+			class="col-6">
+			<SortableList
+				Items="Items2"
+				Group="g1"
+				Pull="clone"
+				Sort="false"
+				OnRemove="@ListTwoClone"
+				ForceFallback="false"
+				Context="item">
 				<SortableItemTemplate>
 					<p class="alert alert-info">@item.Name</p>
 				</SortableItemTemplate>
@@ -40,6 +54,8 @@
 
 	public List<Item> Items1 { get; set; }
 	public List<ItemPrototype> Items2 { get; set; }
+	private string componentsBG => componentsHover ? "red" : "inherit";
+	private bool componentsHover { get; set; }
 	public class Item(int id)
 	{
 		public int Id { get; set; } = id;
@@ -54,6 +70,20 @@
 			return new Item(Id);
 		}
 	}
+
+	void OnDragOver(DragEventArgs e)
+	{
+		if (!componentsHover)
+		{
+			componentsHover = true;
+		}
+	}
+
+	void OnDragLeave(DragEventArgs e)
+	{
+		componentsHover = false;
+	}
+
 	private void ListOneRemove((int oldIndex, int newIndex) indices)
 	{
 		var item = Items1[indices.oldIndex];

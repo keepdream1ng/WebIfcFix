@@ -7,13 +7,25 @@
 <div
 	id="dropZone"
 	@ondragover=OnDragOver
+	@ondragleave=OnDragLeave
 	@ondragover:preventDefault
-	style="height: 400px; width: 400px; background-color:dimgray;">
+	style="height: 400px; width: 400px; background-color: @componentsBG;">
     drop something here!
 </div>
 
 @code {
+	private string componentsBG => componentsHover ? "red" : "dimgray";
+	private bool componentsHover { get; set; }
 	void OnDragOver(DragEventArgs e)
 	{
+		if (!componentsHover)
+		{
+			componentsHover = true;
+		}
+	}
+
+	void OnDragLeave(DragEventArgs e)
+	{
+		componentsHover = false;
 	}
 }
