@@ -25,7 +25,8 @@
 		</div>
 		<div
 			style="height: 50vh; overflow-y: auto"
-			class="col-6">
+			class="col-6 position-relative">
+			<GarbageBinSVG Fill="white" Class="@svgClass"/>
 			<SortableList
 				Id="@componentsId"
 				Class="@componentClass"
@@ -36,13 +37,26 @@
 				OnRemove=ListTwoClone
 				Context="item">
 				<SortableItemTemplate>
-					<p class="alert alert-info">@item.Name</p>
+					<p class="alert alert-info @opacity">@item.Name</p>
 				</SortableItemTemplate>
 			</SortableList>
 		</div>
 
 	</div>
 </div>
+
+<style>
+.background-svg {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+}
+</style>
 
 @code {
 	protected override async Task OnInitializedAsync()
@@ -60,6 +74,9 @@
 	public List<Item> Items1 { get; set; }
 	public List<ItemPrototype> Items2 { get; set; }
 	private string componentClass => componentsHover ? "bg-success" : ".bg-transparent";
+	private string opacity => componentsHover ? "opacity-0" : "opacity-100";
+	private string opacityIcon => componentsHover ? "opacity-100" : "opacity-0";
+	private string svgClass => $"background-svg {opacityIcon}";
 	private bool componentsHover { get; set; }
 	private string componentsId { get; } = "componentsCollection";
 	private string targetId { get; set; } = string.Empty;
