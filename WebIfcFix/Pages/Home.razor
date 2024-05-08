@@ -7,11 +7,11 @@
 
 @inject IJSRuntime JS;
 
-<PageTitle>Home</PageTitle>
+<PageTitle>Blazor WASM IFC processing</PageTitle>
 
 <div>
-    <h2 class="display-4">WebAssembly Upload</h2>
-    <p>Read a file using Blazor WebAssembly.</p>
+    <h2 class="display-4">Blazor WASM IFC processing</h2>
+    <p>Read and filter IFC file using Blazor WebAssembly, after submit edited IFC should be downloading.</p>
 </div>
 
 @if(Message.Length > 0)
@@ -22,8 +22,7 @@
 <EditForm Model="@IfcFile" method="post" OnValidSubmit="@OnSubmit" enctype="multipart/form-data">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <InputText class="form-control mb-4" placeholder="Search string" @bind-Value="@IfcFile.CheckString" />
-    <InputText class="form-control mb-4" placeholder="Check type" @bind-Value="@IfcFile.CheckType" />
+    <InputText class="form-control mb-4" placeholder="Exact name of the element to filter" @bind-Value="@IfcFile.CheckString" />
     <InputFile class="form-control mb-4" OnChange="SetFile" accept=".ifc" />
     <button class="btn btn-primary" type="submit">Submit</button>
 </EditForm>
@@ -92,8 +91,6 @@
     {
         [Required]
         public string CheckString { get; set; } = String.Empty;
-        [Required]
-        public string CheckType { get; set; } = String.Empty;
         
         public IBrowserFile FileInput { get; set; }
     }
