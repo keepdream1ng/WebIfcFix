@@ -1,0 +1,17 @@
+﻿@page "/components"
+
+<h3>ComponentsList</h3>
+
+@foreach (var component in Components)
+{
+	<DynamicComponent Type=@component/>
+}
+
+@code {
+	public List<Type> Components { get; set; } =
+		[
+			typeof(ChildComponent1),
+			typeof(ChildComponent2),
+			typeof(ChildComponent1)
+		];
+}
