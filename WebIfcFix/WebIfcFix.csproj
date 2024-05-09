@@ -9,10 +9,10 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly" Version="8.0.2" />
     <PackageReference Include="Microsoft.AspNetCore.Components.WebAssembly.DevServer" Version="8.0.2" PrivateAssets="all" />
+    <PackageReference Include="GeometryGymIFC_Core" Version="24.5.8" />
   </ItemGroup>
 
   <ItemGroup>
-    <ProjectReference Include="..\..\GeometryGymIFC\DLL Projects\GeometryGymIFCcore\GeometryGymIFCcore.csproj" />
     <ProjectReference Include="..\IfcFixLib\IfcFixLib.csproj" />
   </ItemGroup>
 
