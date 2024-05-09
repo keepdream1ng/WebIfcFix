@@ -1,8 +1,8 @@
 ﻿@page "/"
 @using System.ComponentModel.DataAnnotations
 @using System.Text
-@using GeometryGym.Ifc
 @using IfcFixLib.FilterStrategy
+@using IfcFixLib.IfcPipelineDefinition
 @using IfcFixLib
 
 @inject IJSRuntime JS;
@@ -49,20 +49,29 @@
             strategy.StringChecker = checker;
             strategy.FilteredString = IfcFile.CheckString;
             strategy.StringValueGetter = valueGetter;
-            ElementsFilter Filter = new ElementsFilter(strategy);
+            ElementsFilter filter = new ElementsFilter(strategy);
+            var parser = new DbParser();
+            var pipelineManager = new PipelineManager(parser);
+            pipelineManager.AddToPipeline(filter);
 
             System.IO.Stream fileStream = IfcFile.FileInput.OpenReadStream(maxFileSize);
-            var parser = new DbParser();
             var database = await parser.ParseFromStreamAsync(fileStream);
-            var filteredElements = await Filter.ProcessAsync(database.Project.Extract<IfcBuiltElement>());
-            int numberObjectsFiltered = filteredElements.Count;
+
+            await pipelineManager.PipeEnd.GetCompletionTask();
+            int numberObjectsFiltered = filter.Output!.Elements.Count;
 
             string filtered = String.Empty;
 
             if (numberObjectsFiltered > 0)
             {
-                var newDb = await DbDuplicator.DuplicateDbWithElementsAsync(database, filteredElements);
-                filtered = newDb.ToString(FormatIfcSerialization.STEP);
+                var dublicator = new DbDuplicator();
+                var dbSerializer = new DbSerializer();
+                pipelineManager.AddToPipeline(dublicator);
+                pipelineManager.PipeEnd.PipeInto(dbSerializer);
+                pipelineManager.ContinueProcessing();
+                await dbSerializer.GetCompletionTask();
+
+                filtered = dbSerializer.Output!;
                 Message = $"{IfcFile.FileInput.Name} read successful, elements filtered: {numberObjectsFiltered}";
 
                 string newFileName = $"{IfcFile.FileInput.Name.Replace(".ifc", "")}_updated.ifc";
@@ -78,7 +87,7 @@
             }
             else
             {
-                Message = $"{IfcFile.FileInput.Name} read successful, but zero elements were filtered successfully";
+                Message = $"{IfcFile.FileInput.Name} read successful, but zero elements were filtered out";
             }
         } 
         catch(Exception e)
@@ -92,6 +101,7 @@
         [Required]
         public string CheckString { get; set; } = String.Empty;
         
+        [Required]
         public IBrowserFile FileInput { get; set; }
     }
 }

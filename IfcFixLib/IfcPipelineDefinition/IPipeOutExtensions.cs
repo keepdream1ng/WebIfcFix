@@ -9,8 +9,26 @@ public static class IPipeOutExtensions
     }
     public static IPipeFilterIn PipeInto(this IPipeOut prevFilter, IPipeFilterIn nextFilter)
     {
-        nextFilter.Input = prevFilter.Output;
-        prevFilter.ProcessDone += (sender, ct) =>  nextFilter.StartProcess(ct);
+        prevFilter.ProcessDone += (sender, ct) =>
+        {
+            nextFilter.Input = prevFilter.Output;
+            nextFilter.StartProcess(ct);
+        };
         return nextFilter;
+    }
+
+    public static Task GetCompletionTask(this IPipeCompletionHandler filter)
+    {
+        var tcs = new TaskCompletionSource<bool>();
+
+        EventHandler<CancellationToken>? handler = null;
+        handler = (sender, ct) =>
+        {
+            filter.ProcessDone -= handler;
+            tcs.TrySetResult(true);
+        };
+
+        filter.ProcessDone += handler;
+        return tcs.Task;
     }
 }

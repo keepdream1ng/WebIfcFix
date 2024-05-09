@@ -23,23 +23,18 @@ public class PipelineIntegrationTests
         strategy.StringValueGetter = valueGetter;
         var filter = new ElementsFilter(strategy);
         var dublicator = new DbDuplicator();
-        bool processDone = false;
-        int attemptsCount = 100;
+        var dbSerializer = new DbSerializer();
 
         var pipelineManager = new PipelineManager(parser);
         pipelineManager.AddToPipeline(filter);
         pipelineManager.AddToPipeline(dublicator);
-        pipelineManager.PipeEnd.ProcessDone += (obj, ct) => processDone = true;
+        pipelineManager.PipeEnd.PipeInto(dbSerializer);
 
         // Act
         var token = pipelineManager.GetNewCancelToken();
-        await parser.ParseFromStreamAsync(stream);
-        while (!processDone)
-        {
-            await Task.Delay(100);
-            if (--attemptsCount == 0) break;
-        }
-        string actual = pipelineManager.PipeEnd.Output!.DatabaseIfc.ToString(GeometryGym.Ifc.FormatIfcSerialization.STEP);
+        await parser.ParseFromStreamAsync(stream, token);
+        await dbSerializer.GetCompletionTask();
+        string actual = dbSerializer.Output!;
 
         // Assert
         Assert.True(actual.Length > 0);
@@ -78,7 +73,7 @@ public class PipelineIntegrationTests
         // Act 1
         var token = pipelineManager.GetNewCancelToken();
         var data = await parser.ParseFromStreamAsync(stream);
-        await Task.Delay(1);
+        await Task.Delay(10);
         pipelineManager.StopProcessing();
 
         // Assert 1
@@ -87,13 +82,15 @@ public class PipelineIntegrationTests
         Assert.Null(pipelineManager.PipeEnd.Output);
 
         // Act 2.
+        var dbSerializer = new DbSerializer();
+        pipelineManager.PipeEnd.PipeInto(dbSerializer);
         pipelineManager.ContinueProcessing();
-        while (!processDone)
+        while (!processDone && String.IsNullOrEmpty(dbSerializer.Output))
         {
             await Task.Delay(100);
             if (--attemptsCount == 0) break;
         }
-        string actual = pipelineManager.PipeEnd.Output!.DatabaseIfc.ToString(GeometryGym.Ifc.FormatIfcSerialization.STEP);
+        string actual = dbSerializer.Output!;
 
         // Assert 2.
         Assert.True(actual.Length > 0);

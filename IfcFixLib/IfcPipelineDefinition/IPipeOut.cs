@@ -1,6 +1,5 @@
 ﻿namespace IfcFixLib.IfcPipelineDefinition;
-public interface IPipeOut
+public interface IPipeOut : IPipeCompletionHandler
 {
-    event EventHandler<CancellationToken>? ProcessDone;
     DataIFC? Output { get; }
 }

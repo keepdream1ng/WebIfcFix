@@ -27,7 +27,7 @@ public class PipeConnector : IPipeConnector
         Filter.Input = null;
         _previousPipeLink = null;
     }
-    private void InitiateOwnProcess(object? sender, CancellationToken ct)
+    public void InitiateOwnProcess(object? sender, CancellationToken ct)
     {
         try
         {

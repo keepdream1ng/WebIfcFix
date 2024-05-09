@@ -51,7 +51,7 @@ public class PipelineManager(IPipeOut pipeStart)
     {
         IPipeConnector? stoppedConnector = _pipelineElements
             .FirstOrDefault(c => c.Status != ProcessStatus.Done);
-        stoppedConnector?.Filter.StartProcess(GetNewCancelToken());
+        stoppedConnector?.InitiateOwnProcess(null, GetNewCancelToken());
     }
 
     public void StopProcessing()
