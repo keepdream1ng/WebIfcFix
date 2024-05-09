@@ -20,7 +20,7 @@ public class StringChecker
                 case StringFilterType.Contains_Any:
                     CheckDelegate = ContainsAnyCheck;
                     break;
-                case StringFilterType.Regex_expression:
+                case StringFilterType.Regex_Expression:
                     CheckDelegate = CheckRegex;
                     break;
                 default:

@@ -4,7 +4,7 @@ public enum StringFilterType
     Equals,
     Contains,
     Contains_Any,
-    Regex_expression
+    Regex_Expression
 }
 
 public enum ElementStringValueType
@@ -22,4 +22,10 @@ public enum ProcessStatus
     Done,
     Cancelled,
     Error
+}
+public enum IfcFormatOutput
+{
+	STEP,
+	XML,
+	JSON
 }
