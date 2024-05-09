@@ -160,3 +160,17 @@ main[b-t0m9ntieea] {
         overflow-y: auto;
     }
 }
+/* /Shared/SortableList.razor.rz.scp.css */
+/* 
+  you need the ::deep identifier if you are using scoped styles like this
+  because scoped styles are only applied to markup in the component, not
+  to the markup inside the render fragment.
+*/
+
+[b-3r9pwfstcj] .sortable-ghost {
+  visibility: hidden;
+}
+
+[b-3r9pwfstcj] .sortable-fallback {
+  opacity: 1 !important
+}
