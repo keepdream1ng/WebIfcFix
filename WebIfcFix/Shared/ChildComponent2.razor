@@ -1,5 +1,15 @@
-﻿<p>ChildComponent2</p>
+﻿<div class="card m-1">
+	<p>ChildComponent2</p>
+	<InputSelect class="form-select" @bind-Value="Model.StringValueType">
+		@foreach (ElementStringValueType val in Enum.GetValues(typeof(ElementStringValueType)))
+		{
+			<option value="@val">@val</option>
+		}
+	</InputSelect>
+</div>
 
 @code {
-
+	[Parameter]
+	[EditorRequired]
+	public ChildComponent2Model Model { get; set; }
 }

@@ -1,5 +1,10 @@
-﻿<p>ChildComponent1</p>
+﻿<div class="card m-1">
+	<p>ChildComponent1</p>
+	<InputText class="form-control" @bind-Value=Model.Input/>
+</div>
 
 @code {
-
+	[Parameter]
+	[EditorRequired]
+	public ChildComponent1Model Model { get; set; }
 }
