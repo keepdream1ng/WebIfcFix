@@ -2,18 +2,25 @@
 
 namespace WebIfcFix.Shared;
 
-public interface IChildComponentModel
+public interface IChildComponentModelBase
 {
-    Type ComponentType { get;} 
+    string? ComponentTypeNane { get;}
     Dictionary<string, object> Params => new() { ["Model"] = this };
 }
-public class ChildComponent1Model : IChildComponentModel
+public abstract class ChildComponentModelBase
+{
+    public virtual string? ComponentTypeNane { get;}
+    public virtual Dictionary<string, object> Params { get; private set; } 
+}
+public class ChildComponent1Model : ChildComponentModelBase, IChildComponentModelBase
 {
     public string Input { get; set; } = String.Empty;
-    public Type ComponentType { get; private set; } = typeof(ChildComponent1);
+    public override string? ComponentTypeNane => typeof(ChildComponent1).FullName;
+    public override Dictionary<string, object> Params => new() { ["Model"] = this };
 }
-public class ChildComponent2Model : IChildComponentModel
+public class ChildComponent2Model : ChildComponentModelBase, IChildComponentModelBase
 {
     public ElementStringValueType StringValueType { get; set; } = ElementStringValueType.Name;
-    public Type ComponentType { get; private set; } = typeof(ChildComponent2);
+    public override string? ComponentTypeNane => typeof(ChildComponent2).FullName;
+    public override Dictionary<string, object> Params => new() { ["Model"] = this };
 }

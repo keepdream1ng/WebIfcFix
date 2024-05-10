@@ -1,18 +1,70 @@
 ﻿@page "/components"
+@inject NavigationManager NavManager
+@using System.Text.Json;
+@using System.Net;
+@using System.Text.Json.Serialization
 
 <h3>ComponentsList</h3>
 
 @foreach (var model in Components)
 {
-	<DynamicComponent Type=@model.ComponentType Parameters="@model.Params"/>
+	<DynamicComponent Type=@Type.GetType(model.ComponentTypeNane!) Parameters="@model.Params"/>
 }
 
+<button
+	class="btn btn-primary"
+	onclick="@SerializeList"
+	type="button">
+	Serialize current components list;
+</button>
+
+<pre>
+	<code>
+		@ListSerialized
+	</code>
+</pre>
+
+<p>
+	Encoded length: @if (!string.IsNullOrEmpty(ListEncoded)) @ListEncoded.Length;
+</p>
+
 @code {
-	public List<IChildComponentModel> Components { get; set; } =
+	public List<ChildComponentModelBase>? Components { get; set; } =
 		[
 			new ChildComponent1Model(),
 			new ChildComponent2Model(),
 			new ChildComponent1Model(),
 			new ChildComponent2Model()
 		];
+	public string ListSerialized { get; set; } = String.Empty;
+
+	[SupplyParameterFromQuery(Name = "list")]
+	public string ListEncoded { get; set; } = String.Empty;
+	private JsonSerializerOptions options = new()
+		{
+			ReferenceHandler = ReferenceHandler.Preserve,
+			WriteIndented = true
+		};
+
+	public void SerializeList()
+	{
+		ListSerialized = JsonSerializer.Serialize(Components.Cast<IChildComponentModelBase>().ToList(), options);
+		ListEncoded = WebUtility.UrlEncode(ListSerialized);
+		StateHasChanged();
+		NavManager.NavigateTo(NavManager.GetUriWithQueryParameter("list", ListEncoded));
+	}
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		base.OnAfterRender(firstRender);
+		if (firstRender && !String.IsNullOrEmpty(ListEncoded))
+		{
+			var decodedList = WebUtility.UrlDecode(ListEncoded);
+			var list = JsonSerializer.Deserialize<List<ChildComponentModelBase>>(decodedList, options);
+			if (list is not null)
+			{
+				Components = list;
+			}
+		}
+	}
 }
