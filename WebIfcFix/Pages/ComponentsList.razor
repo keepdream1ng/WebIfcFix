@@ -4,11 +4,22 @@
 @using Newtonsoft.Json;
 
 <h3>ComponentsList</h3>
-
-@foreach (var model in Components)
-{
-	<DynamicComponent Type=@Type.GetType(model.ComponentTypeNane!) Parameters="@model.Params()"/>
-}
+<div class="container">
+	<SortableList
+		Items="Components"
+		Handle=".handle"
+		OnUpdate=SortList
+		Context="model">
+		<SortableItemTemplate>
+			<div class="row">
+				<div class="col-1 handle text-center fs-1" style="cursor: move">&#9776;</div>
+				<div class="col">
+					<DynamicComponent Type=@Type.GetType(model.ComponentTypeNane!) Parameters="@model.Params()"/>
+				</div>
+			</div>
+		</SortableItemTemplate>
+	</SortableList>
+</div>
 
 <button
 	class="btn btn-primary"
@@ -19,12 +30,12 @@
 
 <pre>
 	<code>
-		@if (!string.IsNullOrEmpty(ListSerialized)) @ListSerialized;
+		@if (!string.IsNullOrEmpty(ListSerialized)) @ListSerialized
 	</code>
 </pre>
 
 <p>
-	Encoded length: @if (!string.IsNullOrEmpty(ListEncoded)) @ListEncoded.Length;
+	Encoded length: @if (!string.IsNullOrEmpty(ListEncoded)) @ListEncoded.Length
 </p>
 
 @code {
@@ -46,6 +57,25 @@
 		ListEncoded = WebUtility.UrlEncode(ListSerialized);
 		StateHasChanged();
 		NavManager.NavigateTo(NavManager.GetUriWithQueryParameter("list", ListEncoded));
+	}
+
+	private void SortList((int oldIndex, int newIndex) indices)
+	{
+		var (oldIndex, newIndex) = indices;
+
+		var itemToMove = Components![oldIndex];
+		Components.RemoveAt(oldIndex);
+
+		if (newIndex < Components.Count)
+		{
+			Components.Insert(newIndex, itemToMove);
+		}
+		else
+		{
+			Components.Add(itemToMove);
+		}
+
+		StateHasChanged();
 	}
 
 	protected override void OnInitialized()
