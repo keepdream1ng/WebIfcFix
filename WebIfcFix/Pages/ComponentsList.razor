@@ -1,14 +1,13 @@
 ﻿@page "/components"
 @inject NavigationManager NavManager
-@using System.Text.Json;
 @using System.Net;
-@using System.Text.Json.Serialization
+@using Newtonsoft.Json;
 
 <h3>ComponentsList</h3>
 
 @foreach (var model in Components)
 {
-	<DynamicComponent Type=@Type.GetType(model.ComponentTypeNane!) Parameters="@model.Params"/>
+	<DynamicComponent Type=@Type.GetType(model.ComponentTypeNane!) Parameters="@model.Params()"/>
 }
 
 <button
@@ -20,7 +19,7 @@
 
 <pre>
 	<code>
-		@ListSerialized
+		@if (!string.IsNullOrEmpty(ListSerialized)) @ListSerialized;
 	</code>
 </pre>
 
@@ -40,31 +39,31 @@
 
 	[SupplyParameterFromQuery(Name = "list")]
 	public string ListEncoded { get; set; } = String.Empty;
-	private JsonSerializerOptions options = new()
-		{
-			ReferenceHandler = ReferenceHandler.Preserve,
-			WriteIndented = true
-		};
 
 	public void SerializeList()
 	{
-		ListSerialized = JsonSerializer.Serialize(Components.Cast<IChildComponentModelBase>().ToList(), options);
+		ListSerialized = JsonConvert.SerializeObject(Components, Formatting.Indented);
 		ListEncoded = WebUtility.UrlEncode(ListSerialized);
 		StateHasChanged();
 		NavManager.NavigateTo(NavManager.GetUriWithQueryParameter("list", ListEncoded));
 	}
 
-	protected override void OnAfterRender(bool firstRender)
+	protected override void OnInitialized()
 	{
-		base.OnAfterRender(firstRender);
-		if (firstRender && !String.IsNullOrEmpty(ListEncoded))
+		base.OnInitialized();
+		if (!String.IsNullOrEmpty(ListEncoded))
 		{
-			var decodedList = WebUtility.UrlDecode(ListEncoded);
-			var list = JsonSerializer.Deserialize<List<ChildComponentModelBase>>(decodedList, options);
+			ListSerialized = WebUtility.UrlDecode(ListEncoded);
+			var settings = new JsonSerializerSettings
+			{
+				Converters = { new ChildComponentModelConverter() }
+			};
+			var list = JsonConvert.DeserializeObject<List<ChildComponentModelBase>>(ListSerialized, settings);
 			if (list is not null)
 			{
 				Components = list;
 			}
+			StateHasChanged();
 		}
 	}
 }
