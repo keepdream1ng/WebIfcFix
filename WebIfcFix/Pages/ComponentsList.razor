@@ -1,5 +1,6 @@
 ﻿@page "/components"
 @inject NavigationManager NavManager
+@inject IJsonConvertService Json
 @using System.Net;
 @using Newtonsoft.Json;
 
@@ -53,7 +54,7 @@
 
 	public void SerializeList()
 	{
-		ListSerialized = JsonConvert.SerializeObject(Components, Formatting.Indented);
+		ListSerialized = Json.SerializeObject(Components);
 		ListEncoded = WebUtility.UrlEncode(ListSerialized);
 		StateHasChanged();
 		NavManager.NavigateTo(NavManager.GetUriWithQueryParameter("list", ListEncoded));
@@ -84,11 +85,7 @@
 		if (!String.IsNullOrEmpty(ListEncoded))
 		{
 			ListSerialized = WebUtility.UrlDecode(ListEncoded);
-			var settings = new JsonSerializerSettings
-			{
-				Converters = { new ChildComponentModelConverter() }
-			};
-			var list = JsonConvert.DeserializeObject<List<ChildComponentModelBase>>(ListSerialized, settings);
+			var list = Json.DeserializeObject<List<ChildComponentModelBase>>(ListSerialized);
 			if (list is not null)
 			{
 				Components = list;
