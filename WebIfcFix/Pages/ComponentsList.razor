@@ -1,6 +1,7 @@
 ﻿@page "/components"
 @inject NavigationManager NavManager
 @inject IJsonConvertService Json
+@inject ILocalStorageService ClientStorage
 @using System.Net;
 @using Newtonsoft.Json;
 
@@ -39,6 +40,30 @@
 	Encoded length: @if (!string.IsNullOrEmpty(ListEncoded)) @ListEncoded.Length
 </p>
 
+<InputText class="form-control" @bind-Value="@NameToSave"/>
+<button
+	class="btn btn-primary"
+	onclick="@SaveLayout"
+	type="button">
+	Save layout
+</button>
+
+@if (SavedLayouts is not null && SavedLayouts.Count > 0)
+{
+	<InputSelect class="form-select" @bind-Value="LayoutToLoad">
+		@foreach (string savedLayout in SavedLayouts!)
+		{
+			<option value="@savedLayout">@savedLayout</option>
+		}
+	</InputSelect>
+	<button
+		class="btn btn-primary"
+		onclick="@LoadLayout"
+		type="button">
+		Load layout
+	</button>
+}
+
 @code {
 	public List<ChildComponentModelBase>? Components { get; set; } =
 		[
@@ -51,6 +76,27 @@
 
 	[SupplyParameterFromQuery(Name = "list")]
 	public string ListEncoded { get; set; } = String.Empty;
+
+	public string NameToSave { get; set; } = String.Empty;
+	public string LayoutToLoad { get; set; } = String.Empty;
+	public List<string>? SavedLayouts { get; set; }
+
+	public async Task SaveLayout()
+	{
+		SavedLayouts!.Add(NameToSave);
+		await ClientStorage.SetItemAsync(nameof(SavedLayouts), SavedLayouts);
+		await ClientStorage.SetItemAsync(NameToSave, Components);
+		StateHasChanged();
+	}
+	public async Task LoadLayout()
+	{
+		var layout = await ClientStorage.GetItemAsync<List<ChildComponentModelBase>>(LayoutToLoad);
+		if (layout is not null)
+		{
+			Components = layout;
+		}
+		StateHasChanged();
+	}
 
 	public void SerializeList()
 	{
@@ -79,9 +125,9 @@
 		StateHasChanged();
 	}
 
-	protected override void OnInitialized()
+	protected override async Task OnInitializedAsync()
 	{
-		base.OnInitialized();
+		await base.OnInitializedAsync();
 		if (!String.IsNullOrEmpty(ListEncoded))
 		{
 			ListSerialized = WebUtility.UrlDecode(ListEncoded);
@@ -92,5 +138,6 @@
 			}
 			StateHasChanged();
 		}
+		SavedLayouts = await ClientStorage.GetItemAsync<List<string>>(nameof(SavedLayouts)) ?? new List<string>();
 	}
 }
