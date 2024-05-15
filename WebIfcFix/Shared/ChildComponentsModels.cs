@@ -1,37 +1,31 @@
 ﻿using IfcFixLib;
+using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 
 namespace WebIfcFix.Shared;
 
-public interface IChildComponentModelBase
+public abstract class ChildComponentModelBase
 {
-    string? ComponentTypeNane { get;}
-    Dictionary<string, object> Params => new() { ["Model"] = this };
-}
-public class ChildComponentModelBase
-{
-    public virtual string? ComponentTypeNane { get; }
-    public virtual string? ModelDerivedType { get; set; }
+    public virtual string? ModelType { get; }
+    public virtual string? ComponentTypeName { get; }
     public virtual Dictionary<string, object> Params() => new() { ["Model"] = this };
 }
 
-public class ChildComponentModelDerived : ChildComponentModelBase
+public abstract class ComponentModel<T> : ChildComponentModelBase where T : IComponent
 {
-    public override string? ModelDerivedType  => this.GetType().FullName;
+    public override string? ModelType  => this.GetType().FullName;
+
+    // This property doesnt need to be serialized, json converter vill create derived class based on ModelType property.
+    [JsonIgnore]
+    public override string? ComponentTypeName => typeof(T).FullName;
 }
 
-public class ChildComponent1Model : ChildComponentModelDerived 
+public class ChildComponent1Model : ComponentModel<ChildComponent1> 
 {
     public string Input { get; set; } = String.Empty;
-
-    [JsonIgnore]
-    public override string? ComponentTypeNane => typeof(ChildComponent1).FullName;
 }
-public class ChildComponent2Model : ChildComponentModelDerived 
+public class ChildComponent2Model : ComponentModel<ChildComponent2> 
 {
     public ElementStringValueType StringValueType { get; set; } = ElementStringValueType.Name;
-
-    [JsonIgnore]
-    public override string? ComponentTypeNane => typeof(ChildComponent2).FullName;
 }

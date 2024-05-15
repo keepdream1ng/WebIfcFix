@@ -34,7 +34,7 @@ public class JsonConvertService : IJsonConvertService
 		public override ChildComponentModelBase ReadJson(JsonReader reader, Type objectType, ChildComponentModelBase existingValue, bool hasExistingValue, JsonSerializer serializer)
 		{
 			JObject jsonObject = JObject.Load(reader);
-			string? modelType = jsonObject.GetValue(nameof(ChildComponentModelBase.ModelDerivedType))?.ToString();
+			string? modelType = jsonObject.GetValue(nameof(ChildComponentModelBase.ModelType))?.ToString();
 			if (modelType is null)
 			{
 				throw new JsonSerializationException($"Could not deserialize");
