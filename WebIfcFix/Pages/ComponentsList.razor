@@ -65,7 +65,7 @@
 }
 
 @code {
-	public List<ChildComponentModelBase>? Components { get; set; } =
+	public List<SerializableModelBase>? Components { get; set; } =
 		[
 			new ChildComponent1Model(),
 			new ChildComponent2Model(),
@@ -90,7 +90,7 @@
 	}
 	public async Task LoadLayout()
 	{
-		var layout = await ClientStorage.GetItemAsync<List<ChildComponentModelBase>>(LayoutToLoad);
+		var layout = await ClientStorage.GetItemAsync<List<SerializableModelBase>>(LayoutToLoad);
 		if (layout is not null)
 		{
 			Components = layout;
@@ -131,7 +131,7 @@
 		if (!String.IsNullOrEmpty(ListEncoded))
 		{
 			ListSerialized = WebUtility.UrlDecode(ListEncoded);
-			var list = Json.DeserializeObject<List<ChildComponentModelBase>>(ListSerialized);
+			var list = Json.DeserializeObject<List<SerializableModelBase>>(ListSerialized);
 			if (list is not null)
 			{
 				Components = list;
