@@ -8,6 +8,7 @@ public class DbSerializer(IfcFormatOutput formatOutput = IfcFormatOutput.STEP) :
 	public IfcFormatOutput FormatOutput { get; set; } = formatOutput;
 	public string? Output { get; private set; }
     public event EventHandler<CancellationToken>? ProcessDone;
+	private EventHandler<CancellationToken>? _subscribtion;
 
 	public async Task<string> SeializeToStringAsync(DatabaseIfc db, CancellationToken ct = default)
 	{
@@ -26,4 +27,21 @@ public class DbSerializer(IfcFormatOutput formatOutput = IfcFormatOutput.STEP) :
 			Output = await SeializeToStringAsync(Input!.DatabaseIfc, cancellationToken);
 			ProcessDone?.Invoke(this, cancellationToken);
         };
+
+	public void SubscribeToOutput(IPipeOut outFilter)
+	{
+		_subscribtion = (sender, ct) =>
+		{
+			Input = outFilter.Output;
+			this.StartProcess(ct);
+		};
+
+		outFilter.ProcessDone += _subscribtion;
+	}
+
+	public void UnsubscribeFrom(IPipeOut outFilter)
+	{
+		outFilter.ProcessDone -= _subscribtion;
+		_subscribtion = null;
+	}
 }

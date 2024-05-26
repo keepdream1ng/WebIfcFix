@@ -69,10 +69,12 @@ public class PipelineIntegrationTests
             pipelineManager.AddToPipeline(new DbDuplicator());
         }
         pipelineManager.PipeEnd.ProcessDone += (obj, ct) => processDone = true;
+        var dbSerializer1 = new DbSerializer();
+        dbSerializer1.SubscribeToOutput(pipelineManager.PipeEnd);
 
         // Act 1
         var token = pipelineManager.GetNewCancelToken();
-        var data = await parser.ParseFromStreamAsync(stream);
+        var data = await parser.ParseFromStreamAsync(stream, token);
         await Task.Delay(10);
         pipelineManager.StopProcessing();
 
@@ -80,20 +82,23 @@ public class PipelineIntegrationTests
         Assert.NotNull(data);
         Assert.False(processDone);
         Assert.Null(pipelineManager.PipeEnd.Output);
+        Assert.Null(dbSerializer1.Output);
 
         // Act 2.
-        var dbSerializer = new DbSerializer();
-        pipelineManager.PipeEnd.PipeInto(dbSerializer);
+        dbSerializer1.UnsubscribeFrom(pipelineManager.PipeEnd);
+        var dbSerializer2 = new DbSerializer();
+        dbSerializer2.SubscribeToOutput(pipelineManager.PipeEnd);
         pipelineManager.ContinueProcessing();
-        while (!processDone && String.IsNullOrEmpty(dbSerializer.Output))
+        while (!processDone && String.IsNullOrEmpty(dbSerializer2.Output))
         {
             await Task.Delay(100);
             if (--attemptsCount == 0) break;
         }
-        string actual = dbSerializer.Output!;
+        string actual = dbSerializer2.Output!;
 
         // Assert 2.
         Assert.True(actual.Length > 0);
+        Assert.Null(dbSerializer1.Output);
         Assert.Contains("TestPlate", actual);
         Assert.Contains("TestBeam", actual);
         Assert.DoesNotContain("testWall", actual);
