@@ -8,20 +8,21 @@ public class PipelineManager(IPipeOut pipeStart)
 
     public LinkedListNode<IPipeConnector> AddToPipeline(
         IPipeFilter filter,
-        LinkedListNode<IPipeConnector>? afterNode = null)
+        LinkedListNode<IPipeConnector>? beforeNode = null)
     {
         var connector = new PipeConnector(filter);
         LinkedListNode<IPipeConnector> node;
-        if (afterNode is null)
+        if (beforeNode is null)
         {
             connector.SetUpConnetion(PipeEnd);
             node = _pipelineElements.AddLast(connector);
         }
         else
         {
-            afterNode.Next?.Value.SetUpConnetion(connector.Filter);
-            connector.SetUpConnetion(afterNode.Value.Filter);
-            node = _pipelineElements.AddAfter(afterNode, connector);
+            beforeNode.Value.SetUpConnetion(connector.Filter);
+            IPipeOut connectTo = beforeNode.Previous?.Value.Filter ?? PipeStart;
+            connector.SetUpConnetion(connectTo);
+            node = _pipelineElements.AddBefore(beforeNode, connector);
         }
         return node;
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Components;
+﻿using IfcFixLib.IfcPipelineDefinition;
+using Microsoft.AspNetCore.Components;
 using Newtonsoft.Json;
 
 namespace WebIfcFix.Shared;
@@ -8,6 +9,12 @@ public abstract class SerializableModelBase
     public virtual string? ModelType { get; }
     public virtual string? ComponentTypeName { get; }
     public virtual Dictionary<string, object> Params() => new() { ["ModelBase"] = this };
+
+    [JsonIgnore]
+    public abstract IPipeFilter PipeFilter { get; }
+
+    [JsonIgnore]
+    public virtual LinkedListNode<IPipeConnector>? PipelineNode { get; set; }
 }
 
 public abstract class ComponentModel<T> : SerializableModelBase where T : IComponent
