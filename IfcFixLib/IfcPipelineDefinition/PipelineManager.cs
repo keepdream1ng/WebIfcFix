@@ -1,5 +1,5 @@
 ﻿namespace IfcFixLib.IfcPipelineDefinition;
-public class PipelineManager(IPipeOut pipeStart)
+public class PipelineManager(IPipeOut pipeStart) : IDisposable
 {
     public IPipeOut PipeStart { get; private set; } = pipeStart;
     public IPipeOut PipeEnd => _pipelineElements.Last?.Value.Filter ?? PipeStart;
@@ -59,4 +59,15 @@ public class PipelineManager(IPipeOut pipeStart)
     {
         _tokenSouce.Cancel();
     }
+
+	public void Dispose()
+	{
+        StopProcessing();
+        foreach(var node in _pipelineElements)
+        {
+            node.TearDownCurrentConnetion();
+        }
+        _tokenSouce?.Dispose();
+        _pipelineElements.Clear();
+	}
 }
