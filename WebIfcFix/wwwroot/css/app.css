@@ -6,6 +6,14 @@ h1:focus {
     outline: none;
 }
 
+.no-select {
+    user-select: none;
+}
+
+.no-select * {
+    user-select: none;
+}
+
 a, .btn-link {
     color: #0071c1;
 }
