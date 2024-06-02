@@ -2,6 +2,7 @@
 @inject NavigationManager NavManager
 @inject IJsonConvertService Json
 @inject ILocalStorageService ClientStorage
+@inject IComponentsTypesService TypesService
 @using System.Net;
 @using Newtonsoft.Json;
 
@@ -22,6 +23,18 @@
 		</SortableItemTemplate>
 	</SortableList>
 </div>
+
+<ul>
+	@if (TypesService.ComponentsTypes.Count > 0)
+	{
+		@foreach(var type in TypesService.ComponentsTypes)
+		{
+			<li class="alert alert-info">
+				@type.FilterName
+			</li>
+		}
+	}
+</ul>
 
 <button
 	class="btn btn-primary"
@@ -68,9 +81,9 @@
 	public List<SerializableModelBase>? Components { get; set; } =
 		[
 			new ChildComponent1Model(),
-			new ChildComponent2Model(),
-			new ChildComponent1Model(),
-			new ChildComponent2Model()
+		new ChildComponent2Model(),
+		new ChildComponent1Model(),
+		new ChildComponent2Model()
 		];
 	public string ListSerialized { get; set; } = String.Empty;
 

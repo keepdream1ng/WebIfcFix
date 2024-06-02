@@ -15,6 +15,9 @@ public abstract class SerializableModelBase
 
     [JsonIgnore]
     public virtual LinkedListNode<IPipeConnector>? PipelineNode { get; set; }
+
+    [JsonIgnore]
+    public abstract IComponentInformation ComponentInformation { get; init; }
 }
 
 public abstract class ComponentModel<T> : SerializableModelBase where T : IComponent
@@ -43,4 +46,19 @@ public abstract class DynamicComponentWithModelBase<Tmodel> : ComponentBase, ICo
         get => _model!;
         set { _model = value; }
     }
+}
+
+public abstract class ComponentInformation<Tmodel> : IComponentInformation where Tmodel : SerializableModelBase
+{
+    public virtual Type ModelType => typeof(Tmodel);
+
+    public abstract string FilterName { get; }
+    public abstract string FilterInstructions { get; }
+}
+
+public interface IComponentInformation
+{
+    Type ModelType { get; } 
+    string FilterName { get; }
+    string FilterInstructions { get; }
 }
