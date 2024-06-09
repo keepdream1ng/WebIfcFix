@@ -7,40 +7,49 @@
 @using Newtonsoft.Json;
 
 <h3>ComponentsList</h3>
-<div class="container">
-	<SortableList
-		Items="Components"
-		Handle=".handle"
-		OnUpdate=SortList
-		Context="model">
-		<SortableItemTemplate>
-			<div class="row">
-				<div class="col-1 handle text-center fs-1" style="cursor: move">&#9776;</div>
-				<div class="col">
-					<DynamicComponent Type=@Type.GetType(model.ComponentTypeName!) Parameters="@model.Params()"/>
-				</div>
-			</div>
-		</SortableItemTemplate>
-	</SortableList>
+<div class="container no-select">
+	<div class="row">
+		<div class="col">
+			<SortableList
+				Group="IfcFilters"
+				Items="Components"
+				Handle=".handle"
+				OnUpdate=SortList
+				OnRemove="RemoveComponent"
+				Context="model">
+				<SortableItemTemplate>
+					<div class="row">
+						<div class="col-1 handle text-center fs-1" style="cursor: move">&#9776;</div>
+						<div class="col">
+							<DynamicComponent Type=@Type.GetType(model.ComponentTypeName!) Parameters="@model.Params()"/>
+						</div>
+					</div>
+				</SortableItemTemplate>
+			</SortableList>
+		</div>
+		<div class="col-3">
+			<SortableList
+				Group="IfcFilters"
+				Items="TypesService.ComponentsTypes"
+				Sort="false"
+				Pull="clone"
+				OnRemove="CreateNewComponent"
+				Context="type">
+				<SortableItemTemplate>
+					<div class="alert alert-info">
+						@type.FilterName
+					</div>
+				</SortableItemTemplate>
+			</SortableList>
+		</div>
+	</div>
 </div>
-
-<ul>
-	@if (TypesService.ComponentsTypes.Count > 0)
-	{
-		@foreach(var type in TypesService.ComponentsTypes)
-		{
-			<li class="alert alert-info">
-				@type.FilterName
-			</li>
-		}
-	}
-</ul>
 
 <button
 	class="btn btn-primary"
 	onclick="@SerializeList"
 	type="button">
-	Serialize current components list;
+	Serialize list to route AKA Share
 </button>
 
 <pre>
@@ -81,9 +90,9 @@
 	public List<SerializableModelBase>? Components { get; set; } =
 		[
 			new ChildComponent1Model(),
-		new ChildComponent2Model(),
-		new ChildComponent1Model(),
-		new ChildComponent2Model()
+			new ChildComponent2Model(),
+			new ChildComponent1Model(),
+			new ChildComponent2Model()
 		];
 	public string ListSerialized { get; set; } = String.Empty;
 
@@ -152,5 +161,17 @@
 			StateHasChanged();
 		}
 		SavedLayouts = await ClientStorage.GetItemAsync<List<string>>(nameof(SavedLayouts)) ?? new List<string>();
+	}
+
+	private void CreateNewComponent((int oldIndex, int newIndex) indices)
+	{
+		var prototype = TypesService.ComponentsTypes[indices.oldIndex];
+		Components!.Insert(indices.newIndex, (Activator.CreateInstance(prototype.ModelType) as SerializableModelBase)!);
+	}
+
+	private void RemoveComponent((int oldIndex, int newIndex) indices)
+	{
+		var component = Components![indices.oldIndex];
+		Components!.Remove(component);
 	}
 }
