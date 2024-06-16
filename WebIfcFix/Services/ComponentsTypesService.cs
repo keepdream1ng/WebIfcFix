@@ -5,34 +5,33 @@ namespace WebIfcFix.Services;
 
 public interface IComponentsTypesService
 {
-	List<IComponentInformation> ComponentsTypes { get; }
+	IReadOnlyList<IComponentInformation> ComponentsTypes { get; }
 }
 
 public class ComponentsTypesService : IComponentsTypesService
 {
-    public List<IComponentInformation> ComponentsTypes { get; init; } = new();
+    public IReadOnlyList<IComponentInformation> ComponentsTypes { get; private set; }
 
     public ComponentsTypesService()
     {
-        LoadComponentsInfo();
+		ComponentsTypes = LoadComponentsInfo();
     }
 
-	public void LoadComponentsInfo()
+	private List<IComponentInformation> LoadComponentsInfo()
 	{
-		List<IComponentInformation?> componentsInfo = Assembly.GetAssembly(typeof(IComponentInformation))!
+		IEnumerable<IComponentInformation?> componentsInfo = Assembly.GetAssembly(typeof(IComponentInformation))!
 			.GetTypes()
 			.Where(type => type.IsClass && typeof(IComponentInformation).IsAssignableFrom(type) && !type.IsGenericTypeDefinition)
-			.Select(type => Activator.CreateInstance(type) as IComponentInformation)
-			.ToList();
+			.Select(type => Activator.CreateInstance(type) as IComponentInformation);
 
-		foreach (IComponentInformation? info in componentsInfo)
+		List<IComponentInformation> successfullyCreatedInfo = new();
+		foreach (IComponentInformation? componentInfo in componentsInfo)
 		{
-			if (info is not null)
+			if (componentInfo is not null)
 			{
-				ComponentsTypes.Add(info);
+				successfullyCreatedInfo.Add(componentInfo);
 			}
 		}
-
-		componentsInfo.Clear();
+		return successfullyCreatedInfo;
 	}
 }
