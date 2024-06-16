@@ -9,15 +9,15 @@ public class LayoutManagerService(IComponentsTypesService componentsTypes)
     public DbParser DbParser { get; private set; } = new();
     public DbSerializer DbSerializer { get; private set; } = new();
     public PipelineManager? PipelineManager { get; private set; }
-    public IReadOnlyList<SerializableModelBase> ComponentsLayout => _componentsLayout.AsReadOnly();
+    public IReadOnlyList<SerializableModelBase> ComponentsLayout => _componentsLayout;
     private List<SerializableModelBase> _componentsLayout = new();
     private IComponentsTypesService _typesService = componentsTypes;
 
-    public void ReorderLayout((int oldIndex, int newIndex) indexes)
+    public void ReorderLayout(int oldIndex, int newIndex)
     {
-		var itemToMove = _componentsLayout[indexes.oldIndex];
-        RemoveElementAt(indexes.oldIndex);
-        InsertAtIndex(itemToMove, indexes.newIndex);
+		var itemToMove = _componentsLayout[oldIndex];
+        RemoveElementAt(oldIndex);
+        InsertAtIndex(itemToMove, newIndex);
     }
 
     public void ImportLayout(List<SerializableModelBase> components)
@@ -54,9 +54,9 @@ public class LayoutManagerService(IComponentsTypesService componentsTypes)
     {
 		if (index < _componentsLayout.Count)
 		{
-			SerializableModelBase nextComponent = _componentsLayout[index + 1];
+			SerializableModelBase itemToMove = _componentsLayout[index];
             item.PipelineNode = PipelineManager!
-                .AddToPipeline(item.PipeFilter, beforeNode: nextComponent.PipelineNode);
+                .AddToPipeline(item.PipeFilter, beforeNode: itemToMove.PipelineNode);
 			_componentsLayout.Insert(index, item);
 		}
 		else
