@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "WebIfcFix",
   "resources": {
-    "hash": "sha256-Vw3KwbA6v4dA8u1kr5TaM2N40Dxbl17EwgOtGl7QPgI=",
+    "hash": "sha256-B3OMkJ0k2W+43mvjo1rTFbst/AiClcQm9PBBPyJfdKM=",
     "jsModuleNative": {
       "dotnet.native.8.0.6.suuomc2hr0.js": "sha256-YU6M9+jtDVnB8/wtrgIndOstzNh778Ls8g9XnbjorSk="
     },
@@ -18,7 +18,7 @@
     },
     "assembly": {
       "GeometryGymIFCcore.wasm": "sha256-LlS148s+TrimPA4xk8uBWQQciOCr5lG228JLQs7pw8I=",
-      "IfcFixLib.wasm": "sha256-fXVhH5x7lz3ckq4RTldMLKStKbShN25+y409T+uoxbg=",
+      "IfcFixLib.wasm": "sha256-Z9jvIM+qIoLW+T8IDKaA/TKkr0seSVqb8U+7tQiFWwA=",
       "Microsoft.AspNetCore.Components.Forms.wasm": "sha256-FTLYDgGSYmrgWv+3hH3VRxyBD0QI+yzjJ245PRcFuGc=",
       "Microsoft.AspNetCore.Components.wasm": "sha256-AEdWCHFW3aJqK+PT9XH96aOWsEjGrMI8ckjPgYhxPfA=",
       "Microsoft.AspNetCore.Components.Web.wasm": "sha256-ARiYx1hiuKHJOi1TiR7T3EFWbxBHI5uLNs2HMgALXUY=",
@@ -84,7 +84,7 @@
       "System.Xml.Linq.wasm": "sha256-boUyMjD8tjpz+RHjMOdCJbIG/hcEQuorcGhKEvCs9Ys=",
       "System.Xml.ReaderWriter.wasm": "sha256-kunI7+3kHsmVlDHx6hUDW3Fho8oY/CCGdP8gGBgBoPg=",
       "System.Xml.XDocument.wasm": "sha256-2EMN2rk2MilmnBGG73CPy03svcUTyJo3FEAsgRRkfsk=",
-      "WebIfcFix.wasm": "sha256-SA+DeP6ZhWWbj99XvCUPmWvl8cOcRmmEZITkr3YXfmI="
+      "WebIfcFix.wasm": "sha256-IYEt09hWpSMI5vIMMMgLvFjfkrll6n0GwgOAFHOtTgc="
     }
   },
   "cacheBootResources": true,
