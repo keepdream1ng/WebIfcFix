@@ -3,8 +3,9 @@
 @inject IJsonConvertService Json
 @inject ILocalStorageService ClientStorage
 @inject IComponentsTypesService TypesService
-@using System.Net;
-@using Newtonsoft.Json;
+@inject LayoutManagerService LayoutManager
+@using System.Net
+@using Newtonsoft.Json
 
 <h3>ComponentsList</h3>
 <div class="container no-select">
@@ -12,9 +13,9 @@
 		<div class="col">
 			<SortableList
 				Group="IfcFilters"
-				Items="Components"
+				Items="LayoutManager.ComponentsLayout"
 				Handle=".handle"
-				OnUpdate=SortList
+				OnUpdate="SortList"
 				OnRemove="RemoveComponent"
 				Context="model">
 				<SortableItemTemplate>
@@ -107,7 +108,7 @@
 	{
 		SavedLayouts!.Add(NameToSave);
 		await ClientStorage.SetItemAsync(nameof(SavedLayouts), SavedLayouts);
-		await ClientStorage.SetItemAsync(NameToSave, Components);
+		await ClientStorage.SetItemAsync(NameToSave, LayoutManager.ComponentsLayout);
 		StateHasChanged();
 	}
 	public async Task LoadLayout()
@@ -115,14 +116,14 @@
 		var layout = await ClientStorage.GetItemAsync<List<SerializableModelBase>>(LayoutToLoad);
 		if (layout is not null)
 		{
-			Components = layout;
+			LayoutManager.ImportLayout(layout);
 		}
 		StateHasChanged();
 	}
 
 	public void SerializeList()
 	{
-		ListSerialized = Json.SerializeObject(Components);
+		ListSerialized = Json.SerializeObject(LayoutManager.ComponentsLayout);
 		ListEncoded = WebUtility.UrlEncode(ListSerialized);
 		StateHasChanged();
 		NavManager.NavigateTo(NavManager.GetUriWithQueryParameter("list", ListEncoded));
@@ -130,20 +131,7 @@
 
 	private void SortList((int oldIndex, int newIndex) indices)
 	{
-		var (oldIndex, newIndex) = indices;
-
-		var itemToMove = Components![oldIndex];
-		Components.RemoveAt(oldIndex);
-
-		if (newIndex < Components.Count)
-		{
-			Components.Insert(newIndex, itemToMove);
-		}
-		else
-		{
-			Components.Add(itemToMove);
-		}
-
+		LayoutManager.ReorderLayout(indices.oldIndex, indices.newIndex);
 		StateHasChanged();
 	}
 
@@ -160,18 +148,19 @@
 			}
 			StateHasChanged();
 		}
+		LayoutManager.ImportLayout(Components!);
 		SavedLayouts = await ClientStorage.GetItemAsync<List<string>>(nameof(SavedLayouts)) ?? new List<string>();
 	}
 
 	private void CreateNewComponent((int oldIndex, int newIndex) indices)
 	{
-		var prototype = TypesService.ComponentsTypes[indices.oldIndex];
-		Components!.Insert(indices.newIndex, (Activator.CreateInstance(prototype.ModelType) as SerializableModelBase)!);
+		LayoutManager.InsertNew(indices);
+		StateHasChanged();
 	}
 
 	private void RemoveComponent((int oldIndex, int newIndex) indices)
 	{
-		var component = Components![indices.oldIndex];
-		Components!.Remove(component);
+		LayoutManager.RemoveElementAt(indices.oldIndex);
+		StateHasChanged();
 	}
 }
