@@ -14,35 +14,31 @@
     <p>Read and filter IFC file using Blazor WebAssembly, after submit edited IFC should be downloading.</p>
 </div>
 
+<IfcInputParser Parser="Parser" />
+
 @if(Message.Length > 0)
 {
     <p class="alert alert-secondary" role="alert">@Message</p>
 }
-
 <EditForm Model="@IfcFile" method="post" OnValidSubmit="@OnSubmit" enctype="multipart/form-data">
     <DataAnnotationsValidator />
     <ValidationSummary />
-    <InputText class="form-control mb-4" placeholder="Exact name of the element to filter" @bind-Value="@IfcFile.CheckString" />
-    <InputFile class="form-control mb-4" OnChange="SetFile" accept=".ifc" />
+    <InputText class="form-control mb-4" placeholder="Name, or part of it, of the element to filter" @bind-Value="@IfcFile.CheckString" />
     <button class="btn btn-primary" type="submit">Submit</button>
 </EditForm>
 
 @code {
     private WebAssemblyFile IfcFile { get; set; } = new();
-    private long maxFileSize = 5120000000;
+    private DbParser Parser { get; set; } = new();
+    private PipelineManager Manager { get; set; }
     private string Message { get; set; } = String.Empty;
-
-    private void SetFile(InputFileChangeEventArgs e)
-    {
-        IfcFile.FileInput = e.File;
-    }
 
     private async Task OnSubmit()
     {
         try
         {
             var checker = new StringChecker();
-            checker.FilterType = StringFilterType.Equals;
+            checker.FilterType = StringFilterType.Contains;
             var valueGetter = new StringValueGetter();
             valueGetter.ValueType = ElementStringValueType.Name;
             var strategy = new StringFilterStrategy();
@@ -50,31 +46,27 @@
             strategy.FilteredString = IfcFile.CheckString;
             strategy.StringValueGetter = valueGetter;
             ElementsFilter filter = new ElementsFilter(strategy);
-            var parser = new DbParser();
-            var pipelineManager = new PipelineManager(parser);
-            pipelineManager.AddToPipeline(filter);
+			Manager = new PipelineManager(Parser);
+            Manager.AddToPipeline(filter);
 
-            System.IO.Stream fileStream = IfcFile.FileInput.OpenReadStream(maxFileSize);
-            var database = await parser.ParseFromStreamAsync(fileStream);
-
-            await pipelineManager.PipeEnd.GetCompletionTask();
+            Manager.ContinueProcessing();
+            await Manager.PipeEnd.GetCompletionTask();
             int numberObjectsFiltered = filter.Output!.Elements.Count;
-
             string filtered = String.Empty;
 
             if (numberObjectsFiltered > 0)
             {
                 var dublicator = new DbDuplicator();
                 var dbSerializer = new DbSerializer();
-                pipelineManager.AddToPipeline(dublicator);
-                pipelineManager.PipeEnd.PipeInto(dbSerializer);
-                pipelineManager.ContinueProcessing();
+                Manager.AddToPipeline(dublicator);
+                Manager.PipeEnd.PipeInto(dbSerializer);
+                Manager.ContinueProcessing();
                 await dbSerializer.GetCompletionTask();
 
                 filtered = dbSerializer.Output!;
-                Message = $"{IfcFile.FileInput.Name} read successful, elements filtered: {numberObjectsFiltered}";
+                Message = $"Read successful, elements filtered: {numberObjectsFiltered}";
 
-                string newFileName = $"{IfcFile.FileInput.Name.Replace(".ifc", "")}_updated.ifc";
+                string newFileName = $"updated.ifc";
 
                 // Convert content to Base64 for download`
 				var encodingISO_8859_1 = Encoding.GetEncoding("ISO-8859-1");
@@ -87,7 +79,7 @@
             }
             else
             {
-                Message = $"{IfcFile.FileInput.Name} read successful, but zero elements were filtered out";
+                Message = $"Read successful, but zero elements were filtered out";
             }
         } 
         catch(Exception e)
@@ -100,8 +92,5 @@
     {
         [Required]
         public string CheckString { get; set; } = String.Empty;
-        
-        [Required]
-        public IBrowserFile FileInput { get; set; }
     }
 }

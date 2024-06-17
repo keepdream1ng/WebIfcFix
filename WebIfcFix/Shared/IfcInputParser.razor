@@ -1,0 +1,46 @@
+﻿<div class="card m-1">
+	<p>Input your IFC file below. Your data newer sent elsewhere.</p>
+	@if(Message.Length > 0)
+	{
+		<p class="alert alert-secondary" role="alert">@Message</p>
+	}
+	<InputFile class="form-control mb-4" OnChange="ProcessFile" accept=".ifc" />
+</div>
+
+@code {
+	private IBrowserFile? File;
+	private long maxFileSize = 51200000000;
+	private string Message = string.Empty;
+
+	[Parameter]
+	[EditorRequired]
+	public DbParser Parser { get; set; }
+
+	private async Task ProcessFile(InputFileChangeEventArgs e)
+	{
+		File = e.File;
+		Message = string.Empty;
+		await Task.Run(async () => await ParseAsync()).ConfigureAwait(false);
+	}
+
+	private async Task ParseAsync()
+	{
+		try
+		{
+			System.IO.Stream fileStream = File!.OpenReadStream(maxFileSize);
+			_ = await Parser.ParseFromStreamAsync(fileStream);
+		}
+		catch(Exception ex)
+		{
+			Message = "Read failed. Error: " + ex.Message;
+		}
+		finally
+		{
+			if (String.IsNullOrEmpty(Message))
+			{
+				Message = "Read completed!";
+			}
+			StateHasChanged();
+		}
+	}
+}
