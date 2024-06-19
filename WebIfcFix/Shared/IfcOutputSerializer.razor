@@ -1,0 +1,75 @@
+﻿@using System.Text
+@inject IJSRuntime JS;
+
+<div class="card m-1">
+	<p>
+		Then process will be done - clicking this button will save IFC to downloads.
+	</p>
+	@if(Message.Length > 0)
+	{
+		<p class="alert alert-secondary" role="alert">@Message</p>
+	}
+	<button
+		onclick="@SafeIfcFile"
+		disabled="@DisableSaveButton"
+		class="btn @ButtonClass my-1">
+		Save to file
+	</button>
+</div>
+
+@code {
+	private string Message = string.Empty;
+	private bool DisableSaveButton = true;
+	private string ButtonClass => DisableSaveButton ? "btn-secondary" : "btn-success";
+
+	[Parameter]
+	[EditorRequired]
+	public DbSerializer Serializer { get; set; }
+
+	protected override void OnParametersSet()
+	{
+		base.OnParametersSet();
+		Serializer.ProcessDone += SignalReadyToSave;
+	}
+
+	private void SignalReadyToSave(object? sender, CancellationToken ct)
+	{
+		Message = string.Empty;
+		if (Serializer.Output is not null)
+		{
+			DisableSaveButton = false;
+		}
+		else
+		{
+			Message = "Error on deserializing";
+		}
+		StateHasChanged();
+    }
+
+	private async Task SafeIfcFile()
+	{
+		try
+		{
+			Message = String.Empty;
+			var encodingISO_8859_1 = Encoding.GetEncoding("ISO-8859-1");
+			var byteArray = encodingISO_8859_1.GetBytes(Serializer.Output!);
+
+			await JS.InvokeVoidAsync(
+						"saveAsFile",
+						"updated.ifc",
+						Convert.ToBase64String(byteArray));
+		}
+		catch(Exception ex)
+		{
+			Message = "Save failed. Error: " + ex.Message;
+		}
+		finally
+		{
+			if (String.IsNullOrEmpty(Message))
+			{
+				Message = "Save completed!";
+			}
+			StateHasChanged();
+		}
+	}
+}

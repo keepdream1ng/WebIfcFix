@@ -27,9 +27,12 @@
     <button class="btn btn-primary" type="submit">Submit</button>
 </EditForm>
 
+<IfcOutputSerializer Serializer="Serializer" />
+
 @code {
     private WebAssemblyFile IfcFile { get; set; } = new();
     private DbParser Parser { get; set; } = new();
+    private DbSerializer Serializer { get; set; } = new();
     private PipelineManager Manager { get; set; }
     private string Message { get; set; } = String.Empty;
 
@@ -57,25 +60,12 @@
             if (numberObjectsFiltered > 0)
             {
                 var dublicator = new DbDuplicator();
-                var dbSerializer = new DbSerializer();
                 Manager.AddToPipeline(dublicator);
-                Manager.PipeEnd.PipeInto(dbSerializer);
+                Manager.PipeEnd.PipeInto(Serializer);
                 Manager.ContinueProcessing();
-                await dbSerializer.GetCompletionTask();
+                await Serializer.GetCompletionTask();
 
-                filtered = dbSerializer.Output!;
                 Message = $"Read successful, elements filtered: {numberObjectsFiltered}";
-
-                string newFileName = $"updated.ifc";
-
-                // Convert content to Base64 for download`
-				var encodingISO_8859_1 = Encoding.GetEncoding("ISO-8859-1");
-                var byteArray = encodingISO_8859_1.GetBytes(filtered);
-
-                await JS.InvokeVoidAsync(
-                            "saveAsFile",
-                            newFileName,
-                            Convert.ToBase64String(byteArray));
             }
             else
             {
