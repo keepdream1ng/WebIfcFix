@@ -2,24 +2,26 @@
 @inject IJSRuntime JS;
 
 <div class="card m-1">
-	<p>
-		Then process will be done - clicking this button will save IFC to downloads.
-	</p>
-	@if(Message.Length > 0)
-	{
-		<p class="alert alert-secondary" role="alert">@Message</p>
-	}
-	<button
-		onclick="@SafeIfcFile"
-		disabled="@DisableSaveButton"
-		class="btn @ButtonClass my-1">
-		Save to file
-	</button>
+	<div class="row g-0">
+		<ProcessStatusIndicator Status="Status" Message="@Message" />
+		<div class="col p-1">
+			<p>
+				Then process will be done - clicking this button will save IFC to downloads.
+			</p>
+			<button
+				onclick="@SafeIfcFile"
+				disabled="@DisableSaveButton"
+				class="btn @ButtonClass my-1">
+				Save to file
+			</button>
+		</div>
+	</div>
 </div>
 
 @code {
-	private string Message = string.Empty;
-	private bool DisableSaveButton = true;
+	public ProcessStatus Status { get; set; } = ProcessStatus.Waiting;
+	public string Message { get; set; } = string.Empty;
+	private bool DisableSaveButton => Status != ProcessStatus.Done;
 	private string ButtonClass => DisableSaveButton ? "btn-secondary" : "btn-success";
 
 	[Parameter]
@@ -29,28 +31,36 @@
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
+		Serializer.OnProcessStart += SignalProcessing;
 		Serializer.ProcessDone += SignalReadyToSave;
+	}
+
+	private void SignalProcessing(object? sender, CancellationToken ct)
+	{
+		Status = ProcessStatus.Processing;
+		Message = string.Empty;
+		StateHasChanged();
 	}
 
 	private void SignalReadyToSave(object? sender, CancellationToken ct)
 	{
-		Message = string.Empty;
 		if (Serializer.Output is not null)
 		{
-			DisableSaveButton = false;
+			Status = ProcessStatus.Done;
 		}
 		else
 		{
+			Status = ProcessStatus.Error;
 			Message = "Error on deserializing";
 		}
 		StateHasChanged();
-    }
+	}
 
 	private async Task SafeIfcFile()
 	{
 		try
 		{
-			Message = String.Empty;
+			Message = string.Empty;
 			var encodingISO_8859_1 = Encoding.GetEncoding("ISO-8859-1");
 			var byteArray = encodingISO_8859_1.GetBytes(Serializer.Output!);
 
@@ -61,14 +71,11 @@
 		}
 		catch(Exception ex)
 		{
+			Status = ProcessStatus.Error;
 			Message = "Save failed. Error: " + ex.Message;
 		}
 		finally
 		{
-			if (String.IsNullOrEmpty(Message))
-			{
-				Message = "Save completed!";
-			}
 			StateHasChanged();
 		}
 	}

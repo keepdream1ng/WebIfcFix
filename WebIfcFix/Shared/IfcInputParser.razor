@@ -1,16 +1,18 @@
 ﻿<div class="card m-1">
-	<p>Input your IFC file below. Your data newer sent elsewhere.</p>
-	@if(Message.Length > 0)
-	{
-		<p class="alert alert-secondary" role="alert">@Message</p>
-	}
-	<InputFile class="form-control mb-4" OnChange="ProcessFile" accept=".ifc" />
+	<div class="row g-0">
+		<ProcessStatusIndicator Status="Status" Message="@Message" />
+		<div class="col p-1">
+			<p>Input your IFC file below. Your data newer sent elsewhere.</p>
+			<InputFile class="form-control mb-4" OnChange="ProcessFile" accept=".ifc" />
+		</div>
+	</div>
 </div>
 
 @code {
 	private IBrowserFile? File;
 	private long maxFileSize = 51200000000;
 	private string Message = string.Empty;
+	public ProcessStatus Status { get; set; } = ProcessStatus.Waiting;
 
 	[Parameter]
 	[EditorRequired]
@@ -20,6 +22,7 @@
 	{
 		File = e.File;
 		Message = string.Empty;
+		Status = ProcessStatus.Processing;
 		await Task.Run(async () => await ParseAsync()).ConfigureAwait(false);
 	}
 
@@ -30,15 +33,21 @@
 			System.IO.Stream fileStream = File!.OpenReadStream(maxFileSize);
 			_ = await Parser.ParseFromStreamAsync(fileStream);
 		}
+		catch(TaskCanceledException)
+		{
+			Status = ProcessStatus.Cancelled;
+		}
 		catch(Exception ex)
 		{
 			Message = "Read failed. Error: " + ex.Message;
+			Status = ProcessStatus.Error;
 		}
 		finally
 		{
-			if (String.IsNullOrEmpty(Message))
+			if (Parser.Output is not null)
 			{
-				Message = "Read completed!";
+				Message = "Read completed";
+				Status = ProcessStatus.Done;
 			}
 			StateHasChanged();
 		}

@@ -9,6 +9,8 @@
 
 <PageTitle>Blazor WASM IFC processing</PageTitle>
 
+<div class="container">
+
 <div>
     <h2 class="display-4">Blazor WASM IFC processing</h2>
     <p>Read and filter IFC file using Blazor WebAssembly, after submit edited IFC should be downloading.</p>
@@ -28,6 +30,8 @@
 </EditForm>
 
 <IfcOutputSerializer Serializer="Serializer" />
+
+</div>
 
 @code {
     private WebAssemblyFile IfcFile { get; set; } = new();

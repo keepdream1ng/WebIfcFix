@@ -1,0 +1,44 @@
+﻿<div class="status-indicator col-1 p-1 rounded-start no-select @GetClass()">
+	<span class="badge h-100 text-wrap align-middle">
+		@GetInfo()
+	</span>
+</div>
+
+@code {
+	[Parameter]
+	[EditorRequired]
+	public ProcessStatus Status { get; set; }
+
+	[Parameter]
+	public string? Message { get; set; }
+
+	private string GetClass()
+	{
+		return Status switch
+		{
+			ProcessStatus.Done       => "bg-success",
+			ProcessStatus.Processing => "bg-primary",
+			ProcessStatus.Waiting    => "bg-primary-subtle",
+			ProcessStatus.Error      => "bg-danger",
+			ProcessStatus.Cancelled  => "bg-warning",
+			_ => ""
+		};
+	}
+
+	private string GetInfo()
+	{
+		if (!string.IsNullOrEmpty(Message))
+		{
+			return Message;
+		}
+		return Status switch
+		{
+			ProcessStatus.Done       => "Process done",
+			ProcessStatus.Processing => "Processing",
+			ProcessStatus.Waiting    => "Ready to process",
+			ProcessStatus.Error      => "Error occured",
+			ProcessStatus.Cancelled  => "Process cancelled",
+			_ => "Status indicator"
+		};
+	}
+}
