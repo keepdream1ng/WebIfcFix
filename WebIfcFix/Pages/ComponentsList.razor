@@ -21,7 +21,7 @@
 				<SortableItemTemplate>
 					<div class="row">
 						<div class="col-1 handle text-center fs-1" style="cursor: move">&#9776;</div>
-						<div class="col">
+						<div class="col card m-1 p-1">
 							<DynamicComponent Type=@Type.GetType(model.ComponentTypeName!) Parameters="@model.Params()"/>
 						</div>
 					</div>
