@@ -24,12 +24,13 @@ public class ElementsFilter(IFilterStrategy FilterStrategy) : PipeFilter
         });
         return filtered.ToList();
     }
-    protected override Func<DataIFC, CancellationToken, Task<DataIFC>> ProcessData =>
-        async (data, cancellationToken) =>
-        {
-            List<IfcBuiltElement> elements = await ProcessAsync(data.Elements, cancellationToken);
-            cancellationToken.ThrowIfCancellationRequested();
-            return new DataIFC(data.DatabaseIfc, elements);
-        };
+
+	protected override async Task<DataIFC> ProcessDataAsync(DataIFC data, CancellationToken cancellationToken)
+	{
+		List<IfcBuiltElement> elements = await ProcessAsync(data.Elements, cancellationToken)
+            .ConfigureAwait(false);
+		cancellationToken.ThrowIfCancellationRequested();
+		return new DataIFC(data.DatabaseIfc, elements);
+	}
 }
 

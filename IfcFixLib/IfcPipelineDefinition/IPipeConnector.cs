@@ -8,5 +8,5 @@ public interface IPipeConnector
 
     void SetUpConnetion(IPipeOut pipeFilterToConnectTo);
     void TearDownCurrentConnetion();
-    void InitiateOwnProcess(object? eventSender, CancellationToken ct);
+    ValueTask InitiateOwnProcessAsync(CancellationToken ct);
 }

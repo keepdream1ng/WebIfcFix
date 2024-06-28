@@ -48,11 +48,15 @@ public class PipelineManager(IPipeOut pipeStart) : IDisposable
         return _tokenSouce.Token;
     }
 
-    public void ContinueProcessing()
+    public async Task ContinueProcessingAsync()
     {
         IPipeConnector? stoppedConnector = _pipelineElements
             .FirstOrDefault(c => c.Status != ProcessStatus.Done);
-        stoppedConnector?.InitiateOwnProcess(null, GetNewCancelToken());
+        if (stoppedConnector is not null)
+        {
+			await stoppedConnector.InitiateOwnProcessAsync(GetNewCancelToken())
+                .ConfigureAwait(false);
+        }
     }
 
     public void StopProcessing()

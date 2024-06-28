@@ -9,10 +9,10 @@ public static class IPipeOutExtensions
     }
     public static IPipeFilterIn PipeInto(this IPipeOut prevFilter, IPipeFilterIn nextFilter)
     {
-        prevFilter.ProcessDone += (sender, ct) =>
+        prevFilter.ProcessDone += async (ct) =>
         {
             nextFilter.Input = prevFilter.Output;
-            nextFilter.StartProcess(ct);
+            await nextFilter.ProcessAsync(ct).ConfigureAwait(false);
         };
         return nextFilter;
     }
@@ -21,11 +21,12 @@ public static class IPipeOutExtensions
     {
         var tcs = new TaskCompletionSource<bool>();
 
-        EventHandler<CancellationToken>? handler = null;
-        handler = (sender, ct) =>
+        AsyncEventHandler? handler = null;
+        handler = (ct) =>
         {
             filter.ProcessDone -= handler;
             tcs.TrySetResult(true);
+            return ValueTask.CompletedTask;
         };
 
         filter.ProcessDone += handler;

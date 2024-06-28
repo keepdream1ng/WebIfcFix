@@ -31,11 +31,13 @@ public class DbDuplicator : PipeFilter
             }
         );
     }
-    protected override Func<DataIFC, CancellationToken, Task<DataIFC>> ProcessData =>
-        async (data, cancellationToken) =>
-        {
-            DatabaseIfc newDb = await DuplicateDbWithElementsAsync(data.DatabaseIfc, data.Elements, cancellationToken);
-            cancellationToken.ThrowIfCancellationRequested();
-            return new DataIFC(newDb, newDb.Project.Extract<IfcBuiltElement>());
-        };
+
+	protected override async Task<DataIFC> ProcessDataAsync(DataIFC data, CancellationToken cancellationToken)
+	{
+		DatabaseIfc newDb = await DuplicateDbWithElementsAsync(data.DatabaseIfc, data.Elements, cancellationToken)
+            .ConfigureAwait(false);
+		cancellationToken.ThrowIfCancellationRequested();
+		List<IfcBuiltElement> elements = newDb.Project.Extract<IfcBuiltElement>();
+		return new DataIFC(newDb, elements);
+	}
 }

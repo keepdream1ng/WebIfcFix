@@ -7,9 +7,9 @@ public class DbSerializer(IfcFormatOutput formatOutput = IfcFormatOutput.STEP) :
 	public DataIFC? Input { get; set; }
 	public IfcFormatOutput FormatOutput { get; set; } = formatOutput;
 	public string? Output { get; private set; }
-    public event EventHandler<CancellationToken>? OnProcessStart;
-    public event EventHandler<CancellationToken>? ProcessDone;
-	private EventHandler<CancellationToken>? _subscribtion;
+    public event AsyncEventHandler? ProcessStart;
+    public event AsyncEventHandler? ProcessDone;
+	private AsyncEventHandler? _subscribtion;
 
 	public async Task<string> SeializeToStringAsync(DatabaseIfc db, CancellationToken ct = default)
 	{
@@ -21,21 +21,30 @@ public class DbSerializer(IfcFormatOutput formatOutput = IfcFormatOutput.STEP) :
 		return dbString;
 	}
 
-	public Func<CancellationToken, Task> StartProcess =>
-        async (cancellationToken) =>
-        {
-			ArgumentNullException.ThrowIfNull(nameof(Input));
-			OnProcessStart?.Invoke(this, cancellationToken);
-			Output = await SeializeToStringAsync(Input!.DatabaseIfc, cancellationToken);
-			ProcessDone?.Invoke(this, cancellationToken);
-        };
+	public async Task ProcessAsync(CancellationToken cancellationToken)
+	{
+		ArgumentNullException.ThrowIfNull(nameof(Input));
+		if (ProcessStart is not null)
+		{
+			await ProcessStart.Invoke(cancellationToken)
+				.ConfigureAwait(false);
+		}
+		Output = await SeializeToStringAsync(Input!.DatabaseIfc, cancellationToken)
+			.ConfigureAwait(false);
+		if (ProcessDone is not null)
+		{
+			await ProcessDone.Invoke(cancellationToken)
+				.ConfigureAwait(false);
+		}
+	}
 
 	public void SubscribeToOutput(IPipeOut outFilter)
 	{
-		_subscribtion = (sender, ct) =>
+		_subscribtion = async (ct) =>
 		{
 			Input = outFilter.Output;
-			this.StartProcess(ct);
+			await ProcessAsync(ct)
+			.ConfigureAwait(false);
 		};
 
 		outFilter.ProcessDone += _subscribtion;
@@ -46,4 +55,5 @@ public class DbSerializer(IfcFormatOutput formatOutput = IfcFormatOutput.STEP) :
 		outFilter.ProcessDone -= _subscribtion;
 		_subscribtion = null;
 	}
+
 }

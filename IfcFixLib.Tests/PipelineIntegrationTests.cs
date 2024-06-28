@@ -33,7 +33,6 @@ public class PipelineIntegrationTests
         // Act
         var token = pipelineManager.GetNewCancelToken();
         await parser.ParseFromStreamAsync(stream, token);
-        await dbSerializer.GetCompletionTask();
         string actual = dbSerializer.Output!;
 
         // Assert
@@ -60,7 +59,6 @@ public class PipelineIntegrationTests
         var filter = new ElementsFilter(strategy);
         var dublicator = new DbDuplicator();
         bool processDone = false;
-        int attemptsCount = 100;
 
         var pipelineManager = new PipelineManager(parser);
         pipelineManager.AddToPipeline(filter);
@@ -68,14 +66,18 @@ public class PipelineIntegrationTests
         {
             pipelineManager.AddToPipeline(new DbDuplicator());
         }
-        pipelineManager.PipeEnd.ProcessDone += (obj, ct) => processDone = true;
+        pipelineManager.PipeEnd.ProcessDone += (ct) =>
+        {
+            processDone = true;
+            return ValueTask.CompletedTask;
+        };
         var dbSerializer1 = new DbSerializer();
         dbSerializer1.SubscribeToOutput(pipelineManager.PipeEnd);
 
         // Act 1
         var token = pipelineManager.GetNewCancelToken();
-        var data = await parser.ParseFromStreamAsync(stream, token);
-        await Task.Delay(10);
+        var data = parser.ParseFromStreamAsync(stream, token);
+        await parser.GetCompletionTask();
         pipelineManager.StopProcessing();
 
         // Assert 1
@@ -88,12 +90,7 @@ public class PipelineIntegrationTests
         dbSerializer1.UnsubscribeFrom(pipelineManager.PipeEnd);
         var dbSerializer2 = new DbSerializer();
         dbSerializer2.SubscribeToOutput(pipelineManager.PipeEnd);
-        pipelineManager.ContinueProcessing();
-        while (!processDone && String.IsNullOrEmpty(dbSerializer2.Output))
-        {
-            await Task.Delay(100);
-            if (--attemptsCount == 0) break;
-        }
+        await pipelineManager.ContinueProcessingAsync();
         string actual = dbSerializer2.Output!;
 
         // Assert 2.

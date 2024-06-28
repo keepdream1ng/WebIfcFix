@@ -17,23 +17,23 @@ public class PipeConnector : IPipeConnector
     {
         TearDownCurrentConnetion();
         _previousPipeLink = pipeFilterToConnectTo;
-        _previousPipeLink.ProcessDone += InitiateOwnProcess;
+        _previousPipeLink.ProcessDone += InitiateOwnProcessAsync;
     }
     public void TearDownCurrentConnetion()
     {
         if (_previousPipeLink is null) return;
-        _previousPipeLink.ProcessDone -= InitiateOwnProcess;
+        _previousPipeLink.ProcessDone -= InitiateOwnProcessAsync;
         Status = ProcessStatus.Waiting;
         Filter.Input = null;
         _previousPipeLink = null;
     }
-    public void InitiateOwnProcess(object? sender, CancellationToken ct)
+    public async ValueTask InitiateOwnProcessAsync(CancellationToken ct)
     {
         try
         {
             Filter.Input = _previousPipeLink!.Output;
             Status = ProcessStatus.Processing;
-            Filter.StartProcess(ct);
+            await Filter.ProcessAsync(ct);
         }
         catch (OperationCanceledException)
         {
@@ -56,8 +56,9 @@ public class PipeConnector : IPipeConnector
         return description;
     }
 
-    private void OnOwnPocessDone(object? sender, CancellationToken ct)
+    private ValueTask OnOwnPocessDone(CancellationToken ct)
     {
         Status = ProcessStatus.Done;
+        return ValueTask.CompletedTask;
     }
 }

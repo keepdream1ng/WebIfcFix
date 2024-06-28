@@ -1,22 +1,30 @@
-﻿namespace IfcFixLib.IfcPipelineDefinition;
+﻿using System.Threading.Tasks;
+
+namespace IfcFixLib.IfcPipelineDefinition;
 public abstract class PipeFilter : IPipeFilter
 {
     public DataIFC? Input { get; set; }
     public DataIFC? Output {  get; protected set; }
-    public event EventHandler<CancellationToken>? ProcessDone;
-    public Func<CancellationToken, Task> StartProcess =>
-        async (cancellationToken) =>
-        {
-            if (Input is null) return;
-            Output = await this.ProcessData(Input, cancellationToken).ConfigureAwait(false);
-            if (!cancellationToken.IsCancellationRequested)
-            {
-                OnProcessDone(cancellationToken);
-            }
-        };
-    protected abstract Func<DataIFC, CancellationToken, Task<DataIFC>> ProcessData { get; }
-    protected virtual void OnProcessDone(CancellationToken ct)
+    public event AsyncEventHandler? ProcessDone;
+    public async Task ProcessAsync(CancellationToken cancellationToken)
     {
-        ProcessDone?.Invoke(this, ct);
+		if (Input is null) return;
+		Output = await ProcessDataAsync(Input, cancellationToken).ConfigureAwait(false);
+		if (!cancellationToken.IsCancellationRequested)
+		{
+			await OnProcessDone(cancellationToken).ConfigureAwait(false);
+		}
+    }
+    protected abstract Task<DataIFC> ProcessDataAsync(DataIFC dataIFC, CancellationToken cancellationToken);
+    protected virtual ValueTask OnProcessDone(CancellationToken ct)
+    {
+        if (ProcessDone is not null)
+        {
+			return ProcessDone.Invoke(ct);
+        }
+        else
+        {
+            return ValueTask.CompletedTask;
+        }
     }
 }

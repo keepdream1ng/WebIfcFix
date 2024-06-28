@@ -31,7 +31,7 @@
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
-		Serializer.OnProcessStart += SignalProcessing;
+		Serializer.ProcessStart += SignalProcessing;
 		Serializer.ProcessDone += SignalReadyToSave;
 	}
 

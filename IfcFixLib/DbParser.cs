@@ -4,7 +4,7 @@ using IfcFixLib.IfcPipelineDefinition;
 namespace IfcFixLib;
 public class DbParser : IPipeOut
 {
-    public event EventHandler<CancellationToken>? ProcessDone;
+    public event AsyncEventHandler? ProcessDone;
     public DataIFC? Output { get; private set; }
     public async Task<DatabaseIfc> ParseFromStreamAsync(
         Stream stream,
@@ -20,12 +20,19 @@ public class DbParser : IPipeOut
         cancellationToken.ThrowIfCancellationRequested();
         var elements = db.Project.Extract<IfcBuiltElement>();
         Output = new DataIFC(db, elements);
-        OnProcessDone(cancellationToken);
+        await OnProcessDone(cancellationToken);
         return db;
     }
 
-    protected virtual void OnProcessDone(CancellationToken ct)
+    protected virtual ValueTask OnProcessDone(CancellationToken ct)
     {
-        ProcessDone?.Invoke(this, ct);
+        if (ProcessDone is not null)
+        {
+			return ProcessDone.Invoke(ct);
+        }
+        else
+        {
+            return ValueTask.CompletedTask;
+        }
     }
 }
