@@ -7,7 +7,7 @@ public class ChildComponent2Model : ComponentModel<ChildComponent2>
 {
     public ElementStringValueType StringValueType { get; set; } = ElementStringValueType.Name;
 
-	public override IPipeFilter PipeFilter => new DbDuplicator();
+	public override IPipeFilter PipeFilter { get; init; } = new DbDuplicator();
 
 	public override IComponentInformation ComponentInformation { get; init; } = new ChildComponent2Info();
 }

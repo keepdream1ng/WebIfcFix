@@ -11,7 +11,7 @@ public abstract class SerializableModelBase
     public virtual Dictionary<string, object> Params() => new() { ["ModelBase"] = this };
 
     [JsonIgnore]
-    public abstract IPipeFilter PipeFilter { get; }
+    public abstract IPipeFilter PipeFilter { get; init; }
 
     [JsonIgnore]
     public virtual LinkedListNode<IPipeConnector>? PipelineNode { get; set; }
@@ -46,6 +46,19 @@ public abstract class DynamicComponentWithModelBase<Tmodel> : ComponentBase, ICo
         get => _model!;
         set { _model = value; }
     }
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		base.OnAfterRender(firstRender);
+		if (firstRender)
+		{
+			Model.PipelineNode!.Value.StateChanged += OnStateChange;
+		}
+	}
+	protected virtual void OnStateChange(object? sender, EventArgs eventArgs)
+	{
+		StateHasChanged();
+	}
 }
 
 public abstract class ComponentInformation<Tmodel> : IComponentInformation where Tmodel : SerializableModelBase

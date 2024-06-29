@@ -1,0 +1,22 @@
+﻿@using IfcFixLib.IfcPipelineDefinition
+
+<ProcessStatusIndicator Status="@Connector.Status" Message="@Connector.StatusDescription" />
+
+@code {
+	[Parameter]
+	[EditorRequired]
+	public IPipeConnector Connector { get; set; }
+
+	protected override void OnAfterRender(bool firstRender)
+	{
+		base.OnAfterRender(firstRender);
+		if (firstRender)
+		{
+			Connector.StateChanged += OnStateChange;
+		}
+	}
+	protected void OnStateChange(object? sender, EventArgs eventArgs)
+	{
+		StateHasChanged();
+	}
+}

@@ -9,16 +9,13 @@ public class ChildComponent1Model : ComponentModel<ChildComponent1>
 {
     public string Input { get; set; } = String.Empty;
 
-	public override IPipeFilter PipeFilter => ElementsFilter.Value;
-
-	[JsonIgnore]
-	public Lazy<ElementsFilter> ElementsFilter { get; set; } = new Lazy<ElementsFilter>( new ElementsFilter(
+	public override IPipeFilter PipeFilter { get; init; } = new ElementsFilter(
 		new StringFilterStrategy()
 		{
 			FilteredString = String.Empty,
 			StringChecker = new StringChecker(),
 			StringValueGetter = new StringValueGetter()
-		}));
+		});
 
 	public override IComponentInformation ComponentInformation { get; init; } = new ChildComponent1Info();
 }
