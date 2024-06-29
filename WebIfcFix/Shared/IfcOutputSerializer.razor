@@ -35,14 +35,15 @@
 		Serializer.ProcessDone += SignalReadyToSave;
 	}
 
-	private void SignalProcessing(object? sender, CancellationToken ct)
+	private ValueTask SignalProcessing(CancellationToken ct)
 	{
 		Status = ProcessStatus.Processing;
 		Message = string.Empty;
 		StateHasChanged();
+		return ValueTask.CompletedTask;
 	}
 
-	private void SignalReadyToSave(object? sender, CancellationToken ct)
+	private ValueTask SignalReadyToSave(CancellationToken ct)
 	{
 		if (Serializer.Output is not null)
 		{
@@ -54,6 +55,7 @@
 			Message = "Error on deserializing";
 		}
 		StateHasChanged();
+		return ValueTask.CompletedTask;
 	}
 
 	private async Task SafeIfcFile()

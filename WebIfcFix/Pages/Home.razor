@@ -56,8 +56,7 @@
 			Manager = new PipelineManager(Parser);
             Manager.AddToPipeline(filter);
 
-            Manager.ContinueProcessing();
-            await Manager.PipeEnd.GetCompletionTask();
+            await Manager.ContinueProcessingAsync();
             int numberObjectsFiltered = filter.Output!.Elements.Count;
             string filtered = String.Empty;
 
@@ -66,8 +65,7 @@
                 var dublicator = new DbDuplicator();
                 Manager.AddToPipeline(dublicator);
                 Manager.PipeEnd.PipeInto(Serializer);
-                Manager.ContinueProcessing();
-                await Serializer.GetCompletionTask();
+                await Manager.ContinueProcessingAsync();
 
                 Message = $"Read successful, elements filtered: {numberObjectsFiltered}";
             }
