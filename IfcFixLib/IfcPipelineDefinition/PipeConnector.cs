@@ -3,6 +3,7 @@ public class PipeConnector : IPipeConnector
 {
     public IPipeFilter Filter { get; private set; }
     public ProcessStatus Status { get; private set; }
+    public event EventHandler? StateChanged;
     public string StatusDescription => GetStatusDescription();
     private IPipeOut? _previousPipeLink;
     private string _errorMessage = string.Empty;
@@ -33,6 +34,7 @@ public class PipeConnector : IPipeConnector
         {
             Filter.Input = _previousPipeLink!.Output;
             Status = ProcessStatus.Processing;
+            StateChanged?.Invoke(this, EventArgs.Empty);
             await Filter.ProcessAsync(ct);
         }
         catch (OperationCanceledException)
@@ -43,6 +45,10 @@ public class PipeConnector : IPipeConnector
         {
             Status = ProcessStatus.Error;
             _errorMessage = ex.Message;
+        }
+        finally
+        {
+            StateChanged?.Invoke(this, EventArgs.Empty);
         }
     }
 

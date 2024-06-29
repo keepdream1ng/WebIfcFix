@@ -4,6 +4,8 @@ public interface IPipeConnector
 {
     IPipeFilter Filter { get; }
     ProcessStatus Status { get; }
+
+    event EventHandler? StateChanged;
     string StatusDescription { get; }
 
     void SetUpConnetion(IPipeOut pipeFilterToConnectTo);
