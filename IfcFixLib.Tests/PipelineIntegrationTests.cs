@@ -1,5 +1,6 @@
 ﻿using IfcFixLib.FilterStrategy;
 using IfcFixLib.IfcPipelineDefinition;
+using NSubstitute;
 
 namespace IfcFixLib.Tests;
 public class PipelineIntegrationTests
@@ -100,5 +101,33 @@ public class PipelineIntegrationTests
         Assert.Contains("TestBeam", actual);
         Assert.DoesNotContain("testWall", actual);
         Assert.DoesNotContain("testColumn", actual);
+    }
+
+    [Fact]
+    public async Task PipelineNodesStatus_IndicatesCorrectly_InCaseError()
+    {
+        // Arrange
+		string expectedErrorMessage = "Error occured.";
+        FileStream stream = new FileStream(ifcPath, FileMode.Open);
+        var parser = new DbParser();
+        var dublicator = new DbDuplicator();
+		var errorFilter = Substitute.For<IPipeFilter>();
+		errorFilter.ProcessAsync(Arg.Any<CancellationToken>())
+			.Returns(async (ct) => throw new Exception(expectedErrorMessage));
+        var dbSerializer = new DbSerializer();
+
+        var pipelineManager = new PipelineManager(parser);
+        var dublicatorNode = pipelineManager.AddToPipeline(dublicator);
+        var errorFilterNode = pipelineManager.AddToPipeline(errorFilter);
+        pipelineManager.PipeEnd.PipeInto(dbSerializer);
+
+        // Act
+        var token = pipelineManager.GetNewCancelToken();
+        await parser.ParseFromStreamAsync(stream, token);
+
+        // Assert
+        Assert.Equal(ProcessStatus.Done, dublicatorNode.Value.Status);
+        Assert.Equal(ProcessStatus.Error, errorFilterNode.Value.Status);
+        Assert.Null(dbSerializer.Output);
     }
 }
