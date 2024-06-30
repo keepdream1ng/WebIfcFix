@@ -12,7 +12,11 @@ public class PipeConnectorTests
 		var errorFilter = Substitute.For<IPipeFilter>();
 		var previousOutput = Substitute.For<IPipeOut>();
 		errorFilter.ProcessAsync(Arg.Any<CancellationToken>())
-			.Returns(async (ct) => throw new Exception(expectedErrorMessage));
+			.Returns(async (ct) =>
+			{
+				await Task.Delay(10);
+				throw new Exception(expectedErrorMessage);
+			});
 		var connector = new PipeConnector(errorFilter);
 
 		// Act

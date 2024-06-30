@@ -113,7 +113,11 @@ public class PipelineIntegrationTests
         var dublicator = new DbDuplicator();
 		var errorFilter = Substitute.For<IPipeFilter>();
 		errorFilter.ProcessAsync(Arg.Any<CancellationToken>())
-			.Returns(async (ct) => throw new Exception(expectedErrorMessage));
+			.Returns(async (ct) =>
+			{
+				await Task.Delay(10);
+				throw new Exception(expectedErrorMessage);
+			});
         var dbSerializer = new DbSerializer();
 
         var pipelineManager = new PipelineManager(parser);
