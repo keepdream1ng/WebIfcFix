@@ -6,7 +6,8 @@ namespace WebIfcFix.Shared;
 
 public class IfcDataDublicatorModel : ComponentModel<IfcDataDublicator>
 {
-	public override IPipeFilter PipeFilter { get; init; } = new DbDuplicator();
+	public override IPipeFilter PipeFilter => _duplicator;
+	private DbDuplicator _duplicator = new DbDuplicator();
 
 	public override IComponentInformation ComponentInformation { get ; init; } = new IfcDataDublicatorInfo();
 }

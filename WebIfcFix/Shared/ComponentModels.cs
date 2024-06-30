@@ -11,7 +11,7 @@ public abstract class SerializableModelBase
     public virtual Dictionary<string, object> Params() => new() { ["ModelBase"] = this };
 
     [JsonIgnore]
-    public abstract IPipeFilter PipeFilter { get; init; }
+    public abstract IPipeFilter PipeFilter { get; }
 
     [JsonIgnore]
     public virtual LinkedListNode<IPipeConnector>? PipelineNode { get; set; }
