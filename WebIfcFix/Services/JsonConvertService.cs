@@ -31,7 +31,7 @@ public class JsonConvertService : IJsonConvertService
 		public override bool CanRead => true;
 		public override bool CanWrite => false;
 
-		public override SerializableModelBase ReadJson(JsonReader reader, Type objectType, SerializableModelBase existingValue, bool hasExistingValue, JsonSerializer serializer)
+		public override SerializableModelBase ReadJson(JsonReader reader, Type objectType, SerializableModelBase? existingValue, bool hasExistingValue, JsonSerializer serializer)
 		{
 			JObject jsonObject = JObject.Load(reader);
 			string? modelType = jsonObject.GetValue(nameof(SerializableModelBase.ModelType))?.ToString();
@@ -59,7 +59,7 @@ public class JsonConvertService : IJsonConvertService
 			return component;
 		}
 
-		public override void WriteJson(JsonWriter writer, SerializableModelBase value, JsonSerializer serializer)
+		public override void WriteJson(JsonWriter writer, SerializableModelBase? value, JsonSerializer serializer)
 		{
 			throw new NotImplementedException();
 		}
