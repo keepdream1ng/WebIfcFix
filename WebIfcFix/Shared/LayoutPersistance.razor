@@ -1,14 +1,16 @@
 ﻿@using System.Net
+
 @inject NavigationManager NavManager
 @inject IJsonConvertService Json
 @inject ILocalStorageService ClientStorage
 @inject LayoutManagerService LayoutManager
+@inject IJSRuntime JS
 
 <button
 	class="btn btn-primary"
-	onclick="@SerializeList"
+	onclick="@SerializeAndShareLayout"
 	type="button">
-	Serialize list to route AKA Share
+	Share layout
 </button>
 
 <pre>
@@ -53,7 +55,7 @@
 	public List<SerializableModelBase>? Components { get; set; } =
 		[
 			new FilterByStringComponentModel(),
-			new IfcDataDublicatorModel()
+		new IfcDataDublicatorModel()
 		];
 	public string ListSerialized { get; set; } = String.Empty;
 
@@ -82,12 +84,14 @@
 		StateHasChanged();
 	}
 
-	public void SerializeList()
+	public async Task SerializeAndShareLayout()
 	{
 		ListSerialized = Json.SerializeObject(LayoutManager.ComponentsLayout);
 		ListEncoded = WebUtility.UrlEncode(ListSerialized);
+		string url = NavManager.GetUriWithQueryParameter("list", ListEncoded);
+		NavManager.NavigateTo(url);
+        await JS.InvokeVoidAsync("copyTextToClipboard", url);
 		StateHasChanged();
-		NavManager.NavigateTo(NavManager.GetUriWithQueryParameter("list", ListEncoded));
 	}
 
 	protected override async Task OnInitializedAsync()
