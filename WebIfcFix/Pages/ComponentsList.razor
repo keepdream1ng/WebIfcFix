@@ -1,7 +1,4 @@
 ﻿@page "/components"
-@inject NavigationManager NavManager
-@inject IJsonConvertService Json
-@inject ILocalStorageService ClientStorage
 @inject IComponentsTypesService TypesService
 @inject LayoutManagerService LayoutManager
 @using System.Net
@@ -11,6 +8,7 @@
 <div class="container no-select">
 	<div class="row">
 		<div class="col">
+			<IfcInputParser Parser="LayoutManager.DbParser" />
 			<SortableList
 				Group="IfcFilters"
 				Items="LayoutManager.ComponentsLayout"
@@ -31,6 +29,7 @@
 					</div>
 				</SortableItemTemplate>
 			</SortableList>
+			<IfcOutputSerializer Serializer="LayoutManager.DbSerializer" />
 		</div>
 		<div class="col-3">
 			<SortableList
@@ -50,121 +49,29 @@
 	</div>
 </div>
 
-<button
-	class="btn btn-primary"
-	onclick="@SerializeList"
-	type="button">
-	Serialize list to route AKA Share
-</button>
-
-<pre>
-	<code>
-		@if (!string.IsNullOrEmpty(ListSerialized)) @ListSerialized
-	</code>
-</pre>
-
-<p>
-	Encoded length: @if (!string.IsNullOrEmpty(ListEncoded)) @ListEncoded.Length
-</p>
-
-<InputText class="form-control" @bind-Value="@NameToSave"/>
-<button
-	class="btn btn-primary"
-	onclick="@SaveLayout"
-	type="button">
-	Save layout
-</button>
-
-@if (SavedLayouts is not null && SavedLayouts.Count > 0)
-{
-	<InputSelect class="form-select" @bind-Value="LayoutToLoad">
-		@foreach (string savedLayout in SavedLayouts!)
-		{
-			<option value="@savedLayout">@savedLayout</option>
-		}
-	</InputSelect>
-	<button
-		class="btn btn-primary"
-		onclick="@LoadLayout"
-		type="button">
-		Load layout
-	</button>
-}
+<LayoutPersistance OnLayoutUpdate="UpdateState" />
 
 @code {
-	public List<SerializableModelBase>? Components { get; set; } =
-		[
-			new ChildComponent1Model(),
-			new ChildComponent2Model(),
-			new ChildComponent1Model(),
-			new ChildComponent2Model()
-		];
-	public string ListSerialized { get; set; } = String.Empty;
-
-	[SupplyParameterFromQuery(Name = "list")]
-	public string ListEncoded { get; set; } = String.Empty;
-
-	public string NameToSave { get; set; } = String.Empty;
-	public string LayoutToLoad { get; set; } = String.Empty;
-	public List<string>? SavedLayouts { get; set; }
-
-	public async Task SaveLayout()
-	{
-		SavedLayouts!.Add(NameToSave);
-		await ClientStorage.SetItemAsync(nameof(SavedLayouts), SavedLayouts);
-		await ClientStorage.SetItemAsync(NameToSave, LayoutManager.ComponentsLayout);
-		StateHasChanged();
-	}
-	public async Task LoadLayout()
-	{
-		var layout = await ClientStorage.GetItemAsync<List<SerializableModelBase>>(LayoutToLoad);
-		if (layout is not null)
-		{
-			LayoutManager.ImportLayout(layout);
-		}
-		StateHasChanged();
-	}
-
-	public void SerializeList()
-	{
-		ListSerialized = Json.SerializeObject(LayoutManager.ComponentsLayout);
-		ListEncoded = WebUtility.UrlEncode(ListSerialized);
-		StateHasChanged();
-		NavManager.NavigateTo(NavManager.GetUriWithQueryParameter("list", ListEncoded));
-	}
-
 	private void SortList((int oldIndex, int newIndex) indices)
 	{
 		LayoutManager.ReorderLayout(indices.oldIndex, indices.newIndex);
-		StateHasChanged();
-	}
-
-	protected override async Task OnInitializedAsync()
-	{
-		await base.OnInitializedAsync();
-		if (!String.IsNullOrEmpty(ListEncoded))
-		{
-			ListSerialized = WebUtility.UrlDecode(ListEncoded);
-			var list = Json.DeserializeObject<List<SerializableModelBase>>(ListSerialized);
-			if (list is not null)
-			{
-				Components = list;
-			}
-			StateHasChanged();
-		}
-		LayoutManager.ImportLayout(Components!);
-		SavedLayouts = await ClientStorage.GetItemAsync<List<string>>(nameof(SavedLayouts)) ?? new List<string>();
+		UpdateState();
 	}
 
 	private void CreateNewComponent((int oldIndex, int newIndex) indices)
 	{
 		LayoutManager.InsertNew(indices);
-		StateHasChanged();
+		UpdateState();
 	}
 
 	private void RemoveComponent((int oldIndex, int newIndex) indices)
 	{
 		LayoutManager.RemoveElementAt(indices.oldIndex);
+		UpdateState();
+	}
+
+	private void UpdateState()
+	{
 		StateHasChanged();
 	}
 }
