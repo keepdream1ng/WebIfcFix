@@ -6,46 +6,48 @@
 @inject LayoutManagerService LayoutManager
 @inject IJSRuntime JS
 
-<button
-	class="btn btn-primary"
-	onclick="@SerializeAndShareLayout"
-	type="button">
-	Share layout
-</button>
-
-<pre>
-	<code>
-		@if (!string.IsNullOrEmpty(ListSerialized)) @ListSerialized
-	</code>
-</pre>
-
-<p>
-	Encoded length: @if (!string.IsNullOrEmpty(ListEncoded)) @ListEncoded.Length
-</p>
-
-<InputText class="form-control" @bind-Value="@NameToSave"/>
-<button
-	class="btn btn-primary"
-	onclick="@SaveLayout"
-	type="button">
-	Save layout
-</button>
-
-@if (SavedLayouts is not null && SavedLayouts.Count > 0)
-{
-	<InputSelect class="form-select" @bind-Value="LayoutToLoad">
-		@foreach (string savedLayout in SavedLayouts!)
-		{
-			<option value="@savedLayout">@savedLayout</option>
-		}
-	</InputSelect>
+<div class="row mt-5">
 	<button
 		class="btn btn-primary"
-		onclick="@LoadLayout"
+		onclick="@SerializeAndShareLayout"
 		type="button">
-		Load layout
+		Share layout
 	</button>
-}
+
+	<pre>
+		<code>
+			@if (!string.IsNullOrEmpty(ListSerialized)) @ListSerialized
+		</code>
+	</pre>
+
+	<p>
+		Encoded length: @if (!string.IsNullOrEmpty(ListEncoded)) @ListEncoded.Length
+	</p>
+
+	<InputText class="form-control" @bind-Value="@NameToSave"/>
+	<button
+		class="btn btn-primary"
+		onclick="@SaveLayout"
+		type="button">
+		Save layout
+	</button>
+
+	@if (SavedLayouts is not null && SavedLayouts.Count > 0)
+	{
+		<InputSelect class="form-select" @bind-Value="LayoutToLoad">
+			@foreach (string savedLayout in SavedLayouts!)
+			{
+				<option value="@savedLayout">@savedLayout</option>
+			}
+		</InputSelect>
+		<button
+			class="btn btn-primary"
+			onclick="@LoadLayout"
+			type="button">
+			Load layout
+		</button>
+	}
+</div>
 
 @code {
 	[Parameter]

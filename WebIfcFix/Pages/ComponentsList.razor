@@ -4,10 +4,10 @@
 @using System.Net
 @using Newtonsoft.Json
 
-<h3>ComponentsList</h3>
-<div class="container no-select">
+<div class="no-select">
 	<div class="row">
 		<div class="col">
+			<h3>Ifc Pipeline Layout</h3>
 			<IfcInputParser Parser="LayoutManager.DbParser" />
 			<SortableList
 				Group="IfcFilters"
@@ -15,6 +15,8 @@
 				Handle=".handle"
 				OnUpdate="SortList"
 				OnRemove="RemoveComponent"
+				DoCallbackOnMoveToId="true"
+				OnMoveToId=OnMoveToId
 				Context="model">
 				<SortableItemTemplate>
 					<div class="card m-1">
@@ -32,19 +34,27 @@
 			<IfcOutputSerializer Serializer="LayoutManager.DbSerializer" />
 		</div>
 		<div class="col-3">
-			<SortableList
-				Group="IfcFilters"
-				Items="TypesService.ComponentsTypes"
-				Sort="false"
-				Pull="clone"
-				OnRemove="CreateNewComponent"
-				Context="type">
-				<SortableItemTemplate>
-					<div class="alert alert-info">
-						@type.FilterName
-					</div>
-				</SortableItemTemplate>
-			</SortableList>
+			<div
+				style="overflow-y: auto"
+				class="row flex-column h-100 position-relative">
+				<h3>Pipeline filters components</h3>
+				<GarbageBinSVG Fill="white" Class="@svgClass"/>
+				<SortableList
+					Id="@componentsId"
+					Class="@componentClass"
+					Group="IfcFilters"
+					Items="TypesService.ComponentsTypes"
+					Sort="false"
+					Pull="clone"
+					OnRemove="CreateNewComponent"
+					Context="type">
+					<SortableItemTemplate>
+						<div class="alert alert-info @componentsOpacity">
+							@type.FilterName
+						</div>
+					</SortableItemTemplate>
+				</SortableList>
+			</div>
 		</div>
 	</div>
 </div>
@@ -52,6 +62,36 @@
 <LayoutPersistance OnLayoutUpdate="UpdateState" />
 
 @code {
+	private bool componentsIsHovered { get; set; }
+	private string componentsId { get; } = "componentsCollection";
+	private string componentBG => componentsIsHovered ? "bg-success" : ".bg-transparent";
+	private string componentClass => $"col-12 flex-fill {componentBG}";
+	private string componentsOpacity => componentsIsHovered ? "opacity-0" : "opacity-100";
+	private string opacityIcon => componentsIsHovered ? "opacity-100" : "opacity-0";
+	private string svgClass => $"background-svg {opacityIcon}";
+
+	private void UpdateState()
+	{
+		StateHasChanged();
+	}
+
+	private void OnMoveToId(string id)
+	{
+		if (!componentsIsHovered)
+		{
+			componentsIsHovered = id == componentsId;
+			UpdateState();
+		}
+		else
+		{
+			if (id != componentsId)
+			{
+				componentsIsHovered = false;
+				UpdateState();
+			}
+		}
+	}
+
 	private void SortList((int oldIndex, int newIndex) indices)
 	{
 		LayoutManager.ReorderLayout(indices.oldIndex, indices.newIndex);
@@ -67,11 +107,7 @@
 	private void RemoveComponent((int oldIndex, int newIndex) indices)
 	{
 		LayoutManager.RemoveElementAt(indices.oldIndex);
+		componentsIsHovered = false;
 		UpdateState();
-	}
-
-	private void UpdateState()
-	{
-		StateHasChanged();
 	}
 }
