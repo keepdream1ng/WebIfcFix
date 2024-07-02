@@ -1,88 +1,112 @@
 ﻿@page "/"
-@using System.ComponentModel.DataAnnotations
-@using System.Text
-@using IfcFixLib.FilterStrategy
-@using IfcFixLib.IfcPipelineDefinition
-@using IfcFixLib
 
-@inject IJSRuntime JS;
+@inject IComponentsTypesService TypesService
+@inject LayoutManagerService LayoutManager
 
-<PageTitle>Blazor WASM IFC processing</PageTitle>
-
-<div class="container">
-
-<div>
-    <h2 class="display-4">Blazor WASM IFC processing</h2>
-    <p>Read and filter IFC file using Blazor WebAssembly, after submit edited IFC should be downloading.</p>
+<div class="no-select">
+	<div class="row">
+		<div class="col">
+			<h3>Ifc Pipeline Layout</h3>
+			<IfcInputParser Parser="LayoutManager.DbParser" />
+			<SortableList
+				Group="IfcFilters"
+				Items="LayoutManager.ComponentsLayout"
+				Handle=".handle"
+				OnUpdate="SortList"
+				OnRemove="RemoveComponent"
+				DoCallbackOnMoveToId="true"
+				OnMoveToId=OnMoveToId
+				Context="model">
+				<SortableItemTemplate>
+					<div class="card m-1">
+						<div class="row g-0">
+							<div class="col-1 handle" style="cursor: move">
+								<PipeConnectorStatusIndicator Connector="@model.PipelineNode!.Value" />
+							</div>
+							<div class="col p-1">
+								<DynamicComponent Type=@Type.GetType(model.ComponentTypeName!) Parameters="@model.Params()"/>
+							</div>
+						</div>
+					</div>
+				</SortableItemTemplate>
+			</SortableList>
+			<IfcOutputSerializer Serializer="LayoutManager.DbSerializer" />
+		</div>
+		<div class="col-3">
+			<div
+				style="overflow-y: auto"
+				class="row flex-column h-100 position-relative">
+				<h3>Pipeline filters components</h3>
+				<GarbageBinSVG Fill="white" Class="@svgClass"/>
+				<SortableList
+					Id="@componentsId"
+					Class="@componentClass"
+					Group="IfcFilters"
+					Items="TypesService.ComponentsTypes"
+					Sort="false"
+					Pull="clone"
+					OnRemove="CreateNewComponent"
+					Context="type">
+					<SortableItemTemplate>
+						<div class="alert alert-info @componentsOpacity">
+							@type.FilterName
+						</div>
+					</SortableItemTemplate>
+				</SortableList>
+			</div>
+		</div>
+	</div>
 </div>
 
-<IfcInputParser Parser="Parser" />
-
-@if(Message.Length > 0)
-{
-    <p class="alert alert-secondary" role="alert">@Message</p>
-}
-<EditForm Model="@IfcFile" method="post" OnValidSubmit="@OnSubmit" enctype="multipart/form-data">
-    <DataAnnotationsValidator />
-    <ValidationSummary />
-    <InputText class="form-control mb-4" placeholder="Name, or part of it, of the element to filter" @bind-Value="@IfcFile.CheckString" />
-    <button class="btn btn-primary" type="submit">Submit</button>
-</EditForm>
-
-<IfcOutputSerializer Serializer="Serializer" />
-
-</div>
+<LayoutPersistance OnLayoutUpdate="UpdateState" />
 
 @code {
-    private WebAssemblyFile IfcFile { get; set; } = new();
-    private DbParser Parser { get; set; } = new();
-    private DbSerializer Serializer { get; set; } = new();
-    private PipelineManager Manager { get; set; }
-    private string Message { get; set; } = String.Empty;
+	private bool componentsIsHovered { get; set; }
+	private string componentsId { get; } = "componentsCollection";
+	private string componentBG => componentsIsHovered ? "bg-success" : ".bg-transparent";
+	private string componentClass => $"col-12 flex-fill {componentBG}";
+	private string componentsOpacity => componentsIsHovered ? "opacity-0" : "opacity-100";
+	private string opacityIcon => componentsIsHovered ? "opacity-100" : "opacity-0";
+	private string svgClass => $"background-svg {opacityIcon}";
 
-    private async Task OnSubmit()
-    {
-        try
-        {
-            var checker = new StringChecker();
-            checker.FilterType = StringFilterType.Contains;
-            var valueGetter = new StringValueGetter();
-            valueGetter.ValueType = ElementStringValueType.Name;
-            var strategy = new StringFilterStrategy();
-            strategy.StringChecker = checker;
-            strategy.FilteredString = IfcFile.CheckString;
-            strategy.StringValueGetter = valueGetter;
-            ElementsFilter filter = new ElementsFilter(strategy);
-			Manager = new PipelineManager(Parser);
-            Manager.AddToPipeline(filter);
+	private void UpdateState()
+	{
+		StateHasChanged();
+	}
 
-            await Manager.ContinueProcessingAsync();
-            int numberObjectsFiltered = filter.Output!.Elements.Count;
-            string filtered = String.Empty;
+	private void OnMoveToId(string id)
+	{
+		if (!componentsIsHovered)
+		{
+			componentsIsHovered = id == componentsId;
+			UpdateState();
+		}
+		else
+		{
+			if (id != componentsId)
+			{
+				componentsIsHovered = false;
+				UpdateState();
+			}
+		}
+	}
 
-            if (numberObjectsFiltered > 0)
-            {
-                var dublicator = new DbDuplicator();
-                Manager.AddToPipeline(dublicator);
-                Manager.PipeEnd.PipeInto(Serializer);
-                await Manager.ContinueProcessingAsync();
+	private void SortList((int oldIndex, int newIndex) indices)
+	{
+		LayoutManager.ReorderLayout(indices.oldIndex, indices.newIndex);
+		UpdateState();
+	}
 
-                Message = $"Read successful, elements filtered: {numberObjectsFiltered}";
-            }
-            else
-            {
-                Message = $"Read successful, but zero elements were filtered out";
-            }
-        } 
-        catch(Exception e)
-        {
-            Message = "Read failed. Error: " + e.Message;
-        }
-    }
+	private void CreateNewComponent((int oldIndex, int newIndex) indices)
+	{
+		LayoutManager.InsertNew(indices);
+		UpdateState();
+	}
 
-    private class WebAssemblyFile
-    {
-        [Required]
-        public string CheckString { get; set; } = String.Empty;
-    }
+	private void RemoveComponent((int oldIndex, int newIndex) indices)
+	{
+		LayoutManager.RemoveElementAt(indices.oldIndex);
+		componentsIsHovered = false;
+		UpdateState();
+	}
 }
