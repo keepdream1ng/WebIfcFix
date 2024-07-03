@@ -6,34 +6,69 @@
 @inject LayoutManagerService LayoutManager
 @inject IJSRuntime JS
 
-<div class="row mt-5">
-	<button
-		class="btn btn-primary"
-		onclick="@SerializeAndShareLayout"
-		type="button">
-		Share layout
-	</button>
+<div class="row m-5">
+	<div class="d-grid gap-2 d-md-block">
+		<button
+			class="btn btn-primary"
+			onclick="@SerializeAndShareLayout"
+			type="button">
+			Share layout
+		</button>
+		<button
+			class="btn btn-primary"
+			onclick="@ToggleShowSaveOptions"
+			type="button">
+			Save layout
+		</button>
+		@if (SavedLayouts is not null && SavedLayouts.Count > 0)
+		{
+			<button
+				class="btn btn-primary"
+				onclick="@ToggleShowLoadOptions"
+				type="button">
+				Load layout
+			</button>
+		}
+	</div>
+</div>
 
-	<pre>
-		<code>
-			@if (!string.IsNullOrEmpty(ListSerialized)) @ListSerialized
-		</code>
-	</pre>
+@if (!string.IsNullOrEmpty(ListSerialized))
+{
+	<div class="row m-5">
+		<div class="card p-0">
+			<div class="card-body">
+				<h5 class="card-title">
+					Serialized layout
+				</h5>
+				<pre>
+					<code>
+						@ListSerialized
+					</code>
+				</pre>
+			</div>
+			<div class="card-footer">
+				Encoded length: @ListEncoded.Length
+			</div>
+		</div>
+	</div>
+}
 
-	<p>
-		Encoded length: @if (!string.IsNullOrEmpty(ListEncoded)) @ListEncoded.Length
-	</p>
+@if (_showSaveOptions)
+{
+	<div class="row m-5">
+		<InputText class="form-control" @bind-Value="@NameToSave"/>
+		<button
+			class="btn btn-primary"
+			onclick="@SaveLayout"
+			type="button">
+			Save
+		</button>
+	</div>
+}
 
-	<InputText class="form-control" @bind-Value="@NameToSave"/>
-	<button
-		class="btn btn-primary"
-		onclick="@SaveLayout"
-		type="button">
-		Save layout
-	</button>
-
-	@if (SavedLayouts is not null && SavedLayouts.Count > 0)
-	{
+@if (_showLoadOptions)
+{
+	<div class="row m-5">
 		<InputSelect class="form-select" @bind-Value="LayoutToLoad">
 			@foreach (string savedLayout in SavedLayouts!)
 			{
@@ -46,8 +81,8 @@
 			type="button">
 			Load layout
 		</button>
-	}
-</div>
+	</div>
+}
 
 @code {
 	[Parameter]
@@ -57,7 +92,7 @@
 	public List<SerializableModelBase>? Components { get; set; } =
 		[
 			new FilterByStringComponentModel(),
-		new IfcDataDublicatorModel()
+			new IfcDataDublicatorModel()
 		];
 	public string ListSerialized { get; set; } = String.Empty;
 
@@ -67,6 +102,8 @@
 	public string NameToSave { get; set; } = String.Empty;
 	public string LayoutToLoad { get; set; } = String.Empty;
 	public List<string>? SavedLayouts { get; set; }
+	private bool _showLoadOptions = false;
+	private bool _showSaveOptions = false;
 
 	public async Task SaveLayout()
 	{
@@ -92,7 +129,7 @@
 		ListEncoded = WebUtility.UrlEncode(ListSerialized);
 		string url = NavManager.GetUriWithQueryParameter("list", ListEncoded);
 		NavManager.NavigateTo(url);
-        await JS.InvokeVoidAsync("copyTextToClipboard", url);
+		await JS.InvokeVoidAsync("copyTextToClipboard", url);
 		StateHasChanged();
 	}
 
@@ -112,5 +149,15 @@
 		SavedLayouts = await ClientStorage.GetItemAsync<List<string>>(nameof(SavedLayouts)) ?? new List<string>();
 		StateHasChanged();
 		await OnLayoutUpdate.InvokeAsync();
+	}
+
+	private void ToggleShowLoadOptions()
+	{
+		_showLoadOptions = !_showLoadOptions;
+	}
+
+	private void ToggleShowSaveOptions()
+	{
+		_showSaveOptions = !_showSaveOptions;
 	}
 }
