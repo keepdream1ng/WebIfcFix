@@ -4,12 +4,12 @@ namespace WebIfcFix.Services;
 
 public interface ISanitizerService
 {
-	string Sanitize(string text);
+	string SanitizeJson(string text);
 }
 
 public class SanitizerService : ISanitizerService
 {
-	public string Sanitize(string text)
+	public string SanitizeJson(string text)
 	{
 		HtmlSanitizer sanitizer = new HtmlSanitizer();
 		return sanitizer.Sanitize(text);

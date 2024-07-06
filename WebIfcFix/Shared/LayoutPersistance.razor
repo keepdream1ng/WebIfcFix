@@ -11,29 +11,26 @@
 	<div class="d-grid gap-2 d-md-block">
 		<button
 			class="btn btn-primary"
-			onclick="@SerializeAndShareLayout"
+			@onclick="@SerializeAndShareLayout"
 			type="button">
 			Share layout
 		</button>
 		<button
-			class="btn btn-primary"
-			onclick="@ToggleShowSaveOptions"
+			class="btn @_showSaveOptionsBtnClass"
+			@onclick="@ToggleShowSaveOptions"
 			type="button">
 			Save layout
 		</button>
-		@if (SavedLayouts is not null && SavedLayouts.Count > 0)
-		{
-			<button
-				class="btn btn-primary"
-				onclick="@ToggleShowLoadOptions"
-				type="button">
-				Load layout
-			</button>
-		}
+		<button
+			class="btn @_showLoadOptionsBtnClass"
+			@onclick="@ToggleShowLoadOptions"
+			type="button">
+			Load layout
+		</button>
 	</div>
 </div>
 
-@if (!string.IsNullOrEmpty(ListSerialized))
+@if (!string.IsNullOrEmpty(_layoutSerialized))
 {
 	<div class="row m-5">
 		<div class="card p-0">
@@ -43,12 +40,12 @@
 				</h5>
 				<pre>
 					<code>
-						@ListSerialized
+						@_layoutSerialized
 					</code>
 				</pre>
 			</div>
 			<div class="card-footer">
-				Encoded length: @ListEncoded.Length
+				Encoded length: @LayoutEncoded.Length
 			</div>
 		</div>
 	</div>
@@ -56,29 +53,40 @@
 
 @if (_showSaveOptions)
 {
-	<div class="row m-5">
-		<InputText class="form-control" @bind-Value="@NameToSave"/>
+	<div class="input-group m-5">
+		<InputText
+			class="form-control"
+			placeholder="Name for saving layout locally"
+			aria-label="Name for saving layout locally"
+			aria-describedby="saveLayoutBtn"
+			@bind-Value="@_nameToSave"/>
 		<button
 			class="btn btn-primary"
-			onclick="@SaveLayout"
+			@onclick="@SaveLayout"
+			id="saveLayoutBtn"
 			type="button">
 			Save
 		</button>
 	</div>
 }
 
-@if (_showLoadOptions)
+@if (_showLoadOptions && _savedLayouts is not null && _savedLayouts.Count > 0)
 {
-	<div class="row m-5">
-		<InputSelect class="form-select" @bind-Value="LayoutToLoad">
-			@foreach (string savedLayout in SavedLayouts!)
+	<div class="input-group m-5">
+		<InputSelect
+			class="form-select"
+			aria-label="Options to load saved layouts"
+			aria-describedby="loadLayoutBtn"
+			@bind-Value="_layoutToLoad">
+			@foreach (string savedLayout in _savedLayouts!)
 			{
 				<option value="@savedLayout">@savedLayout</option>
 			}
 		</InputSelect>
 		<button
 			class="btn btn-primary"
-			onclick="@LoadLayout"
+			@onclick="@LoadLayout"
+			id="loadLayoutBtn"
 			type="button">
 			Load layout
 		</button>
@@ -90,32 +98,34 @@
 	[EditorRequired]
 	public EventCallback OnLayoutUpdate { get; set; }
 
-	public List<SerializableModelBase>? Components { get; set; } =
+	[SupplyParameterFromQuery(Name = nameof(this.layout))]
+	public string LayoutEncoded { get; set; } = String.Empty;
+
+	private List<SerializableModelBase>? layout { get; set; } =
 		[
 			new FilterByStringComponentModel(),
-		new IfcDataDublicatorModel()
+			new IfcDataDublicatorModel()
 		];
-	public string ListSerialized { get; set; } = String.Empty;
 
-	[SupplyParameterFromQuery(Name = "list")]
-	public string ListEncoded { get; set; } = String.Empty;
-
-	public string NameToSave { get; set; } = String.Empty;
-	public string LayoutToLoad { get; set; } = String.Empty;
-	public List<string>? SavedLayouts { get; set; }
+	private string _layoutSerialized = String.Empty;
+	private string _nameToSave = String.Empty;
+	private string _layoutToLoad = String.Empty;
+	private List<string>? _savedLayouts;
 	private bool _showLoadOptions = false;
+	private string _showLoadOptionsBtnClass => _showLoadOptions? "btn-outline-primary" : "btn-primary";
 	private bool _showSaveOptions = false;
+	private string _showSaveOptionsBtnClass => _showSaveOptions? "btn-outline-primary" : "btn-primary";
 
 	public async Task SaveLayout()
 	{
-		SavedLayouts!.Add(NameToSave);
-		await ClientStorage.SetItemAsync(nameof(SavedLayouts), SavedLayouts);
-		await ClientStorage.SetItemAsync(NameToSave, LayoutManager.ComponentsLayout);
+		_savedLayouts!.Add(_nameToSave);
+		await ClientStorage.SetItemAsync(nameof(_savedLayouts), _savedLayouts);
+		await ClientStorage.SetItemAsync(_nameToSave, LayoutManager.ComponentsLayout);
 		StateHasChanged();
 	}
 	public async Task LoadLayout()
 	{
-		var layout = await ClientStorage.GetItemAsync<List<SerializableModelBase>>(LayoutToLoad);
+		var layout = await ClientStorage.GetItemAsync<List<SerializableModelBase>>(_layoutToLoad);
 		if (layout is not null)
 		{
 			LayoutManager.ImportLayout(layout);
@@ -126,9 +136,9 @@
 
 	public async Task SerializeAndShareLayout()
 	{
-		ListSerialized = Json.SerializeObject(LayoutManager.ComponentsLayout);
-		ListEncoded = WebUtility.UrlEncode(ListSerialized);
-		string url = NavManager.GetUriWithQueryParameter("list", ListEncoded);
+		_layoutSerialized = Json.SerializeObject(LayoutManager.ComponentsLayout);
+		LayoutEncoded = WebUtility.UrlEncode(_layoutSerialized);
+		string url = NavManager.GetUriWithQueryParameter(nameof(this.layout), LayoutEncoded);
 		NavManager.NavigateTo(url);
 		await JS.InvokeVoidAsync("copyTextToClipboard", url);
 		StateHasChanged();
@@ -137,29 +147,23 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
-		if (!String.IsNullOrEmpty(ListEncoded))
+		if (!String.IsNullOrEmpty(LayoutEncoded))
 		{
-			string json = WebUtility.UrlDecode(ListEncoded);
-			ListSerialized = Sanitizer.Sanitize(json);
-			var list = Json.DeserializeObject<List<SerializableModelBase>>(ListSerialized);
+			string json = WebUtility.UrlDecode(LayoutEncoded);
+			_layoutSerialized = Sanitizer.SanitizeJson(json);
+			var list = Json.DeserializeObject<List<SerializableModelBase>>(_layoutSerialized);
 			if (list is not null)
 			{
-				Components = list;
+				layout = list;
 			}
 		}
-		LayoutManager.ImportLayout(Components!);
-		SavedLayouts = await ClientStorage.GetItemAsync<List<string>>(nameof(SavedLayouts)) ?? new List<string>();
+		LayoutManager.ImportLayout(layout!);
+		_savedLayouts = await ClientStorage.GetItemAsync<List<string>>(nameof(_savedLayouts)) ?? new List<string>();
 		StateHasChanged();
 		await OnLayoutUpdate.InvokeAsync();
 	}
 
-	private void ToggleShowLoadOptions()
-	{
-		_showLoadOptions = !_showLoadOptions;
-	}
+	private void ToggleShowLoadOptions() => _showLoadOptions = !_showLoadOptions;
 
-	private void ToggleShowSaveOptions()
-	{
-		_showSaveOptions = !_showSaveOptions;
-	}
+	private void ToggleShowSaveOptions() => _showSaveOptions = !_showSaveOptions;
 }
