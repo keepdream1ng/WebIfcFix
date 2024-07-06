@@ -8,9 +8,9 @@ public abstract class SerializableModelBase
 {
     public virtual string? ModelType { get; }
     public virtual string? ComponentTypeName { get; }
-    public virtual Dictionary<string, object> Params() => new()
+    public virtual Dictionary<string, object> GetParameters() => new()
     {
-        [nameof(DynamicComponentWithModelBase<SerializableModelBase>.ModelBase)] = this
+        [nameof(DynamicComponentWithModelBase<SerializableModelBase>.Model)] = this
     };
 
     [JsonIgnore]
@@ -34,31 +34,19 @@ public abstract class ComponentModel<T> : SerializableModelBase where T : ICompo
 
 public abstract class DynamicComponentWithModelBase<Tmodel> : ComponentBase, IComponent where Tmodel : SerializableModelBase
 {
-    private Tmodel? _model;
-
 	[Parameter]
 	[EditorRequired]
-	public SerializableModelBase ModelBase
-    {
-        get => _model!;
-        set { _model = value as Tmodel; }
-    }
-
-    public virtual Tmodel Model 
-    {
-        get => _model!;
-        set { _model = value; }
-    }
+    public virtual required Tmodel Model { get; set; }
 
 	protected override void OnAfterRender(bool firstRender)
 	{
 		base.OnAfterRender(firstRender);
 		if (firstRender)
 		{
-			Model.PipelineNode!.Value.StateChanged += OnStatePipelineNodeChange;
+			Model.PipelineNode!.Value.StateChanged += OnPipelineNodeStateChange;
 		}
 	}
-	protected virtual void OnStatePipelineNodeChange(object? sender, EventArgs eventArgs)
+	protected virtual void OnPipelineNodeStateChange(object? sender, EventArgs eventArgs)
 	{
 		StateHasChanged();
 	}

@@ -24,7 +24,7 @@
 								<PipeConnectorStatusIndicator Connector="@model.PipelineNode!.Value" />
 							</div>
 							<div class="col p-1">
-								<DynamicComponent Type=@Type.GetType(model.ComponentTypeName!) Parameters="@model.Params()"/>
+								<DynamicComponent Type=@Type.GetType(model.ComponentTypeName!) Parameters="@model.GetParameters()"/>
 							</div>
 						</div>
 					</div>
