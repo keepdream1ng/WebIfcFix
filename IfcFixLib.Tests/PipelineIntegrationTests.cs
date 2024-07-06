@@ -18,10 +18,12 @@ public class PipelineIntegrationTests
         checker.FilterType = StringFilterType.Contains;
         var valueGetter = new StringValueGetter();
         valueGetter.ValueType = ElementStringValueType.Name;
-        var strategy = new StringFilterStrategy();
-        strategy.StringChecker = checker;
-        strategy.FilteredString = expected;
-        strategy.StringValueGetter = valueGetter;
+        var strategy = new StringFilterStrategy()
+        {
+            StringChecker = checker,
+            FilteredString = expected,
+            StringValueGetter = valueGetter
+        };
         var filter = new ElementsFilter(strategy);
         var dublicator = new DbDuplicator();
         var dbSerializer = new DbSerializer();
@@ -53,10 +55,12 @@ public class PipelineIntegrationTests
         checker.FilterType = StringFilterType.Contains_Any;
         var valueGetter = new StringValueGetter();
         valueGetter.ValueType = ElementStringValueType.Name;
-        var strategy = new StringFilterStrategy();
-        strategy.StringChecker = checker;
-        strategy.FilteredString = expected;
-        strategy.StringValueGetter = valueGetter;
+        var strategy = new StringFilterStrategy()
+        {
+            StringChecker = checker,
+            FilteredString = expected,
+            StringValueGetter = valueGetter
+        };
         var filter = new ElementsFilter(strategy);
         var dublicator = new DbDuplicator();
         bool processDone = false;
