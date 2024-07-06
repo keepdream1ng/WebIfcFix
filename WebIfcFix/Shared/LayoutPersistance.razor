@@ -3,6 +3,7 @@
 @inject NavigationManager NavManager
 @inject IJsonConvertService Json
 @inject ILocalStorageService ClientStorage
+@inject ISanitizerService Sanitizer
 @inject LayoutManagerService LayoutManager
 @inject IJSRuntime JS
 
@@ -92,7 +93,7 @@
 	public List<SerializableModelBase>? Components { get; set; } =
 		[
 			new FilterByStringComponentModel(),
-			new IfcDataDublicatorModel()
+		new IfcDataDublicatorModel()
 		];
 	public string ListSerialized { get; set; } = String.Empty;
 
@@ -138,7 +139,8 @@
 		await base.OnInitializedAsync();
 		if (!String.IsNullOrEmpty(ListEncoded))
 		{
-			ListSerialized = WebUtility.UrlDecode(ListEncoded);
+			string json = WebUtility.UrlDecode(ListEncoded);
+			ListSerialized = Sanitizer.Sanitize(json);
 			var list = Json.DeserializeObject<List<SerializableModelBase>>(ListSerialized);
 			if (list is not null)
 			{

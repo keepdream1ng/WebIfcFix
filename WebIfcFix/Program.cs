@@ -11,6 +11,7 @@ builder.Services.AddScoped(sp => new HttpClient { BaseAddress = new Uri(builder.
 builder.Services.AddSingleton<IJsonConvertService, JsonConvertService>();
 builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
 builder.Services.AddSingleton<IComponentsTypesService, ComponentsTypesService>();
+builder.Services.AddSingleton<ISanitizerService, SanitizerService>();
 builder.Services.AddSingleton<LayoutManagerService>();
 
 await builder.Build().RunAsync();
