@@ -18,7 +18,7 @@
 
 	[Parameter]
 	[EditorRequired]
-	public DbParser? Parser { get; set; }
+	public required DbParser Parser { get; set; }
 
 	private async Task ProcessFile(InputFileChangeEventArgs e)
 	{
@@ -30,10 +30,6 @@
 
 	private async Task ParseAsync()
 	{
-		if (Parser is null)
-		{
-			throw new ArgumentNullException(nameof(Parser));
-		}
 		try
 		{
 			System.IO.Stream fileStream = File!.OpenReadStream(maxFileSize);

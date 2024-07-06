@@ -28,15 +28,11 @@
 
 	[Parameter]
 	[EditorRequired]
-	public DbSerializer? Serializer { get; set; }
+	public required DbSerializer Serializer { get; set; }
 
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
-		if (Serializer is null)
-		{
-			throw new ArgumentNullException(nameof(Serializer));
-		}
 		Serializer.ProcessStart += SignalProcessing;
 		Serializer.ProcessDone += SignalReadyToSave;
 	}
@@ -51,7 +47,7 @@
 
 	private ValueTask SignalReadyToSave(CancellationToken ct)
 	{
-		if (Serializer!.Output is not null)
+		if (Serializer.Output is not null)
 		{
 			Status = ProcessStatus.Done;
 		}
