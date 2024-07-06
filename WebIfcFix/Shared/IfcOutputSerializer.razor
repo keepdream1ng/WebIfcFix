@@ -11,7 +11,7 @@
 				Then process will be done - clicking this button will save IFC to downloads.
 			</p>
 			<button
-				onclick="@SafeIfcFile"
+				@onclick="@SafeIfcFile"
 				disabled="@DisableSaveButton"
 				class="btn @ButtonClass my-1">
 				Save to file
@@ -28,11 +28,15 @@
 
 	[Parameter]
 	[EditorRequired]
-	public DbSerializer Serializer { get; set; }
+	public DbSerializer? Serializer { get; set; }
 
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
+		if (Serializer is null)
+		{
+			throw new ArgumentNullException(nameof(Serializer));
+		}
 		Serializer.ProcessStart += SignalProcessing;
 		Serializer.ProcessDone += SignalReadyToSave;
 	}
@@ -47,7 +51,7 @@
 
 	private ValueTask SignalReadyToSave(CancellationToken ct)
 	{
-		if (Serializer.Output is not null)
+		if (Serializer!.Output is not null)
 		{
 			Status = ProcessStatus.Done;
 		}
@@ -66,7 +70,7 @@
 		{
 			Message = string.Empty;
 			var encodingISO_8859_1 = Encoding.GetEncoding("ISO-8859-1");
-			var byteArray = encodingISO_8859_1.GetBytes(Serializer.Output!);
+			var byteArray = encodingISO_8859_1.GetBytes(Serializer!.Output!);
 
 			await JS.InvokeVoidAsync(
 						"saveAsFile",
