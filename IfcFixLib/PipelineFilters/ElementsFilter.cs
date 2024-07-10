@@ -3,7 +3,7 @@ using IfcFixLib.FilterStrategy;
 using IfcFixLib.IfcPipelineDefinition;
 using System.Collections.Concurrent;
 
-namespace IfcFixLib;
+namespace IfcFixLib.PipelineFilters;
 
 public class ElementsFilter(IFilterStrategy FilterStrategy) : PipeFilter
 {
@@ -25,12 +25,12 @@ public class ElementsFilter(IFilterStrategy FilterStrategy) : PipeFilter
         return filtered.ToList();
     }
 
-	protected override async Task<DataIFC> ProcessDataAsync(DataIFC data, CancellationToken cancellationToken)
-	{
-		List<IfcBuiltElement> elements = await ProcessAsync(data.Elements, cancellationToken)
+    protected override async Task<DataIFC> ProcessDataAsync(DataIFC data, CancellationToken cancellationToken)
+    {
+        List<IfcBuiltElement> elements = await ProcessAsync(data.Elements, cancellationToken)
             .ConfigureAwait(false);
-		cancellationToken.ThrowIfCancellationRequested();
-		return new DataIFC(data.DatabaseIfc, elements);
-	}
+        cancellationToken.ThrowIfCancellationRequested();
+        return new DataIFC(data.DatabaseIfc, elements);
+    }
 }
 

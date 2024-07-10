@@ -1,7 +1,7 @@
 ﻿using GeometryGym.Ifc;
 using IfcFixLib.IfcPipelineDefinition;
 
-namespace IfcFixLib;
+namespace IfcFixLib.PipelineFilters;
 public class DbDuplicator : PipeFilter
 {
     public static async Task<DatabaseIfc> DuplicateDbWithElementsAsync(
@@ -32,12 +32,12 @@ public class DbDuplicator : PipeFilter
         );
     }
 
-	protected override async Task<DataIFC> ProcessDataAsync(DataIFC data, CancellationToken cancellationToken)
-	{
-		DatabaseIfc newDb = await DuplicateDbWithElementsAsync(data.DatabaseIfc, data.Elements, cancellationToken)
+    protected override async Task<DataIFC> ProcessDataAsync(DataIFC data, CancellationToken cancellationToken)
+    {
+        DatabaseIfc newDb = await DuplicateDbWithElementsAsync(data.DatabaseIfc, data.Elements, cancellationToken)
             .ConfigureAwait(false);
-		cancellationToken.ThrowIfCancellationRequested();
-		List<IfcBuiltElement> elements = newDb.Project.Extract<IfcBuiltElement>();
-		return new DataIFC(newDb, elements);
-	}
+        cancellationToken.ThrowIfCancellationRequested();
+        List<IfcBuiltElement> elements = newDb.Project.Extract<IfcBuiltElement>();
+        return new DataIFC(newDb, elements);
+    }
 }

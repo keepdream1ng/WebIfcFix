@@ -1,4 +1,5 @@
 ﻿using IfcFixLib.FilterStrategy;
+using IfcFixLib.PipelineFilters;
 using IfcFixLib.IfcPipelineDefinition;
 using NSubstitute;
 
