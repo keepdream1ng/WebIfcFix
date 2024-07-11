@@ -13,10 +13,10 @@
 </div>
 
 @code {
-	private IBrowserFile? File;
-	private long maxFileSize = 51200000000;
-	private string Message = string.Empty;
 	public ProcessStatus Status { get; set; } = ProcessStatus.Waiting;
+	public string Message = string.Empty;
+	private IBrowserFile? _file;
+	private long _maxFileSize = 51200000000;
 
 	[Parameter]
 	[EditorRequired]
@@ -28,7 +28,7 @@
 
 	private async Task ProcessFile(InputFileChangeEventArgs e)
 	{
-		File = e.File;
+		_file = e.File;
 		Message = string.Empty;
 		Status = ProcessStatus.Processing;
 		await Task.Run(async () => await ParseAsync()).ConfigureAwait(false);
@@ -38,7 +38,7 @@
 	{
 		try
 		{
-			System.IO.Stream fileStream = File!.OpenReadStream(maxFileSize);
+			System.IO.Stream fileStream = _file!.OpenReadStream(_maxFileSize);
 			CancellationToken token = LayoutManager.PipelineManager!.GetNewCancelToken();
 			_ = await Parser.ParseFromStreamAsync(fileStream, token);
 		}

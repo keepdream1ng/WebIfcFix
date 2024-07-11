@@ -6,7 +6,7 @@
 		class="btn btn-primary btn-lg"
 		@onclick="@StartStopToggle"
 		type="button">
-		@btnLabel
+		@_btnLabel
 	</button>
 </div>
 
@@ -16,7 +16,7 @@
 	public EventCallback OnProcessDone { get; set; }
 
 	private bool _pipelineIsProcessing = false;
-	private string btnLabel => _pipelineIsProcessing ? "Stop" : "Start";
+	private string _btnLabel => _pipelineIsProcessing ? "Stop" : "Start";
 
 	private void StartStopToggle()
 	{

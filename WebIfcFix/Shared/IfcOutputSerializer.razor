@@ -12,8 +12,8 @@
 			</p>
 			<button
 				@onclick="@SafeIfcFile"
-				disabled="@DisableSaveButton"
-				class="btn @ButtonClass my-1">
+				disabled="@_disableSaveButton"
+				class="btn @_buttonClass my-1">
 				Save to file
 			</button>
 		</div>
@@ -23,8 +23,8 @@
 @code {
 	public ProcessStatus Status { get; set; } = ProcessStatus.Waiting;
 	public string Message { get; set; } = string.Empty;
-	private bool DisableSaveButton => Status != ProcessStatus.Done;
-	private string ButtonClass => DisableSaveButton ? "btn-secondary" : "btn-success";
+	private bool _disableSaveButton => Status != ProcessStatus.Done;
+	private string _buttonClass => _disableSaveButton ? "btn-secondary" : "btn-success";
 
 	[Parameter]
 	[EditorRequired]

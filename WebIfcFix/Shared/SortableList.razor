@@ -59,15 +59,15 @@
     [Parameter]
     public string? Filter { get; set; }
 
-    private DotNetObjectReference<SortableList<T>>? selfReference;
+    private DotNetObjectReference<SortableList<T>>? _selfReference;
 
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
         if (firstRender)
         {
-            selfReference = DotNetObjectReference.Create(this);
+            _selfReference = DotNetObjectReference.Create(this);
             var module = await JS.InvokeAsync<IJSObjectReference>("import", "./Shared/SortableList.razor.js");
-            await module.InvokeAsync<string>("init", Id, Group, Pull, Put, Sort, Handle, Filter, selfReference, DoCallbackOnMoveToId);
+            await module.InvokeAsync<string>("init", Id, Group, Pull, Put, Sort, Handle, Filter, _selfReference, DoCallbackOnMoveToId);
         }
     }
 
@@ -92,5 +92,5 @@
         OnMoveToId.InvokeAsync(toListId);
     }
 
-    public void Dispose() => selfReference?.Dispose();
+    public void Dispose() => _selfReference?.Dispose();
 }

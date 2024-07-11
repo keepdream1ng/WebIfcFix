@@ -1,12 +1,12 @@
 ﻿@using IfcFixLib.IfcPipelineDefinition
 
-<ProcessStatusIndicator Status="@Connector.Status" Message="@Connector.StatusDescription" RerenderTrigger="forceRerender"/>
+<ProcessStatusIndicator Status="@Connector.Status" Message="@Connector.StatusDescription" RerenderTrigger="_forceRerender"/>
 
 @code {
 	[Parameter]
 	[EditorRequired]
 	public required IPipeConnector Connector { get; set; }
-	private bool forceRerender;
+	private bool _forceRerender;
 
 	protected override void OnAfterRender(bool firstRender)
 	{
@@ -18,7 +18,7 @@
 	}
 	protected void OnStateChange(object? sender, EventArgs eventArgs)
 	{
-		forceRerender = !forceRerender;
+		_forceRerender = !_forceRerender;
 		StateHasChanged();
 	}
 }
