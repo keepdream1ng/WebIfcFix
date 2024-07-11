@@ -7,7 +7,7 @@
 	<div class="row">
 		<div class="col">
 			<h3>Ifc Pipeline Layout</h3>
-			<IfcInputParser Parser="LayoutManager.DbParser" />
+			<IfcInputParser Parser="LayoutManager.DbParser" OnProcessDone="UpdateState" />
 			<SortableList
 				Group="IfcFilters"
 				Items="LayoutManager.ComponentsLayout"
@@ -58,7 +58,7 @@
 	</div>
 </div>
 
-<PipelineProcessControls />
+<PipelineProcessControls OnProcessDone="UpdateState" />
 <LayoutPersistance OnLayoutUpdate="UpdateState" />
 
 @code {

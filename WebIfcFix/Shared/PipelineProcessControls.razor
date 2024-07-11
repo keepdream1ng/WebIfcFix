@@ -11,6 +11,9 @@
 </div>
 
 @code {
+	[Parameter]
+	[EditorRequired]
+	public EventCallback OnProcessDone { get; set; }
 
 	private bool _pipelineIsProcessing = false;
 	private string btnLabel => _pipelineIsProcessing ? "Stop" : "Start";
@@ -47,6 +50,7 @@
 		{
 			_pipelineIsProcessing = false;
 			StateHasChanged();
+			OnProcessDone.InvokeAsync();
 		});
 	}
 }

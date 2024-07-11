@@ -22,6 +22,10 @@
 	[EditorRequired]
 	public required DbParser Parser { get; set; }
 
+	[Parameter]
+	[EditorRequired]
+	public EventCallback OnProcessDone { get; set; }
+
 	private async Task ProcessFile(InputFileChangeEventArgs e)
 	{
 		File = e.File;
@@ -55,6 +59,7 @@
 				Status = ProcessStatus.Done;
 			}
 			StateHasChanged();
+			await OnProcessDone.InvokeAsync();
 		}
 	}
 }
