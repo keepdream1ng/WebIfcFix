@@ -11,4 +11,5 @@ public interface IPipeConnector
     void SetUpConnetion(IPipeOut pipeFilterToConnectTo);
     void TearDownCurrentConnetion();
     ValueTask InitiateOwnProcessAsync(CancellationToken ct);
+    void Reset();
 }

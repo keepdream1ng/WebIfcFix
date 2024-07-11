@@ -1,4 +1,6 @@
-﻿<div class="card m-1">
+﻿@inject LayoutManagerService LayoutManager
+
+<div class="card m-1">
 	<div class="row g-0">
 		<div class="col-1">
 			<ProcessStatusIndicator Status="Status" Message="@Message" />
@@ -33,7 +35,8 @@
 		try
 		{
 			System.IO.Stream fileStream = File!.OpenReadStream(maxFileSize);
-			_ = await Parser.ParseFromStreamAsync(fileStream);
+			CancellationToken token = LayoutManager.PipelineManager!.GetNewCancelToken();
+			_ = await Parser.ParseFromStreamAsync(fileStream, token);
 		}
 		catch(TaskCanceledException)
 		{

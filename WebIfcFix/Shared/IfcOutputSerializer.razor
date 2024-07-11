@@ -33,13 +33,20 @@
 	protected override void OnParametersSet()
 	{
 		base.OnParametersSet();
-		Serializer.ProcessStart += SignalProcessing;
+		Serializer.StateChanged += HandleStateChange;
 		Serializer.ProcessDone += SignalReadyToSave;
 	}
 
-	private ValueTask SignalProcessing(CancellationToken ct)
+	private ValueTask HandleStateChange(CancellationToken ct)
 	{
-		Status = ProcessStatus.Processing;
+		if (Serializer.Input is not null)
+		{
+			Status = ProcessStatus.Processing;
+		}
+		else
+		{
+			Status = ProcessStatus.Waiting;
+		}
 		Message = string.Empty;
 		StateHasChanged();
 		return ValueTask.CompletedTask;

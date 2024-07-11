@@ -1,0 +1,52 @@
+﻿@using IfcFixLib.IfcPipelineDefinition
+@inject LayoutManagerService LayoutManager
+
+<div class="row m-5">
+	<button
+		class="btn btn-primary btn-lg"
+		@onclick="@StartStopToggle"
+		type="button">
+		@btnLabel
+	</button>
+</div>
+
+@code {
+
+	private bool _pipelineIsProcessing = false;
+	private string btnLabel => _pipelineIsProcessing ? "Stop" : "Start";
+
+	private void StartStopToggle()
+	{
+		if (_pipelineIsProcessing)
+		{
+			LayoutManager.PipelineManager!.StopProcessing();
+		}
+		else
+		{
+			Continue();
+		}
+		_pipelineIsProcessing = !_pipelineIsProcessing;
+		StateHasChanged();
+	}
+
+	private void Continue()
+	{
+		Task processingTask;
+		IPipeConnector lastNodeConnector = LayoutManager.ComponentsLayout.Last().PipelineNode!.Value!;
+		if (lastNodeConnector.Status != ProcessStatus.Done)
+		{
+			processingTask = LayoutManager.PipelineManager!.ContinueProcessingAsync();
+		}
+		else
+		{
+			LayoutManager.DbSerializer.Input = lastNodeConnector.Filter.Output;
+			CancellationToken token = LayoutManager.PipelineManager!.GetNewCancelToken();
+			processingTask = LayoutManager.DbSerializer.ProcessAsync(token);
+		}
+		processingTask.ContinueWith((x) =>
+		{
+			_pipelineIsProcessing = false;
+			StateHasChanged();
+		});
+	}
+}

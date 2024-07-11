@@ -38,7 +38,9 @@ public class LayoutManagerService(IComponentsTypesService componentsTypes)
     {
         if (PipelineManager is null || _componentsLayout.Count <= index) return;
         PipelineManager!.StopProcessing();
-        PipelineManager!.Remove(_componentsLayout[index].PipelineNode!);
+        ResetFromIndex(index);
+		LinkedListNode<IPipeConnector> nodeToRemove = _componentsLayout[index].PipelineNode!;
+        PipelineManager!.Remove(nodeToRemove);
 		_componentsLayout.RemoveAt(index);
     }
 
@@ -50,10 +52,18 @@ public class LayoutManagerService(IComponentsTypesService componentsTypes)
         InsertAtIndex(pickedModel, indexes.newIndex);
     }
 
+    public void ResetFromIndex(int index)
+    {
+		LinkedListNode<IPipeConnector>? nodeAtIndex = _componentsLayout[index].PipelineNode!;
+        PipelineManager!.ResetFromNode(nodeAtIndex);
+        DbSerializer.Reset();
+    }
+
     private void InsertAtIndex(SerializableModelBase item, int index)
     {
 		if (index < _componentsLayout.Count)
 		{
+            ResetFromIndex(index);
 			SerializableModelBase itemToMove = _componentsLayout[index];
             item.PipelineNode = PipelineManager!
                 .AddToPipeline(item.PipeFilter, beforeNode: itemToMove.PipelineNode);
@@ -64,6 +74,7 @@ public class LayoutManagerService(IComponentsTypesService componentsTypes)
 			DbSerializer.UnsubscribeFrom(PipelineManager!.PipeEnd);
 			item.PipelineNode = PipelineManager.AddToPipeline(item.PipeFilter);
 			DbSerializer.SubscribeToOutput(PipelineManager.PipeEnd);
+            DbSerializer.Reset();
 			_componentsLayout.Add(item);
 		}
     }

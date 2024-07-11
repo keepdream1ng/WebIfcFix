@@ -7,7 +7,7 @@ public class DbSerializer(IfcFormatOutput formatOutput = IfcFormatOutput.STEP) :
 	public DataIFC? Input { get; set; }
 	public IfcFormatOutput FormatOutput { get; set; } = formatOutput;
 	public string? Output { get; private set; }
-    public event AsyncEventHandler? ProcessStart;
+    public event AsyncEventHandler? StateChanged;
     public event AsyncEventHandler? ProcessDone;
 	private AsyncEventHandler? _subscribtion;
 
@@ -24,9 +24,9 @@ public class DbSerializer(IfcFormatOutput formatOutput = IfcFormatOutput.STEP) :
 	public async Task ProcessAsync(CancellationToken cancellationToken)
 	{
 		ArgumentNullException.ThrowIfNull(nameof(Input));
-		if (ProcessStart is not null)
+		if (StateChanged is not null)
 		{
-			await ProcessStart.Invoke(cancellationToken)
+			await StateChanged.Invoke(cancellationToken)
 				.ConfigureAwait(false);
 		}
 		Output = await SeializeToStringAsync(Input!.DatabaseIfc, cancellationToken)
@@ -56,4 +56,13 @@ public class DbSerializer(IfcFormatOutput formatOutput = IfcFormatOutput.STEP) :
 		_subscribtion = null;
 	}
 
+	public void Reset()
+	{
+		Input = null;
+		Output = null;
+		if (StateChanged is not null)
+		{
+			StateChanged.Invoke(CancellationToken.None);
+		}
+	}
 }

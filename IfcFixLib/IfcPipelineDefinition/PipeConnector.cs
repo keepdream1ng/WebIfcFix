@@ -24,9 +24,14 @@ public class PipeConnector : IPipeConnector
     {
         if (_previousPipeLink is null) return;
         _previousPipeLink.ProcessDone -= InitiateOwnProcessAsync;
-        Status = ProcessStatus.Waiting;
-        Filter.Input = null;
         _previousPipeLink = null;
+        Reset();
+    }
+    public void Reset()
+    {
+        Filter.Input = null;
+        Status = ProcessStatus.Waiting;
+		StateChanged?.Invoke(this, EventArgs.Empty);
     }
     public async ValueTask InitiateOwnProcessAsync(CancellationToken ct)
     {

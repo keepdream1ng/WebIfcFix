@@ -12,6 +12,9 @@
 	[Parameter]
 	public string? Message { get; set; }
 
+	[Parameter]
+	public bool RerenderTrigger { get; set; }
+
 	private string GetClass()
 	{
 		return Status switch

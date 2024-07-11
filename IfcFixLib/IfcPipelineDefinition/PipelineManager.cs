@@ -54,6 +54,7 @@ public class PipelineManager(IPipeOut pipeStart) : IDisposable
             .FirstOrDefault(c => c.Status != ProcessStatus.Done);
         if (stoppedConnector is not null)
         {
+
 			await stoppedConnector.InitiateOwnProcessAsync(GetNewCancelToken())
                 .ConfigureAwait(false);
         }
@@ -62,6 +63,15 @@ public class PipelineManager(IPipeOut pipeStart) : IDisposable
     public void StopProcessing()
     {
         _tokenSouce.Cancel();
+    }
+    public void ResetFromNode(LinkedListNode<IPipeConnector> node)
+    {
+        LinkedListNode<IPipeConnector>? currentNode = node;
+        while(currentNode is not null)
+        {
+            currentNode.Value.Reset();
+            currentNode = currentNode.Next;
+        }
     }
 
 	public void Dispose()
