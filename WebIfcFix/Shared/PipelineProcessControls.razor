@@ -1,14 +1,17 @@
 ﻿@using IfcFixLib.IfcPipelineDefinition
 @inject LayoutManagerService LayoutManager
 
-<div class="row m-5">
-	<button
-		class="btn btn-primary btn-lg"
-		@onclick="@StartStopToggle"
-		type="button">
-		@_btnLabel
-	</button>
-</div>
+@if (LayoutManager.DbParser.Output is not null)
+{
+	<div class="row m-5">
+		<button
+			class="btn btn-primary"
+			@onclick="@StartStopToggle"
+			type="button">
+			@_btnLabel
+		</button>
+	</div>
+}
 
 @code {
 	[Parameter]

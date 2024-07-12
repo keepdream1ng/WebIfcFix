@@ -27,10 +27,17 @@
 			type="button">
 			Load layout
 		</button>
+		@if (!string.IsNullOrEmpty(_layoutSerialized))
+		{
+			<label class="px-4">
+				<InputCheckbox class="form-check-input" @bind-Value="_showSerializedLayout"/>
+				Show serialized layout
+			</label>
+		}
 	</div>
 </div>
 
-@if (!string.IsNullOrEmpty(_layoutSerialized))
+@if (_showSerializedLayout)
 {
 	<div class="row m-5">
 		<div class="card p-0">
@@ -115,6 +122,7 @@
 	private string _showLoadOptionsBtnClass => _showLoadOptions? "btn-outline-primary" : "btn-primary";
 	private bool _showSaveOptions = false;
 	private string _showSaveOptionsBtnClass => _showSaveOptions? "btn-outline-primary" : "btn-primary";
+	private bool _showSerializedLayout = false;
 
 	public async Task SaveLayout()
 	{

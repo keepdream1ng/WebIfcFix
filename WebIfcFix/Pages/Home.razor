@@ -3,6 +3,15 @@
 @inject IComponentsTypesService TypesService
 @inject LayoutManagerService LayoutManager
 
+<div class="sticky-top row bg-body">
+	<div class="col">
+		<LayoutPersistance OnLayoutUpdate="UpdateState" />
+	</div>
+	<div class="col-3">
+		<PipelineProcessControls OnProcessDone="UpdateState" />
+	</div>
+</div>
+
 <div class="no-select">
 	<div class="row">
 		<div class="col">
@@ -58,8 +67,6 @@
 	</div>
 </div>
 
-<PipelineProcessControls OnProcessDone="UpdateState" />
-<LayoutPersistance OnLayoutUpdate="UpdateState" />
 
 @code {
 	private bool componentsIsHovered { get; set; }
