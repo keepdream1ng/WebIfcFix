@@ -32,7 +32,8 @@
 							<div class="col-1 handle" style="cursor: move">
 								<PipeConnectorStatusIndicator Connector="@model.PipelineNode!.Value" />
 							</div>
-							<div class="col p-1">
+							<div class="col p-1"
+								@oninput="() => LayoutManager.ResetFromNode(model.PipelineNode!)">
 								<DynamicComponent Type=@Type.GetType(model.ComponentTypeName!) Parameters="@model.GetParameters()"/>
 							</div>
 						</div>

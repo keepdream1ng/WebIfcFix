@@ -55,7 +55,12 @@ public class LayoutManagerService(IComponentsTypesService componentsTypes)
     public void ResetFromIndex(int index)
     {
 		LinkedListNode<IPipeConnector>? nodeAtIndex = _componentsLayout[index].PipelineNode!;
-        PipelineManager!.ResetFromNode(nodeAtIndex);
+        ResetFromNode(nodeAtIndex);
+    }
+
+    public void ResetFromNode(LinkedListNode<IPipeConnector> pipelineNode)
+    {
+        PipelineManager!.ResetFromNode(pipelineNode);
         DbSerializer.Reset();
     }
 
