@@ -15,7 +15,7 @@
 <div class="no-select">
 	<div class="row">
 		<div class="col">
-			<h3>Ifc Pipeline Layout</h3>
+			<h3>Ifc editing instructions</h3>
 			<IfcInputParser Parser="LayoutManager.DbParser" OnProcessDone="UpdateState" />
 			<SortableList
 				Group="IfcFilters"
@@ -45,7 +45,7 @@
 			<div
 				style="overflow-y: auto"
 				class="row flex-column h-100 position-relative">
-				<h3>Pipeline filters components</h3>
+				<h3>Filters components (drag and drop)</h3>
 				<GarbageBinSVG Fill="white" Class="@svgClass"/>
 				<SortableList
 					Id="@componentsId"
@@ -57,7 +57,7 @@
 					OnRemove="CreateNewComponent"
 					Context="type">
 					<SortableItemTemplate>
-						<div class="alert alert-info @componentsOpacity">
+						<div class="alert alert-info @componentsOpacity" style="cursor: move">
 							@type.FilterName
 						</div>
 					</SortableItemTemplate>
