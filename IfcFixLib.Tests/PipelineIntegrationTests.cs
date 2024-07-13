@@ -139,4 +139,49 @@ public class PipelineIntegrationTests
         Assert.Equal(ProcessStatus.Error, errorFilterNode.Value.Status);
         Assert.Null(dbSerializer.Output);
     }
+
+    [Fact]
+    public async Task Pipeline_ResetsSuccesfully()
+    {
+        // Arrange
+        string expected = "TestPlate";
+        FileStream stream = new FileStream(ifcPath, FileMode.Open);
+        var parser = new DbParser();
+        var checker = new StringChecker();
+        checker.FilterType = StringFilterType.Contains;
+        var valueGetter = new StringValueGetter();
+        valueGetter.ValueType = ElementStringValueType.Name;
+        var strategy = new StringFilterStrategy()
+        {
+            StringChecker = checker,
+            FilteredString = Guid.NewGuid().ToString(),
+            StringValueGetter = valueGetter
+        };
+        var filter = new ElementsFilter(strategy);
+        var dublicator = new DbDuplicator();
+        var dbSerializer = new DbSerializer();
+
+        var pipelineManager = new PipelineManager(parser);
+        var filterNode = pipelineManager.AddToPipeline(filter);
+        var dublicatorNode = pipelineManager.AddToPipeline(dublicator);
+        dbSerializer.SubscribeToOutput(pipelineManager.PipeEnd);
+
+        // Act
+        await parser.ParseFromStreamAsync(stream);
+		ProcessStatus dublicatorFirstTryStatus = dublicatorNode.Value.Status;
+
+        strategy.FilteredString = expected;
+        pipelineManager.ResetFromNode(filterNode);
+
+        await pipelineManager.ContinueProcessingAsync();
+		ProcessStatus dublicatorSecondTryStatus = dublicatorNode.Value.Status;
+        string actual = dbSerializer.Output!;
+
+        // Assert
+        Assert.True(actual.Length > 0);
+        Assert.Contains(expected, actual);
+        Assert.Equal(ProcessStatus.Error, dublicatorFirstTryStatus);
+        Assert.Equal(ProcessStatus.Done, dublicatorSecondTryStatus);
+        Assert.DoesNotContain("testWall", actual);
+    }
 }
