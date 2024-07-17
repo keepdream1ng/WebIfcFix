@@ -44,7 +44,7 @@
 		</div>
 		<div class="col-3">
 			<div
-				style="overflow-y: auto"
+				style="overflow-y: auto; overflow-x:clip"
 				class="row flex-column h-100 position-relative">
 				<h3>Filters components (drag and drop)</h3>
 				<GarbageBinSVG Fill="white" Class="@svgClass"/>
@@ -58,8 +58,13 @@
 					OnRemove="CreateNewComponent"
 					Context="type">
 					<SortableItemTemplate>
-						<div class="alert alert-info @componentsOpacity" style="cursor: move">
-							@type.FilterName
+						<div class="card m-1 @componentsOpacity" style="cursor: move">
+							<div class="card-body tooltip-source">
+								@type.FilterName
+								<span class="alert alert-info tooltip-text tooltip-popover">
+									@type.FilterInstructions
+								</span>
+							</div>
 						</div>
 					</SortableItemTemplate>
 				</SortableList>
