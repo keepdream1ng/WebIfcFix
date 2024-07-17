@@ -1,5 +1,6 @@
-﻿<div class="status-indicator p-1 h-100 w-100 rounded-start no-select tooltip-source @GetClass()">
-	<span class="badge h-100 text-wrap align-middle tooltip-text">
+﻿<div
+	class="status-indicator p-1 h-100 w-100 rounded-start no-select tooltip-source d-flex align-items-center @GetClass()">
+	<span style="width:@_maxWidth" class="@_messageClass">
 		@GetInfo()
 	</span>
 </div>
@@ -14,6 +15,9 @@
 
 	[Parameter]
 	public bool RerenderTrigger { get; set; }
+
+	private string _messageClass => Status != ProcessStatus.Error ? "badge my-auto p-0 text-wrap align-middle tooltip-text" : "alert alert-danger tooltip-popover";
+	private string _maxWidth => Status != ProcessStatus.Error ? "100%" : "200%";
 
 	private string GetClass()
 	{
