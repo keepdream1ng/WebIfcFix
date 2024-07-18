@@ -3,7 +3,7 @@
 @inject NavigationManager NavManager
 @inject IJsonConvertService Json
 @inject ILocalStorageService ClientStorage
-@inject ISanitizerService Sanitizer
+@inject IUrlQueryParameterService UrlQueryService
 @inject LayoutManagerService LayoutManager
 @inject IJSRuntime JS
 
@@ -52,7 +52,7 @@
 				</pre>
 			</div>
 			<div class="card-footer">
-				Encoded length: @LayoutEncoded.Length
+				Encoded layout length @_layoutSerialized.Length compressed into @LayoutEncoded.Length chars
 			</div>
 		</div>
 	</div>
@@ -145,7 +145,7 @@
 	public async Task SerializeAndShareLayout()
 	{
 		_layoutSerialized = Json.SerializeObject(LayoutManager.ComponentsLayout);
-		LayoutEncoded = WebUtility.UrlEncode(_layoutSerialized);
+		LayoutEncoded = UrlQueryService.GetQueryParameterFromJson(_layoutSerialized);
 		string url = NavManager.GetUriWithQueryParameter(nameof(this.layout), LayoutEncoded);
 		NavManager.NavigateTo(url);
 		await JS.InvokeVoidAsync("copyTextToClipboard", url);
@@ -157,8 +157,7 @@
 		await base.OnInitializedAsync();
 		if (!String.IsNullOrEmpty(LayoutEncoded))
 		{
-			string json = WebUtility.UrlDecode(LayoutEncoded);
-			_layoutSerialized = Sanitizer.SanitizeJson(json);
+			_layoutSerialized = UrlQueryService.GetSanitizedJsonFromQueryParameter(LayoutEncoded);
 			var list = Json.DeserializeObject<List<SerializableModelBase>>(_layoutSerialized);
 			if (list is not null)
 			{
