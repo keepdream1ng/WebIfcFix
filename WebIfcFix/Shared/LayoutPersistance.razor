@@ -157,11 +157,18 @@
 		await base.OnInitializedAsync();
 		if (!String.IsNullOrEmpty(LayoutEncoded))
 		{
-			_layoutSerialized = UrlQueryService.GetSanitizedJsonFromQueryParameter(LayoutEncoded);
-			var list = Json.DeserializeObject<List<SerializableModelBase>>(_layoutSerialized);
-			if (list is not null)
+			try
 			{
-				layout = list;
+				_layoutSerialized = UrlQueryService.GetSanitizedJsonFromQueryParameter(LayoutEncoded);
+				var layoutFromQuery = Json.DeserializeObject<List<SerializableModelBase>>(_layoutSerialized);
+				if (layoutFromQuery is not null)
+				{
+					layout = layoutFromQuery;
+				}
+			}
+			catch
+			{
+				layout!.Insert(0, new BrokenLinkIndicatorModel());
 			}
 		}
 		LayoutManager.ImportLayout(layout!);
