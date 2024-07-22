@@ -1,5 +1,6 @@
 ﻿using GeometryGym.Ifc;
 using IfcFixLib.IfcPipelineDefinition;
+using IfcFixLib.PipelineFilters;
 
 namespace IfcFixLib;
 public class DbParser : IPipeOut
@@ -18,7 +19,7 @@ public class DbParser : IPipeOut
         cancellationToken.ThrowIfCancellationRequested();
         DatabaseIfc db = DatabaseIfc.ParseString(ifcString);
         cancellationToken.ThrowIfCancellationRequested();
-        var elements = db.Project.Extract<IfcBuiltElement>();
+		List<IfcBuiltElement> elements = FilterResetter.ExtractAllElements(db);
         Output = new DataIFC(db, elements);
         await OnProcessDone(cancellationToken);
         return db;
