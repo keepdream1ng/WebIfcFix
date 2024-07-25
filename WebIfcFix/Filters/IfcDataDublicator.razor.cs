@@ -15,7 +15,7 @@ public class IfcDataDublicatorModel : ComponentModel<IfcDataDublicator>
 
 public class IfcDataDublicatorInfo : ComponentInformation<IfcDataDublicatorModel>
 {
-    public override string FilterName => "Ifc Data Dublicator";
+    public override string FilterName => "Put in the new model";
 
-    public override string FilterInstructions => "This component will copy filtered elements to the new ifc model (database).";
+    public override string FilterInstructions => "This component will copy filtered elements to the new ifc model (database). Next filter component will be dealing with this model instead.";
 }
