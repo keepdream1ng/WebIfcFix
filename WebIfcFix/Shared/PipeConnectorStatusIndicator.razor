@@ -1,12 +1,21 @@
 ﻿@using IfcFixLib.IfcPipelineDefinition
 
-<ProcessStatusIndicator Status="@Connector.Status" Message="@Connector.StatusDescription" RerenderTrigger="_forceRerender"/>
+<div class="h-100 w-100 tooltip-source">
+	<ProcessStatusIndicator Status="@Connector.Status" Message="@Connector.StatusDescription" RerenderTrigger="_forceRerender"/>
+	@if (Connector.Status == ProcessStatus.Done)
+	{
+		<span style="width:300%; left:90%; top:1rem" class="alert alert-success tooltip-popover">
+			@_outputedObjectsInfo
+		</span>
+	}
+</div>
 
 @code {
 	[Parameter]
 	[EditorRequired]
 	public required IPipeConnector Connector { get; set; }
 	private bool _forceRerender;
+	private string _outputedObjectsInfo => $"Filter outputed {Connector.Filter.Output!.Elements.Count} objects";
 
 	protected override void OnAfterRender(bool firstRender)
 	{
