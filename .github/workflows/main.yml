@@ -6,9 +6,9 @@ env:
 # Publish only on succsessfully tested code
 on:
   workflow_run:
-    workflows: [ build_and_test ]
-    types: [ completed ]
-    branches: [ main ]
+    workflows: [ "build_and_test" ]
+    types:
+      - completed
 permissions:
   contents: write
   
