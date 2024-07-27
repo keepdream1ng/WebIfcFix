@@ -1,17 +1,20 @@
-name: Deploy to GitHub Pages
+name: deploy_to_github_pages
 
 env:
   PUBLISH_DIR: /home/runner/work/WebIfcFix/WebIfcFix/WebIfcFix/bin/Release/net8.0/publish/wwwroot
   
-# Run workflow on every push to the master branch
+# Publish only on succsessfully tested code
 on:
-  push:
+  workflow_run:
+    workflows: [ build_and_test ]
+    types: [ completed ]
     branches: [ main ]
 permissions:
   contents: write
   
 jobs:
   deploy-to-github-pages:
+    if: ${{ github.event.workflow_run.conclusion == 'success' && github.event.workflow_run.event == 'push' && contains(github.event.workflow_run.head_commit.message, 'main') }}
     # use ubuntu-latest image to run steps on
     runs-on: ubuntu-latest
     steps:
