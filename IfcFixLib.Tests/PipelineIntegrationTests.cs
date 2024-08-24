@@ -4,16 +4,15 @@ using IfcFixLib.IfcPipelineDefinition;
 using NSubstitute;
 
 namespace IfcFixLib.Tests;
-public class PipelineIntegrationTests
+public class PipelineIntegrationTests(TestFileFixture testFile) : IClassFixture<TestFileFixture>
 {
-    string ifcPath = Path.Combine(Directory.GetCurrentDirectory(), "test.ifc");
 
     [Fact]
     public async Task Pipeline_ProcessesSuccesfully()
     {
         // Arrange
         string expected = "TestPlate";
-        FileStream stream = new FileStream(ifcPath, FileMode.Open);
+        Stream stream = new MemoryStream(testFile.TestIfcBytes);
         var parser = new DbParser();
         var checker = new StringChecker();
         checker.FilterType = StringFilterType.Contains;
@@ -50,7 +49,7 @@ public class PipelineIntegrationTests
     {
         // Arrange
         string expected = "plate beam";
-        FileStream stream = new FileStream(ifcPath, FileMode.Open);
+        Stream stream = new MemoryStream(testFile.TestIfcBytes);
         var parser = new DbParser();
         var checker = new StringChecker();
         checker.FilterType = StringFilterType.Contains_Any;
@@ -82,8 +81,9 @@ public class PipelineIntegrationTests
 
         // Act 1
         var token = pipelineManager.GetNewCancelToken();
+        var parserCompletionTask = parser.GetCompletionTask();
         var data = parser.ParseFromStreamAsync(stream, token);
-        await parser.GetCompletionTask();
+        await parserCompletionTask;
         pipelineManager.StopProcessing();
 
         // Assert 1
@@ -113,7 +113,7 @@ public class PipelineIntegrationTests
     {
         // Arrange
 		string expectedErrorMessage = "Error occured.";
-        FileStream stream = new FileStream(ifcPath, FileMode.Open);
+        Stream stream = new MemoryStream(testFile.TestIfcBytes);
         var parser = new DbParser();
         var dublicator = new DbDuplicator();
 		var errorFilter = Substitute.For<IPipeFilter>();
@@ -145,7 +145,7 @@ public class PipelineIntegrationTests
     {
         // Arrange
         string expected = "TestPlate";
-        FileStream stream = new FileStream(ifcPath, FileMode.Open);
+        Stream stream = new MemoryStream(testFile.TestIfcBytes);
         var parser = new DbParser();
         var checker = new StringChecker();
         checker.FilterType = StringFilterType.Contains;
@@ -189,7 +189,7 @@ public class PipelineIntegrationTests
     public async Task Pipeline_ResetsSuccesfully_With_FilterResetter()
     {
         // Arrange
-        FileStream stream = new FileStream(ifcPath, FileMode.Open);
+        Stream stream = new MemoryStream(testFile.TestIfcBytes);
         var parser = new DbParser();
         var checker = new StringChecker();
         checker.FilterType = StringFilterType.Contains;
