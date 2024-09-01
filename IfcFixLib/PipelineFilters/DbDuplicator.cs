@@ -22,10 +22,25 @@ public class DbDuplicator : PipeFilter
                 newDb.Factory.Duplicate(db.Project, options);
                 options.DuplicateDownstream = true;
 
+                List<IfcElementAssembly> assemblies = new();
+                if (elements.Any(x => x.Decomposes is not null))
+                {
+					assemblies = db.Project.Extract<IfcElementAssembly>();
+                }
+
                 foreach (IfcBuiltElement el in elements)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    newDb.Factory.Duplicate(el, options);
+                    if (el.Decomposes is null)
+                    {
+						newDb.Factory.Duplicate(el, options);
+                    }
+                    else
+                    {
+                        string assemblyGlobalId = el.Decomposes.RelatingObject.GlobalId;
+						IfcElementAssembly assembly = assemblies.Single(x => x.GlobalId.Equals(assemblyGlobalId));
+						newDb.Factory.Duplicate(assembly, options);
+                    }
                 }
                 return newDb;
             }
