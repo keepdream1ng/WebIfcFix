@@ -22,10 +22,11 @@ public class DbDuplicator : PipeFilter
                 newDb.Factory.Duplicate(db.Project, options);
                 options.DuplicateDownstream = true;
 
-                List<IfcElementAssembly> assemblies = new();
+                Dictionary<string, IfcElementAssembly>? assembliesDict = null;
                 if (elements.Any(x => x.Decomposes is not null))
                 {
-					assemblies = db.Project.Extract<IfcElementAssembly>();
+                    assembliesDict = db.Project.Extract<IfcElementAssembly>()
+						.ToDictionary(x => x.GlobalId);
                 }
 
                 foreach (IfcBuiltElement el in elements)
@@ -37,8 +38,7 @@ public class DbDuplicator : PipeFilter
                     }
                     else
                     {
-                        string assemblyGlobalId = el.Decomposes.RelatingObject.GlobalId;
-						IfcElementAssembly assembly = assemblies.Single(x => x.GlobalId.Equals(assemblyGlobalId));
+						IfcElementAssembly assembly = assembliesDict![el.Decomposes.RelatingObject.GlobalId];
 						newDb.Factory.Duplicate(assembly, options);
                     }
                 }
