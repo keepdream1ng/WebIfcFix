@@ -1,0 +1,47 @@
+﻿@using WebIfcFix.Shared;
+@inherits DynamicComponentWithModelBase<PropertyEditorModel>
+
+<p>
+	@Model.ComponentInformation.FilterInstructions
+</p>
+<div class="row">
+	<div class="form-floating col">
+		<InputSelect id="typeOfProperySelect"
+					 class="form-select"
+					 @bind-Value="Model.ValueSetterStrategy.ValueType">
+			@foreach (ElementStringValueType val in Enum.GetValues(typeof(ElementStringValueType)))
+			{
+				<option value="@val">@val</option>
+			}
+		</InputSelect>
+		<label for="typeOfProperySelect">
+			What property to edit:
+		</label>
+	</div>
+	@if (Model.ValueSetterStrategy.ValueType == ElementStringValueType.Property)
+	{
+		<div class="form-floating col-6">
+			<InputText id="propValueInput"
+					   placeholded="Propety to check"
+					   class="form-control"
+					   @bind-Value=Model.ValueSetterStrategy.PropertyName />
+			<label for="propValueInput" class="p-3">
+				Custom property to edit:
+			</label>
+		</div>
+	}
+</div>
+<div class="row">
+	<div class="form-floating col">
+		<InputText id="valueToUpdate"
+				   placeholder="Text to filter on"
+				   class="form-control"
+				   @bind-Value=Model.ValueSetterStrategy.Value />
+		<label for="valueToUpdate" class="p-3">
+			New value:
+		</label>
+	</div>
+</div>
+
+@code {
+}
