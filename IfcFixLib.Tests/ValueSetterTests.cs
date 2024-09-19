@@ -133,18 +133,24 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 
 		StringValueSetter strategy = new();
 		strategy.ValueType = ElementStringValueType.Property;
-		strategy.PropertyName = "Class";
-		string expected = "newClassPropertyContent";
+		strategy.PropertyName = "Finish";
+		string expected = "newFinishPropertyContent";
 		strategy.Value = expected;
 		ValueSetter setter = new ValueSetter(strategy);
 
 		setter.Input = new DataIFC(db, beams);
+		var dublicator = new DbDuplicator();
+		var resetter = new FilterResetter();
+		var dbSerializer = new DbSerializer(IfcFormatOutput.STEP);
+		setter.PipeInto(resetter)
+			.PipeInto(dublicator)
+			.PipeInto(dbSerializer);
 
 		// Act
 		await setter.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = setter.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
-		string actualStepString = setter.Output!.DatabaseIfc.ToString(FormatIfcSerialization.STEP);
+		string actualStepString = dbSerializer.Output!;
+		List<IfcBuiltElement> actual = dublicator.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
@@ -189,14 +195,18 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		ValueSetter setter = new ValueSetter(strategy);
 
 		setter.Input = new DataIFC(db, beams);
+		var dublicator = new DbDuplicator();
+		var resetter = new FilterResetter();
 		var dbSerializer = new DbSerializer(IfcFormatOutput.STEP);
-		dbSerializer.SubscribeToOutput(setter);
+		setter.PipeInto(resetter)
+			.PipeInto(dublicator)
+			.PipeInto(dbSerializer);
 
 		// Act
 		await setter.ProcessAsync(CancellationToken.None);
 		string actual = dbSerializer.Output!;
 
-		List<IfcBuiltElement> actualElements = setter.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
+		List<IfcBuiltElement> actualElements = dublicator.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
 
 		List<IfcBuiltElement> actualUpdatedBeams = actualElements 
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))

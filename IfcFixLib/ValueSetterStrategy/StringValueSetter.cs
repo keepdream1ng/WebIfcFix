@@ -10,7 +10,7 @@ public class StringValueSetter : IValueSetterStrategy
         get { return _value; }
         set
         {
-            _propertySet = null;
+            ClearCache();
             _value = value;
         }
     }
@@ -19,14 +19,15 @@ public class StringValueSetter : IValueSetterStrategy
         get { return _propertyName; }
         set
         {
-            _propertySet = null;
+            ClearCache();
             _propertyName = value;
         }
     }
 
     private string _value = string.Empty;
     private string? _propertyName = null;
-    private IfcPropertySet? _propertySet;
+    private IfcPropertySet? _cachedPropertySet;
+    private IfcPropertySingleValue? _cachedProperty;
 
     public void SetValue(IfcElement element)
     {
@@ -67,25 +68,44 @@ public class StringValueSetter : IValueSetterStrategy
 		var prop = element.FindProperty(PropertyName) as IfcPropertySingleValue;
         if (prop is not null)
         {
-            var sets = prop.PartOfPset;
-            if (sets is not null && sets.Count != 0)
+            var sets = prop.PartOfPset.
+                Where(x => x.DefinesOccurrence.Any(occurence => occurence.RelatedObjects.Any(obj => obj.GlobalId == element.GlobalId)))
+                .ToList();
+            foreach (var set in sets)
             {
-                foreach (var set in sets)
+                var newSet = element.Database.Factory.Duplicate<IfcPropertySet>(set);
+                foreach (IfcRelDefinesByProperties? occurrence in set.DefinesOccurrence)
                 {
-                    prop.NominalValue = new IfcLabel(Value);
-                    set.AddProperty(prop);
+                    occurrence?.RelatedObjects.Remove(element);
                 }
-            }
+
+				newSet.DefinesOccurrence.Clear();
+                if (_cachedProperty is null)
+                {
+                    _cachedProperty = new IfcPropertySingleValue(element.Database, PropertyName, Value);
+                }
+				newSet.AddProperty(_cachedProperty);
+				newSet.RelateObjectDefinition(element);
+			}
         }
         else
         {
-            if (_propertySet is null)
+            if (_cachedPropertySet is null)
             {
-				var newProp = new IfcPropertySingleValue(element.Database, PropertyName, Value);
-				_propertySet = new IfcPropertySet(element.Database, "PSET" + PropertyName);
-				_propertySet.AddProperty(newProp);
+                if (_cachedProperty is null)
+                {
+					_cachedProperty = new IfcPropertySingleValue(element.Database, PropertyName, Value);
+                }
+				_cachedPropertySet = new IfcPropertySet(element.Database, "PSET_" + PropertyName);
+				_cachedPropertySet.AddProperty(_cachedProperty);
             }
-            _propertySet.RelateObjectDefinition(element);
+            _cachedPropertySet.RelateObjectDefinition(element);
         }
+    }
+
+    private void ClearCache()
+    {
+        _cachedProperty = null;
+        _cachedPropertySet = null;
     }
 }
