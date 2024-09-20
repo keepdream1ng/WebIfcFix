@@ -24,12 +24,18 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		ValueSetter setter = new ValueSetter(strategy);
 
 		setter.Input = new DataIFC(db, beams);
+		var dublicator = new DbDuplicator();
+		var resetter = new FilterResetter();
+		var dbSerializer = new DbSerializer(IfcFormatOutput.STEP);
+		setter.PipeInto(resetter)
+			.PipeInto(dublicator)
+			.PipeInto(dbSerializer);
 
 		// Act
 		await setter.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = setter.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
-		string actualStepString = setter.Output!.DatabaseIfc.ToString(FormatIfcSerialization.STEP);
+		List<IfcBuiltElement> actual = dublicator.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
+		string actualStepString = dbSerializer.Output!;
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
@@ -62,12 +68,18 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		ValueSetter setter = new ValueSetter(strategy);
 
 		setter.Input = new DataIFC(db, beams);
+		var dublicator = new DbDuplicator();
+		var resetter = new FilterResetter();
+		var dbSerializer = new DbSerializer(IfcFormatOutput.STEP);
+		setter.PipeInto(resetter)
+			.PipeInto(dublicator)
+			.PipeInto(dbSerializer);
 
 		// Act
 		await setter.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = setter.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
-		string actualStepString = setter.Output!.DatabaseIfc.ToString(FormatIfcSerialization.STEP);
+		List<IfcBuiltElement> actual = dublicator.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
+		string actualStepString = dbSerializer.Output!;
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
@@ -100,12 +112,18 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		ValueSetter setter = new ValueSetter(strategy);
 
 		setter.Input = new DataIFC(db, beams);
+		var dublicator = new DbDuplicator();
+		var resetter = new FilterResetter();
+		var dbSerializer = new DbSerializer(IfcFormatOutput.STEP);
+		setter.PipeInto(resetter)
+			.PipeInto(dublicator)
+			.PipeInto(dbSerializer);
 
 		// Act
 		await setter.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = setter.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
-		string actualStepString = setter.Output!.DatabaseIfc.ToString(FormatIfcSerialization.STEP);
+		List<IfcBuiltElement> actual = dublicator.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
+		string actualStepString = dbSerializer.Output!;
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
