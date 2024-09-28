@@ -6,7 +6,7 @@ public class StringValueGetter
     public ElementStringValueType ValueType { get; set; }
     public string? PropertyName { get; set; }
 
-    public string GetFilteredValue(IfcElement element) => ValueType switch
+    public string GetValue(IfcElement element) => ValueType switch
     {
         ElementStringValueType.Name        => element.Name,
         ElementStringValueType.Description => element.Description,

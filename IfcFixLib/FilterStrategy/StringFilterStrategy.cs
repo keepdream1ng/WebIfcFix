@@ -8,6 +8,6 @@ public class StringFilterStrategy : IFilterStrategy
     public string FilteredString { get; set; } = String.Empty;
     public bool IsMatch(IfcElement element)
     {
-        return StringChecker.Check(StringValueGetter.GetFilteredValue(element), FilteredString);
+        return StringChecker.Check(StringValueGetter.GetValue(element), FilteredString);
     }
 }
