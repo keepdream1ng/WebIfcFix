@@ -1,0 +1,61 @@
+﻿@using WebIfcFix.Shared;
+@inherits DynamicComponentWithModelBase<PropertyCopierModel>
+
+<p>
+	@Model.ComponentInformation.FilterInstructions
+</p>
+<div class="row">
+	<div class="form-floating col">
+		<InputSelect id="typeOfProperySelectGetter"
+					 class="form-select"
+					 @bind-Value="Model.ValueGetterStrategy.ValueType">
+			@foreach (ElementStringValueType val in Enum.GetValues(typeof(ElementStringValueType)))
+			{
+				<option value="@val">@val</option>
+			}
+		</InputSelect>
+		<label for="typeOfProperySelectGetter">
+			Copy from:
+		</label>
+	</div>
+	@if (Model.ValueGetterStrategy.ValueType == ElementStringValueType.Property)
+	{
+		<div class="form-floating col-6">
+			<InputText id="propValueInputGetter"
+					   placeholded="Propety to check"
+					   class="form-control"
+					   @bind-Value=Model.ValueGetterStrategy.PropertyName />
+			<label for="propValueInputGetter" class="p-3">
+				Custom property to read data from:
+			</label>
+		</div>
+	}
+</div>
+<div class="row">
+	<div class="form-floating col">
+		<InputSelect id="typeOfProperySelectSetter"
+					 class="form-select"
+					 @bind-Value="Model.ValueSetterStrategy.ValueType">
+			@foreach (ElementStringValueType val in Enum.GetValues(typeof(ElementStringValueType)))
+			{
+				<option value="@val">@val</option>
+			}
+		</InputSelect>
+		<label for="typeOfProperySelectSetter">
+			Past in:
+		</label>
+	</div>
+	@if (Model.ValueSetterStrategy.ValueType == ElementStringValueType.Property)
+	{
+		<div class="form-floating col-6">
+			<InputText id="propValueInputSetter"
+					   placeholded="Propety to check"
+					   class="form-control"
+					   @bind-Value=Model.ValueSetterStrategy.PropertyName />
+			<label for="propValueInputSetter" class="p-3">
+				Custom property to update:
+			</label>
+		</div>
+	}
+</div>
+
