@@ -41,6 +41,11 @@ public class LayoutManagerService(IComponentsTypesService componentsTypes)
         ResetFromIndex(index);
 		LinkedListNode<IPipeConnector> nodeToRemove = _componentsLayout[index].PipelineNode!;
         PipelineManager!.Remove(nodeToRemove);
+        if (index == _componentsLayout.Count - 1)
+        {
+            DbSerializer.UnsubscribeFrom(nodeToRemove.Value.Filter);
+            DbSerializer.SubscribeToOutput(PipelineManager!.PipeEnd);
+        }
 		_componentsLayout.RemoveAt(index);
     }
 
