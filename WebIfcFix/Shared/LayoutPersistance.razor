@@ -105,6 +105,9 @@
 	[EditorRequired]
 	public EventCallback OnLayoutUpdate { get; set; }
 
+	[SupplyParameterFromQuery()]
+	public string? version { get; set; }
+
 	[SupplyParameterFromQuery(Name = nameof(this.layout))]
 	public string LayoutEncoded { get; set; } = String.Empty;
 
@@ -146,7 +149,13 @@
 	{
 		_layoutSerialized = Json.SerializeObject(LayoutManager.ComponentsLayout);
 		LayoutEncoded = UrlQueryService.GetQueryParameterFromJson(_layoutSerialized);
-		string url = NavManager.GetUriWithQueryParameter(nameof(this.layout), LayoutEncoded);
+		string url = NavManager.GetUriWithQueryParameters(
+			new Dictionary<string, object?>()
+			{
+				[nameof(this.version)] = version ?? "v1",
+				[nameof(this.layout)] = LayoutEncoded
+			}
+		);
 		NavManager.NavigateTo(url);
 		await JS.InvokeVoidAsync("copyTextToClipboard", url);
 		StateHasChanged();
@@ -159,6 +168,10 @@
 		{
 			try
 			{
+				if (String.IsNullOrEmpty(version) || version != "v1")
+				{
+					throw new NotSupportedException();
+				}
 				_layoutSerialized = UrlQueryService.GetSanitizedJsonFromQueryParameter(LayoutEncoded);
 				var layoutFromQuery = Json.DeserializeObject<List<SerializableModelBase>>(_layoutSerialized);
 				if (layoutFromQuery is not null)
