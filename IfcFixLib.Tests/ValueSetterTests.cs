@@ -24,17 +24,17 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		ValueSetter setter = new ValueSetter(strategy);
 
 		setter.Input = new DataIFC(db, beams);
+		var filterResetter = new FilterResetter();
 		var dublicator = new DbDuplicator();
-		var resetter = new FilterResetter();
 		var dbSerializer = new DbSerializer(IfcFormatOutput.STEP);
-		setter.PipeInto(resetter)
+		setter.PipeInto(filterResetter)
 			.PipeInto(dublicator)
 			.PipeInto(dbSerializer);
 
 		// Act
 		await setter.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = dublicator.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
+		List<IfcBuiltElement> actual = dublicator.Output!.Elements;
 		string actualStepString = dbSerializer.Output!;
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
@@ -68,17 +68,17 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		ValueSetter setter = new ValueSetter(strategy);
 
 		setter.Input = new DataIFC(db, beams);
+		var filterResetter = new FilterResetter();
 		var dublicator = new DbDuplicator();
-		var resetter = new FilterResetter();
 		var dbSerializer = new DbSerializer(IfcFormatOutput.STEP);
-		setter.PipeInto(resetter)
+		setter.PipeInto(filterResetter)
 			.PipeInto(dublicator)
 			.PipeInto(dbSerializer);
 
 		// Act
 		await setter.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = dublicator.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
+		List<IfcBuiltElement> actual = dublicator.Output!.Elements;
 		string actualStepString = dbSerializer.Output!;
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
@@ -112,17 +112,17 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		ValueSetter setter = new ValueSetter(strategy);
 
 		setter.Input = new DataIFC(db, beams);
+		var filterResetter = new FilterResetter();
 		var dublicator = new DbDuplicator();
-		var resetter = new FilterResetter();
 		var dbSerializer = new DbSerializer(IfcFormatOutput.STEP);
-		setter.PipeInto(resetter)
+		setter.PipeInto(filterResetter)
 			.PipeInto(dublicator)
 			.PipeInto(dbSerializer);
 
 		// Act
 		await setter.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = dublicator.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
+		List<IfcBuiltElement> actual = dublicator.Output!.Elements;
 		string actualStepString = dbSerializer.Output!;
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
@@ -168,7 +168,7 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		await setter.ProcessAsync(CancellationToken.None);
 
 		string actualStepString = dbSerializer.Output!;
-		List<IfcBuiltElement> actual = dublicator.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
+		List<IfcBuiltElement> actual = dublicator.Output!.Elements;
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
@@ -213,10 +213,10 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		ValueSetter setter = new ValueSetter(strategy);
 
 		setter.Input = new DataIFC(db, beams);
+		var filterResetter = new FilterResetter();
 		var dublicator = new DbDuplicator();
-		var resetter = new FilterResetter();
 		var dbSerializer = new DbSerializer(IfcFormatOutput.STEP);
-		setter.PipeInto(resetter)
+		setter.PipeInto(filterResetter)
 			.PipeInto(dublicator)
 			.PipeInto(dbSerializer);
 
@@ -224,7 +224,7 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		await setter.ProcessAsync(CancellationToken.None);
 		string actual = dbSerializer.Output!;
 
-		List<IfcBuiltElement> actualElements = dublicator.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
+		List<IfcBuiltElement> actualElements = dublicator.Output!.Elements;
 
 		List<IfcBuiltElement> actualUpdatedBeams = actualElements 
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
@@ -240,7 +240,7 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 
 		Assert.All(actualUpdatedBeams, ifcElement =>
 		{
-			var elementProperty = ifcElement.FindProperty(strategy.PropertyName) as IfcPropertySingleValue;
+			var elementProperty = ifcElement.FindProperty(expectedPropertyName) as IfcPropertySingleValue;
 			Assert.Equal(expected, elementProperty!.NominalValue.ValueString);
 		});
 		Assert.All(actualAllTheRest, ifcElement =>
