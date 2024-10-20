@@ -4,9 +4,11 @@ using IfcFixLib.IfcPipelineDefinition;
 namespace IfcFixLib.PipelineFilters;
 public class DbDuplicator : PipeFilter
 {
+    public DbDublicatorOptions Options { get; set; } = new();
     public static async Task<DatabaseIfc> DuplicateDbWithElementsAsync(
         DatabaseIfc db,
         List<IfcBuiltElement> elements,
+        bool dublicateFasteners,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(db);
@@ -42,6 +44,20 @@ public class DbDuplicator : PipeFilter
 						newDb.Factory.Duplicate(assembly, options);
                     }
                 }
+
+                if (dublicateFasteners)
+                {
+					List<IfcMechanicalFastener> oldDbFasteners = db.Project.Extract<IfcMechanicalFastener>();
+					HashSet<IfcMechanicalFastener> newDbFasteners = newDb.Project.Extract<IfcMechanicalFastener>().ToHashSet();
+                    foreach(var fastener in oldDbFasteners)
+                    {
+                        if (fastener.Decomposes is null && !newDbFasteners.Contains(fastener))
+                        {
+                            newDb.Factory.Duplicate(fastener, options);
+                        }
+                    }
+                }
+
                 return newDb;
             }
         );
@@ -49,10 +65,15 @@ public class DbDuplicator : PipeFilter
 
     protected override async Task<DataIFC> ProcessDataAsync(DataIFC data, CancellationToken cancellationToken)
     {
-        DatabaseIfc newDb = await DuplicateDbWithElementsAsync(data.DatabaseIfc, data.Elements, cancellationToken)
+        DatabaseIfc newDb = await DuplicateDbWithElementsAsync(data.DatabaseIfc, data.Elements, Options.CopyFasteners, cancellationToken)
             .ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
         List<IfcBuiltElement> elements = newDb.Project.Extract<IfcBuiltElement>();
         return new DataIFC(newDb, elements);
     }
+}
+
+public class DbDublicatorOptions
+{
+    public bool CopyFasteners { get; set; } = true;
 }

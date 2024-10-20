@@ -1,0 +1,11 @@
+﻿@inherits DynamicComponentWithModelBase<IfcDataDuplicatorModel>
+@using WebIfcFix.Shared;
+
+<p>@Model.ComponentInformation.FilterInstructions</p>
+<label>
+	<InputCheckbox class="form-check-input" @bind-Value="Model.DbDublicatorOptions.CopyFasteners"/>
+	Copy fasteners
+</label>
+
+@code {
+}
