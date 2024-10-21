@@ -1,7 +1,7 @@
 {
   "mainAssemblyName": "WebIfcFix",
   "resources": {
-    "hash": "sha256-nXs4OfxWm8+DUqPuNYiIDli78RgZU0Es2Eme4rZnshU=",
+    "hash": "sha256-l4i8UXHGk+Jgti5dy7xJv2sGcQwGfYVeOE1wOB0mbmM=",
     "jsModuleNative": {
       "dotnet.native.8.0.10.4xsnm8lwn6.js": "sha256-QVxMlY7ohmjgde/bZMA0dlWDAeuUP+tEfkiSdg4DFcE="
     },
@@ -21,7 +21,7 @@
       "AngleSharp.wasm": "sha256-soBqVeDOe3AZki4mQ1fPzAk735KqEsg7WrIFlX30woI=",
       "GeometryGymIFCcore.wasm": "sha256-LlS148s+TrimPA4xk8uBWQQciOCr5lG228JLQs7pw8I=",
       "HtmlSanitizer.wasm": "sha256-wkJRjCrCYz9RaLbQ81Im3k01iq1dvvCZEzZj69mMaaw=",
-      "IfcFixLib.wasm": "sha256-eg3duX1UDE8AeYy9pY04QWlBD679q/Oi6FqG6k5XPAI=",
+      "IfcFixLib.wasm": "sha256-vKnF+/SJqq9MIH3ePpt20T1abLv7/LWCj7tRBpJyRYw=",
       "Microsoft.AspNetCore.Components.Forms.wasm": "sha256-6L3gxqQcdyzqGrrdKvreFccKHry3MJDiVW+qdAVWmsM=",
       "Microsoft.AspNetCore.Components.wasm": "sha256-THLhlgF9OTgX2E3bn3ZztpQWlXbgk6KseJIlXqN8u90=",
       "Microsoft.AspNetCore.Components.Web.wasm": "sha256-GSxmXYX3WGG/m+dJUFCS7a/d0bcnXn9tuCaAamB6/yU=",
@@ -59,7 +59,7 @@
       "System.IO.Compression.wasm": "sha256-J1VboMjHwV5O7fJBvP8C47+5qUBTobMuy5cIblsE+Bw=",
       "System.IO.Compression.ZipFile.wasm": "sha256-sLJZCuIs66sG7tZaMCunVzPigWn6vrLO0+KpaQG9jJA=",
       "System.Linq.Expressions.wasm": "sha256-gIKlM0ha3E6qqhAY3t2do8/xa+phGa25kVxiCbYpqY4=",
-      "System.Linq.wasm": "sha256-gJS0dYAtgrOkNVplsWuH/NKcMRYmuMsKrVo4ceNohg8=",
+      "System.Linq.wasm": "sha256-xGObNwq+QQl3QpBrf5cCgxzIiw6d5VAEuSfNPOfFt2g=",
       "System.Memory.wasm": "sha256-99w3WH+y9WgCvCeQV3l8zs3wQtCg6E+gUsZjw4K7QSM=",
       "System.Net.Http.wasm": "sha256-1X8X70nnWuhdoFuM7aL0ifYkvVky+KEqbmUYEU0QUwI=",
       "System.Net.Primitives.wasm": "sha256-FmM/DjnDlleugKWx1qCYjgwr1Te0egVX9x6xDbfMIcE=",
@@ -93,7 +93,7 @@
       "System.Xml.Linq.wasm": "sha256-VY+WTqYbw4LGWnTMkJjsfqKF/mUynOF3ioTNZ0Hlb7s=",
       "System.Xml.ReaderWriter.wasm": "sha256-fjWw+V9gvhQ6MdH+LpJyQ0Xz2cvOekvAWfRy8NWUst4=",
       "System.Xml.XDocument.wasm": "sha256-Cy/b283xboGd/FENjDI+rENBqJOBdwLXhAhwbzY3Po4=",
-      "WebIfcFix.wasm": "sha256-nmQj1150qrXhruydBTR5RlT2gG9BZMlc48do7FnB/xA="
+      "WebIfcFix.wasm": "sha256-AA7HitxcfBsCXX7wORlbtxqjg9s0hTxpgOco7w5j65Q="
     }
   },
   "cacheBootResources": true,
