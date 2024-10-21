@@ -38,7 +38,7 @@ public class ValueCopierTests(TestFileFixture testFile) : IClassFixture<TestFile
 		// Act
 		await copier.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = dublicator.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
+		List<IfcBuiltElement> actual = DatabaseIfc.ParseString(dbSerializer.Output!).Project.Extract<IfcBuiltElement>();
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
@@ -92,7 +92,7 @@ public class ValueCopierTests(TestFileFixture testFile) : IClassFixture<TestFile
 		// Act
 		await copier.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = dublicator.Output!.DatabaseIfc.Project.Extract<IfcBuiltElement>();
+		List<IfcBuiltElement> actual = DatabaseIfc.ParseString(dbSerializer.Output!).Project.Extract<IfcBuiltElement>();
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))

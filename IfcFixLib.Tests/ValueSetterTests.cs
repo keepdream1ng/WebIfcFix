@@ -34,8 +34,9 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		// Act
 		await setter.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = dublicator.Output!.Elements;
 		string actualStepString = dbSerializer.Output!;
+		DatabaseIfc updatedDb = DatabaseIfc.ParseString(actualStepString);
+		List<IfcBuiltElement> actual = updatedDb.Project.Extract<IfcBuiltElement>();
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
@@ -78,8 +79,9 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		// Act
 		await setter.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = dublicator.Output!.Elements;
 		string actualStepString = dbSerializer.Output!;
+		DatabaseIfc updatedDb = DatabaseIfc.ParseString(actualStepString);
+		List<IfcBuiltElement> actual = updatedDb.Project.Extract<IfcBuiltElement>();
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
@@ -122,8 +124,9 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		// Act
 		await setter.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = dublicator.Output!.Elements;
 		string actualStepString = dbSerializer.Output!;
+		DatabaseIfc updatedDb = DatabaseIfc.ParseString(actualStepString);
+		List<IfcBuiltElement> actual = updatedDb.Project.Extract<IfcBuiltElement>();
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
@@ -168,7 +171,8 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		await setter.ProcessAsync(CancellationToken.None);
 
 		string actualStepString = dbSerializer.Output!;
-		List<IfcBuiltElement> actual = dublicator.Output!.Elements;
+		DatabaseIfc updatedDb = DatabaseIfc.ParseString(actualStepString);
+		List<IfcBuiltElement> actual = updatedDb.Project.Extract<IfcBuiltElement>();
 
 		List<IfcBuiltElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
@@ -223,8 +227,8 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		// Act
 		await setter.ProcessAsync(CancellationToken.None);
 		string actual = dbSerializer.Output!;
-
-		List<IfcBuiltElement> actualElements = dublicator.Output!.Elements;
+		DatabaseIfc updatedDb = DatabaseIfc.ParseString(actual);
+		List<IfcBuiltElement> actualElements = updatedDb.Project.Extract<IfcBuiltElement>();
 
 		List<IfcBuiltElement> actualUpdatedBeams = actualElements 
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
