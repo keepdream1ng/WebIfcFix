@@ -1,0 +1,10 @@
+{
+  "Remove fasteners": [
+    {
+      "DbDublicatorOptions": {
+        "CopyFasteners": false
+      },
+      "ModelType": "WebIfcFix.Filters.IfcDataDuplicatorModel"
+    }
+  ]
+}
