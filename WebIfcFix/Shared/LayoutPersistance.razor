@@ -6,6 +6,7 @@
 @inject IUrlQueryParameterService UrlQueryService
 @inject LayoutManagerService LayoutManager
 @inject IJSRuntime JS
+@inject PredefinedLayoutsService PredefinedLayouts
 
 <div class="row m-5">
 	<div class="d-grid gap-2 d-md-block">
@@ -114,7 +115,7 @@
 	private List<SerializableModelBase>? layout { get; set; } =
 		[
 			new FilterByStringComponentModel(),
-			new IfcDataDuplicatorModel()
+	new IfcDataDuplicatorModel()
 		];
 
 	private string _layoutSerialized = String.Empty;
@@ -137,6 +138,10 @@
 	public async Task LoadLayout()
 	{
 		var layout = await ClientStorage.GetItemAsync<List<SerializableModelBase>>(_layoutToLoad);
+		if (layout is null)
+		{
+			layout = PredefinedLayouts.GetLayoutByName(_layoutToLoad);
+		}
 		if (layout is not null)
 		{
 			LayoutManager.ImportLayout(layout);
@@ -164,6 +169,7 @@
 	protected override async Task OnInitializedAsync()
 	{
 		await base.OnInitializedAsync();
+		Task predefinedLayoutsLoading = PredefinedLayouts.LoadDataAsync();
 		if (!String.IsNullOrEmpty(LayoutEncoded))
 		{
 			try
@@ -186,6 +192,8 @@
 		}
 		LayoutManager.ImportLayout(layout!);
 		_savedLayouts = await ClientStorage.GetItemAsync<List<string>>(nameof(_savedLayouts)) ?? new List<string>();
+		await predefinedLayoutsLoading;
+		_savedLayouts.AddRange(PredefinedLayouts.GetPredefinedLayoutsNames());
 		StateHasChanged();
 		await OnLayoutUpdate.InvokeAsync();
 	}
