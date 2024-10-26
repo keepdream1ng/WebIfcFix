@@ -4,9 +4,9 @@ using IfcFixLib.IfcPipelineDefinition;
 namespace IfcFixLib.PipelineFilters;
 public class ValueSetter(IValueSetterStrategy ValueSetterStrategy) : PipeFilter
 {
-	protected override Task<DataIFC> ProcessDataAsync(DataIFC dataIFC, CancellationToken cancellationToken)
+	protected override async Task<DataIFC> ProcessDataAsync(DataIFC dataIFC, CancellationToken cancellationToken)
 	{
-		Task.Run(() =>
+		await Task.Run(() =>
 		{
 			foreach (IfcBuiltElement element in dataIFC.Elements)
 			{
@@ -16,6 +16,6 @@ public class ValueSetter(IValueSetterStrategy ValueSetterStrategy) : PipeFilter
 		},
 		cancellationToken);
 
-		return Task.FromResult(dataIFC);
+		return dataIFC;
 	}
 }
