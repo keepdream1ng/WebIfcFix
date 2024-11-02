@@ -1,0 +1,26 @@
+﻿@using IfcFixLib.FilterStrategy
+@using WebIfcFix.Shared;
+@inherits DynamicComponentWithModelBase<FilterByClassNameComponentModel>
+@inject LayoutManagerService LayoutManager
+
+<p>
+	@Model.ComponentInformation.FilterInstructions
+</p>
+<div class="row">
+	<div class="form-floating col">
+		<InputSelect id="filterInSelect"
+					 class="form-select"
+					 @bind-Value="Model.FilterStrategy.FilterInClassName">
+            @foreach (var className in ClassNamesGetter.IfcClassNames)
+            {
+				<option value="@className">@className</option>
+			}
+		</InputSelect>
+		<label for="filterInSelect">
+			What class filter in:
+		</label>
+	</div>
+</div>
+
+@code {
+}
