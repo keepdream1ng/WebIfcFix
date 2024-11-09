@@ -1,4 +1,5 @@
 ﻿@inject LayoutManagerService LayoutManager
+@inject IFileNameService NameService
 
 <div class="card m-1">
 	<div class="row g-0">
@@ -30,6 +31,7 @@
 	{
 		_file = e.File;
 		Message = string.Empty;
+		NameService.InputFileName = _file.Name;
 		Status = ProcessStatus.Processing;
 		await Task.Run(async () => await ParseAsync()).ConfigureAwait(false);
 	}

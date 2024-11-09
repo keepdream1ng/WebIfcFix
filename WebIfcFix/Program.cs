@@ -14,6 +14,7 @@ builder.Services.AddSingleton<ILocalStorageService, LocalStorageService>();
 builder.Services.AddSingleton<IComponentsTypesService, ComponentsTypesService>();
 builder.Services.AddSingleton<ISanitizerService, SanitizerService>();
 builder.Services.AddSingleton<IUrlQueryParameterService, UrlQueryService>();
+builder.Services.AddSingleton<IFileNameService, FileNameService>();
 builder.Services.AddSingleton<LayoutManagerService>();
 
 await builder.Build().RunAsync();

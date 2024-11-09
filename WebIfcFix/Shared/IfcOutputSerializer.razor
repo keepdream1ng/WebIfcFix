@@ -1,5 +1,6 @@
 ﻿@using System.Text
 @inject IJSRuntime JS;
+@inject IFileNameService NameService;
 
 <div class="card m-1">
 	<div class="row g-0">
@@ -77,7 +78,7 @@
 
 			await JS.InvokeVoidAsync(
 						"saveAsFile",
-						"updated.ifc",
+						NameService.GetOutputFileName(),
 						Convert.ToBase64String(byteArray));
 		}
 		catch(Exception ex)
