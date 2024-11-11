@@ -6,7 +6,7 @@
 
 Work in progress version is here: https://keepdream1ng.github.io/WebIfcFix/ 
 
-Let's walk-through adding a simple pipile filter with custom logic:
+Let's walk-through adding a simple pipeline filter (a component that executes some code over `DataIFC` object and passes updated version to the next component) with custom logic:
 1. Add a filter to the library by implementing `PipeFilter` class:
 ```csharp
 using GeometryGym.Ifc;
@@ -38,7 +38,7 @@ public class NameConcatenatorValueWrapper
 }
 ``` 
 
-2. Add component model and info. Component model is the object that implements `ComponentModel` and will be shared with a link. Along with it We also create a `ComponentInformation` object, what holds instructions about that component work and automatically adds component to the tools in UI.
+2. Add component model and info. Component model is the object that implements `ComponentModel` and will be shared with a link. Along with it We also create a `ComponentInformation` object, that holds instructions about the component work and automatically adds component to the tools in UI.
 ```csharp
 using IfcFixLib.IfcPipelineDefinition;
 using IfcFixLib.PipelineFilters;
@@ -93,7 +93,7 @@ public class NameConcatenatorInfo : ComponentInformation<NameConcatenatorCompone
 ```
 
 Result - new component is added as an option to the web UI. It works as a part of pipeline for IFC editing and can be shared with a link.
-Here is how our component model looks when we share a pipeline made from it alone, notice that only public properties are serialized:
+Here is how our component model looks when we share a pipeline made from it alone, notice that only public properties are serialized and may be shared with other users:
 ```json
 [
   {
