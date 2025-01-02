@@ -1,4 +1,4 @@
-﻿using GeometryGym.Ifc;
+using GeometryGym.Ifc;
 using IfcFixLib.IfcPipelineDefinition;
 
 namespace IfcFixLib.PipelineFilters;
@@ -8,7 +8,7 @@ public class ValueSetter(IValueSetterStrategy ValueSetterStrategy) : PipeFilter
 	{
 		await Task.Run(() =>
 		{
-			foreach (IfcBuiltElement element in dataIFC.Elements)
+			foreach (IfcElement element in dataIFC.Elements)
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 				ValueSetterStrategy.SetValue(element);

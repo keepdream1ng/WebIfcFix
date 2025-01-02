@@ -1,8 +1,8 @@
-﻿using GeometryGym.Ifc;
+using GeometryGym.Ifc;
 
 namespace IfcFixLib;
-public class DataIFC (DatabaseIfc databaseIfc, List<IfcBuiltElement> elements)
+public class DataIFC (DatabaseIfc databaseIfc, List<IfcElement> elements)
 {
     public DatabaseIfc DatabaseIfc { get; } = databaseIfc;
-    public List<IfcBuiltElement> Elements { get; } = elements;
+    public List<IfcElement> Elements { get; } = elements;
 }

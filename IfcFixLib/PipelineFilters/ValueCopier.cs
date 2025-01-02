@@ -1,4 +1,4 @@
-﻿using GeometryGym.Ifc;
+using GeometryGym.Ifc;
 using IfcFixLib.FilterStrategy;
 using IfcFixLib.IfcPipelineDefinition;
 
@@ -9,7 +9,7 @@ public class ValueCopier(StringValueGetter ValueGetter, StringValueSetter ValueS
 	{
 		await Task.Run(() =>
 		{
-			foreach (IfcBuiltElement element in dataIFC.Elements)
+			foreach (IfcElement element in dataIFC.Elements)
 			{
 				cancellationToken.ThrowIfCancellationRequested();
 				string valueToCopy = ValueGetter.GetValue(element);

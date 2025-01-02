@@ -23,7 +23,7 @@ public class DbSerializer(IfcFormatOutput formatOutput = IfcFormatOutput.STEP) :
 
 	public async Task ProcessAsync(CancellationToken cancellationToken)
 	{
-		ArgumentNullException.ThrowIfNull(nameof(Input));
+		ArgumentNullException.ThrowIfNull(Input, nameof(Input));
 		if (StateChanged is not null)
 		{
 			await StateChanged.Invoke(cancellationToken)

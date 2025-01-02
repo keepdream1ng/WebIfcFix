@@ -1,4 +1,4 @@
-﻿using GeometryGym.Ifc;
+using GeometryGym.Ifc;
 using IfcFixLib.IfcPipelineDefinition;
 using IfcFixLib.PipelineFilters;
 
@@ -19,7 +19,7 @@ public class DbParser : IPipeOut
         cancellationToken.ThrowIfCancellationRequested();
         DatabaseIfc db = DatabaseIfc.ParseString(ifcString);
         cancellationToken.ThrowIfCancellationRequested();
-		List<IfcBuiltElement> elements = FilterResetter.ExtractAllElements(db);
+		List<IfcElement> elements = FilterResetter.ExtractAllElements(db);
         Output = new DataIFC(db, elements);
         await OnProcessDone(cancellationToken);
         return db;

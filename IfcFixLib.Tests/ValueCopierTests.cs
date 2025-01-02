@@ -1,4 +1,4 @@
-﻿using GeometryGym.Ifc;
+using GeometryGym.Ifc;
 using IfcFixLib.PipelineFilters;
 using IfcFixLib.IfcPipelineDefinition;
 using IfcFixLib.FilterStrategy;
@@ -14,8 +14,8 @@ public class ValueCopierTests(TestFileFixture testFile) : IClassFixture<TestFile
 		using Stream stream = new MemoryStream(testFile.TestIfcBytes);
 		using StreamReader reader = new StreamReader(stream);
 		DatabaseIfc db = new DatabaseIfc(reader);
-		List<IfcBuiltElement> allElements = db.Project.Extract<IfcBuiltElement>();
-		List<IfcBuiltElement> beams = allElements
+		List<IfcElement> allElements = FilterResetter.ExtractAllElements(db);
+		List<IfcElement> beams = allElements
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
@@ -38,13 +38,13 @@ public class ValueCopierTests(TestFileFixture testFile) : IClassFixture<TestFile
 		// Act
 		await copier.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = DatabaseIfc.ParseString(dbSerializer.Output!).Project.Extract<IfcBuiltElement>();
+		List<IfcElement> actual = FilterResetter.ExtractAllElements(DatabaseIfc.ParseString(dbSerializer.Output!));
 
-		List<IfcBuiltElement> actualUpdatedBeams = actual
+		List<IfcElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
-		List<IfcBuiltElement> actualAllTheRest = actual
+		List<IfcElement> actualAllTheRest = actual
 			.Except(actualUpdatedBeams)
 			.ToList();
 
@@ -66,8 +66,8 @@ public class ValueCopierTests(TestFileFixture testFile) : IClassFixture<TestFile
 		using Stream stream = new MemoryStream(testFile.TestIfcBytes);
 		using StreamReader reader = new StreamReader(stream);
 		DatabaseIfc db = new DatabaseIfc(reader);
-		List<IfcBuiltElement> allElements = db.Project.Extract<IfcBuiltElement>();
-		List<IfcBuiltElement> beams = allElements
+		List<IfcElement> allElements = FilterResetter.ExtractAllElements(db);
+		List<IfcElement> beams = allElements
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
@@ -92,13 +92,13 @@ public class ValueCopierTests(TestFileFixture testFile) : IClassFixture<TestFile
 		// Act
 		await copier.ProcessAsync(CancellationToken.None);
 
-		List<IfcBuiltElement> actual = DatabaseIfc.ParseString(dbSerializer.Output!).Project.Extract<IfcBuiltElement>();
+		List<IfcElement> actual = FilterResetter.ExtractAllElements(DatabaseIfc.ParseString(dbSerializer.Output!));
 
-		List<IfcBuiltElement> actualUpdatedBeams = actual
+		List<IfcElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
-		List<IfcBuiltElement> actualAllTheRest = actual
+		List<IfcElement> actualAllTheRest = actual
 			.Except(actualUpdatedBeams)
 			.ToList();
 
@@ -113,7 +113,10 @@ public class ValueCopierTests(TestFileFixture testFile) : IClassFixture<TestFile
 		{
 			var elementGetterProperty = ifcElement.FindProperty(valueGetter.PropertyName) as IfcPropertySingleValue;
 			var elementSetterProperty = ifcElement.FindProperty(valueSetter.PropertyName) as IfcPropertySingleValue;
-			Assert.NotEqual(elementGetterProperty!.NominalValue.ValueString, elementSetterProperty!.NominalValue.ValueString);
+			if (elementGetterProperty is not null &&  elementSetterProperty is not null)
+			{
+				Assert.NotEqual(elementGetterProperty!.NominalValue.ValueString, elementSetterProperty!.NominalValue.ValueString);
+			}
 		});
 	}
 }

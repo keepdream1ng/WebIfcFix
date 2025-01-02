@@ -12,7 +12,7 @@ public class ElementsFilterTests(TestFileFixture testFile) : IClassFixture<TestF
 		using Stream stream = new MemoryStream(testFile.TestIfcBytes);
 		using StreamReader reader = new StreamReader(stream);
 		DatabaseIfc db = new DatabaseIfc(reader);
-		List<IfcBuiltElement> allElements = db.Project.Extract<IfcBuiltElement>();
+		List<IfcElement> allElements = FilterResetter.ExtractAllElements(db);
 
 		var strategy = new FilterClassNameStrategy();
 		strategy.FilterInClassName = ClassNamesGetter.IfcClassNames

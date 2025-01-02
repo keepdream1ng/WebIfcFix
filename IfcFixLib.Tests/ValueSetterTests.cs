@@ -1,4 +1,4 @@
-﻿using GeometryGym.Ifc;
+using GeometryGym.Ifc;
 using IfcFixLib.IfcPipelineDefinition;
 using IfcFixLib.PipelineFilters;
 
@@ -12,8 +12,8 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		using Stream stream = new MemoryStream(testFile.TestIfcBytes);
 		using StreamReader reader = new StreamReader(stream);
 		DatabaseIfc db = new DatabaseIfc(reader);
-		List<IfcBuiltElement> allElements = db.Project.Extract<IfcBuiltElement>();
-		List<IfcBuiltElement> beams = allElements
+		List<IfcElement> allElements = FilterResetter.ExtractAllElements(db);
+		List<IfcElement> beams = allElements
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
@@ -36,9 +36,9 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 
 		string actualStepString = dbSerializer.Output!;
 		DatabaseIfc updatedDb = DatabaseIfc.ParseString(actualStepString);
-		List<IfcBuiltElement> actual = updatedDb.Project.Extract<IfcBuiltElement>();
+		List<IfcElement> actual = FilterResetter.ExtractAllElements(updatedDb);
 
-		List<IfcBuiltElement> actualUpdatedBeams = actual
+		List<IfcElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
@@ -57,8 +57,8 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		using Stream stream = new MemoryStream(testFile.TestIfcBytes);
 		using StreamReader reader = new StreamReader(stream);
 		DatabaseIfc db = new DatabaseIfc(reader);
-		List<IfcBuiltElement> allElements = db.Project.Extract<IfcBuiltElement>();
-		List<IfcBuiltElement> beams = allElements
+		List<IfcElement> allElements = FilterResetter.ExtractAllElements(db);
+		List<IfcElement> beams = allElements
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
@@ -81,9 +81,9 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 
 		string actualStepString = dbSerializer.Output!;
 		DatabaseIfc updatedDb = DatabaseIfc.ParseString(actualStepString);
-		List<IfcBuiltElement> actual = updatedDb.Project.Extract<IfcBuiltElement>();
+		List<IfcElement> actual = FilterResetter.ExtractAllElements(updatedDb);
 
-		List<IfcBuiltElement> actualUpdatedBeams = actual
+		List<IfcElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
@@ -102,8 +102,8 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		using Stream stream = new MemoryStream(testFile.TestIfcBytes);
 		using StreamReader reader = new StreamReader(stream);
 		DatabaseIfc db = new DatabaseIfc(reader);
-		List<IfcBuiltElement> allElements = db.Project.Extract<IfcBuiltElement>();
-		List<IfcBuiltElement> beams = allElements
+		List<IfcElement> allElements = FilterResetter.ExtractAllElements(db);
+		List<IfcElement> beams = allElements
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
@@ -126,9 +126,9 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 
 		string actualStepString = dbSerializer.Output!;
 		DatabaseIfc updatedDb = DatabaseIfc.ParseString(actualStepString);
-		List<IfcBuiltElement> actual = updatedDb.Project.Extract<IfcBuiltElement>();
+		List<IfcElement> actual = FilterResetter.ExtractAllElements(updatedDb);
 
-		List<IfcBuiltElement> actualUpdatedBeams = actual
+		List<IfcElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
@@ -147,8 +147,8 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		using Stream stream = new MemoryStream(testFile.TestIfcBytes);
 		using StreamReader reader = new StreamReader(stream);
 		DatabaseIfc db = new DatabaseIfc(reader);
-		List<IfcBuiltElement> allElements = db.Project.Extract<IfcBuiltElement>();
-		List<IfcBuiltElement> beams = allElements
+		List<IfcElement> allElements = FilterResetter.ExtractAllElements(db);
+		List<IfcElement> beams = allElements
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
@@ -172,13 +172,13 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 
 		string actualStepString = dbSerializer.Output!;
 		DatabaseIfc updatedDb = DatabaseIfc.ParseString(actualStepString);
-		List<IfcBuiltElement> actual = updatedDb.Project.Extract<IfcBuiltElement>();
+		List<IfcElement> actual = FilterResetter.ExtractAllElements(updatedDb);
 
-		List<IfcBuiltElement> actualUpdatedBeams = actual
+		List<IfcElement> actualUpdatedBeams = actual
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
-		List<IfcBuiltElement> actualAllTheRest = actual
+		List<IfcElement> actualAllTheRest = actual
 			.Except(actualUpdatedBeams)
 			.ToList();
 
@@ -192,7 +192,10 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		Assert.All(actualAllTheRest, ifcElement =>
 		{
 			var elementProperty = ifcElement.FindProperty(strategy.PropertyName) as IfcPropertySingleValue;
-			Assert.NotEqual(expected, elementProperty!.NominalValue.ValueString);
+			if (elementProperty is not null)
+			{
+				Assert.NotEqual(expected, elementProperty!.NominalValue.ValueString);
+			}
 		});
 	}
 
@@ -203,8 +206,8 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		using Stream stream = new MemoryStream(testFile.TestIfcBytes);
 		using StreamReader reader = new StreamReader(stream);
 		DatabaseIfc db = new DatabaseIfc(reader);
-		List<IfcBuiltElement> allElements = db.Project.Extract<IfcBuiltElement>();
-		List<IfcBuiltElement> beams = allElements
+		List<IfcElement> allElements = FilterResetter.ExtractAllElements(db);
+		List<IfcElement> beams = allElements
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
@@ -228,13 +231,13 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 		await setter.ProcessAsync(CancellationToken.None);
 		string actual = dbSerializer.Output!;
 		DatabaseIfc updatedDb = DatabaseIfc.ParseString(actual);
-		List<IfcBuiltElement> actualElements = updatedDb.Project.Extract<IfcBuiltElement>();
+		List<IfcElement> actualElements = FilterResetter.ExtractAllElements(updatedDb);
 
-		List<IfcBuiltElement> actualUpdatedBeams = actualElements 
+		List<IfcElement> actualUpdatedBeams = actualElements 
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
-		List<IfcBuiltElement> actualAllTheRest = actualElements 
+		List<IfcElement> actualAllTheRest = actualElements 
 			.Except(actualUpdatedBeams)
 			.ToList();
 

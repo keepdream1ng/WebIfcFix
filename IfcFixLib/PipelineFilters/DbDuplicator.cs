@@ -1,4 +1,4 @@
-﻿using GeometryGym.Ifc;
+using GeometryGym.Ifc;
 using IfcFixLib.IfcPipelineDefinition;
 
 namespace IfcFixLib.PipelineFilters;
@@ -7,8 +7,8 @@ public class DbDuplicator : PipeFilter
     public DbDublicatorOptions Options { get; set; } = new();
     public static async Task<DatabaseIfc> DuplicateDbWithElementsAsync(
         DatabaseIfc db,
-        List<IfcBuiltElement> elements,
-        bool dublicateFasteners,
+        List<IfcElement> elements,
+        bool dublicateOrphanComponents,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(db);
@@ -31,7 +31,7 @@ public class DbDuplicator : PipeFilter
 						.ToDictionary(x => x.GlobalId);
                 }
 
-                foreach (IfcBuiltElement el in elements)
+                foreach (IfcElement el in elements)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
                     if (el.Decomposes is null)
@@ -40,20 +40,22 @@ public class DbDuplicator : PipeFilter
                     }
                     else
                     {
-						IfcElementAssembly assembly = assembliesDict![el.Decomposes.RelatingObject.GlobalId];
-						newDb.Factory.Duplicate(assembly, options);
-                    }
-                }
-
-                if (dublicateFasteners)
-                {
-					List<IfcMechanicalFastener> oldDbFasteners = db.Project.Extract<IfcMechanicalFastener>();
-					HashSet<IfcMechanicalFastener> newDbFasteners = newDb.Project.Extract<IfcMechanicalFastener>().ToHashSet();
-                    foreach(var fastener in oldDbFasteners)
-                    {
-                        if (fastener.Decomposes is null && !newDbFasteners.Contains(fastener))
+                        string assemblyId = el.Decomposes.RelatingObject.GlobalId;
+                        if (assembliesDict!.TryGetValue(assemblyId, out IfcElementAssembly? assembly))
                         {
-                            newDb.Factory.Duplicate(fastener, options);
+                            if (assembly.IsDecomposedBy.All(a => a.RelatedObjects.All(asseblyItem => elements.Contains(asseblyItem))))
+                            {
+                                newDb.Factory.Duplicate(assembly, options);
+                                assembliesDict.Remove(assemblyId);
+                            }
+                            else
+                            {
+                                if (!dublicateOrphanComponents && el is IfcElementComponent)
+                                {
+                                    continue;
+                                }
+								newDb.Factory.Duplicate(el, options);
+                            }
                         }
                     }
                 }
@@ -65,15 +67,15 @@ public class DbDuplicator : PipeFilter
 
     protected override async Task<DataIFC> ProcessDataAsync(DataIFC data, CancellationToken cancellationToken)
     {
-        DatabaseIfc newDb = await DuplicateDbWithElementsAsync(data.DatabaseIfc, data.Elements, Options.CopyFasteners, cancellationToken)
+        DatabaseIfc newDb = await DuplicateDbWithElementsAsync(data.DatabaseIfc, data.Elements, Options.CopyOrphanComponents, cancellationToken)
             .ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
-        List<IfcBuiltElement> elements = newDb.Project.Extract<IfcBuiltElement>();
+        List<IfcElement> elements = newDb.Project.Extract<IfcElement>();
         return new DataIFC(newDb, elements);
     }
 }
 
 public class DbDublicatorOptions
 {
-    public bool CopyFasteners { get; set; } = true;
+    public bool CopyOrphanComponents { get; set; } = true;
 }

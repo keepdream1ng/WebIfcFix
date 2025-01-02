@@ -1,4 +1,4 @@
-﻿using GeometryGym.Ifc;
+using GeometryGym.Ifc;
 using System.Reflection;
 
 namespace IfcFixLib.FilterStrategy;
@@ -11,9 +11,9 @@ public static class ClassNamesGetter
     }
 	private static string[] GetIfcClassNames()
 	{
-		string[] elementsClassNames = Assembly.GetAssembly(typeof(IfcBuiltElement))!
+		string[] elementsClassNames = Assembly.GetAssembly(typeof(IfcElement))!
 			.GetTypes()
-			.Where(type => type.IsClass && typeof(IfcBuiltElement).IsAssignableFrom(type) && !type.IsGenericTypeDefinition)
+			.Where(type => type.IsClass && typeof(IfcElement).IsAssignableFrom(type) && !type.IsGenericTypeDefinition)
 			.Select(type => type.Name)
 			.ToArray();
 
