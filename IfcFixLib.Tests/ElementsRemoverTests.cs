@@ -28,8 +28,8 @@ public class ElementsRemoverTests(TestFileFixture testFile) : IClassFixture<Test
 		// Assert
 		Assert.All(actual, ifcElement =>
 		{
-			Assert.Single(expected.Where(x => x.GlobalId == ifcElement.GlobalId));
-			Assert.Empty(beams.Where(x => x.GlobalId == ifcElement.GlobalId));
+			Assert.Single(expected, x => x.GlobalId == ifcElement.GlobalId);
+			Assert.DoesNotContain(beams, x => x.GlobalId == ifcElement.GlobalId);
 		});
 		Assert.Equal(expected.Count, actual.Count);
 		Assert.All(beams, beam =>
@@ -47,10 +47,12 @@ public class ElementsRemoverTests(TestFileFixture testFile) : IClassFixture<Test
 		DatabaseIfc db = new DatabaseIfc(reader);
 		List<IfcElement> allElements = FilterResetter.ExtractAllElements(db);
 		List<IfcElement> beamOnLevel0 = allElements
+			.Where(x => x is not IfcElementAssembly)
 			.Where(x => x.Name.Equals("TestBeam0", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
 		IfcElement beamOnLevel1000 = allElements
+			.Where(x => x is not IfcElementAssembly)
 			.Single(x => x.Name.Equals("TestBeam1000", StringComparison.InvariantCultureIgnoreCase));
 
 		ElementsRemover remover = new();

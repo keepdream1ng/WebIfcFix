@@ -1,10 +1,13 @@
 {
-  "Remove fasteners": [
+  "Remove bolts": [
     {
-      "DbDublicatorOptions": {
-        "CopyFasteners": false
+      "FilterStrategy": {
+        "FilterInClassName": "IfcMechanicalFastener"
       },
-      "ModelType": "WebIfcFix.Filters.IfcDataDuplicatorModel"
+      "ModelType": "WebIfcFix.Filters.FilterByClassNameComponentModel"
+    },
+    {
+      "ModelType": "WebIfcFix.Filters.IfcElementsRemoverModel"
     }
   ]
 }

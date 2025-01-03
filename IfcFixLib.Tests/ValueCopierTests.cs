@@ -95,6 +95,7 @@ public class ValueCopierTests(TestFileFixture testFile) : IClassFixture<TestFile
 		List<IfcElement> actual = FilterResetter.ExtractAllElements(DatabaseIfc.ParseString(dbSerializer.Output!));
 
 		List<IfcElement> actualUpdatedBeams = actual
+			.Where(x => x is not IfcElementAssembly)
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 

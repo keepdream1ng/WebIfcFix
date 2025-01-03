@@ -10,7 +10,7 @@ public class ElementsRemover : PipeFilter
 		List<IfcElement> elementsToKeep = allElements
 			.Except(dataIFC.Elements)
 			.ToList();
-		DatabaseIfc newDb = await DbDuplicator.DuplicateDbWithElementsAsync(dataIFC.DatabaseIfc, elementsToKeep, true, cancellationToken);
+		DatabaseIfc newDb = await DbDuplicator.DuplicateDbWithElementsAsync(dataIFC.DatabaseIfc, elementsToKeep, false, cancellationToken);
 		return new DataIFC(newDb, elementsToKeep);
 	}
 }

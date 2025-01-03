@@ -8,7 +8,7 @@ public class DbDuplicator : PipeFilter
     public static async Task<DatabaseIfc> DuplicateDbWithElementsAsync(
         DatabaseIfc db,
         List<IfcElement> elements,
-        bool dublicateOrphanComponents,
+        bool copyWholeAssembly,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(db);
@@ -22,10 +22,9 @@ public class DbDuplicator : PipeFilter
                 options.DuplicateDownstream = false;
                 DatabaseIfc newDb = new DatabaseIfc(db);
                 newDb.Factory.Duplicate(db.Project, options);
-                options.DuplicateDownstream = true;
 
                 Dictionary<string, IfcElementAssembly>? assembliesDict = null;
-                if (elements.Any(x => x.Decomposes is not null))
+                if (copyWholeAssembly && elements.Any(x => x.Decomposes is not null))
                 {
                     assembliesDict = db.Project.Extract<IfcElementAssembly>()
 						.ToDictionary(x => x.GlobalId);
@@ -34,29 +33,20 @@ public class DbDuplicator : PipeFilter
                 foreach (IfcElement el in elements)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (el.Decomposes is null)
-                    {
-						newDb.Factory.Duplicate(el, options);
-                    }
-                    else
+                    if (copyWholeAssembly && el.Decomposes is not null)
                     {
                         string assemblyId = el.Decomposes.RelatingObject.GlobalId;
                         if (assembliesDict!.TryGetValue(assemblyId, out IfcElementAssembly? assembly))
                         {
-                            if (assembly.IsDecomposedBy.All(a => a.RelatedObjects.All(asseblyItem => elements.Contains(asseblyItem))))
-                            {
-                                newDb.Factory.Duplicate(assembly, options);
-                                assembliesDict.Remove(assemblyId);
-                            }
-                            else
-                            {
-                                if (!dublicateOrphanComponents && el is IfcElementComponent)
-                                {
-                                    continue;
-                                }
-								newDb.Factory.Duplicate(el, options);
-                            }
+							options.DuplicateDownstream = true;
+							newDb.Factory.Duplicate(assembly, options);
+							options.DuplicateDownstream = false;
+							assembliesDict!.Remove(assemblyId);
                         }
+                    }
+                    else
+                    {
+                        newDb.Factory.Duplicate(el, options);
                     }
                 }
 
@@ -67,15 +57,15 @@ public class DbDuplicator : PipeFilter
 
     protected override async Task<DataIFC> ProcessDataAsync(DataIFC data, CancellationToken cancellationToken)
     {
-        DatabaseIfc newDb = await DuplicateDbWithElementsAsync(data.DatabaseIfc, data.Elements, Options.CopyOrphanComponents, cancellationToken)
+        DatabaseIfc newDb = await DuplicateDbWithElementsAsync(data.DatabaseIfc, data.Elements, Options.CopyWholeAssembly, cancellationToken)
             .ConfigureAwait(false);
         cancellationToken.ThrowIfCancellationRequested();
-        List<IfcElement> elements = newDb.Project.Extract<IfcElement>();
+        List<IfcElement> elements = FilterResetter.ExtractAllElements(newDb);
         return new DataIFC(newDb, elements);
     }
 }
 
 public class DbDublicatorOptions
 {
-    public bool CopyOrphanComponents { get; set; } = true;
+    public bool CopyWholeAssembly { get; set; } = false;
 }
