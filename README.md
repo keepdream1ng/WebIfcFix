@@ -15,18 +15,18 @@ using IfcFixLib.IfcPipelineDefinition;
 namespace IfcFixLib.PipelineFilters;
 public class NameConcatenator(NameConcatenatorValueWrapper ValueWrapper) : PipeFilter
 {
-	protected override async Task<DataIFC> ProcessDataAsync(DataIFC dataIFC, CancellationToken cancellationToken)
+	protected override async Task<DataIFC> ProcessDataAsync(DataIFC dataIFC, CancellationToken ct)
 	{
 		await Task.Run(() =>
 		{
-			foreach (IfcBuiltElement element in dataIFC.Elements)
+			foreach (var element in dataIFC.Elements)
 			{
-				cancellationToken.ThrowIfCancellationRequested();
+				ct.ThrowIfCancellationRequested();
 				element.Name = String.Concat(element.Name, ValueWrapper.Value);
 			}
 
 		},
-		cancellationToken);
+		ct);
 
 		return dataIFC;
 	}
@@ -51,20 +51,21 @@ public class NameConcatenatorComponentModel : ComponentModel<NameConcatenatorCom
 	public override IPipeFilter PipeFilter => _concatenator;
 	public NameConcatenatorValueWrapper ValueWrapper {  get; set; }
 	private NameConcatenator _concatenator;
-
-	public override IComponentInformation ComponentInformation { get; init; } = new NameConcatenatorInfo();
-    public NameConcatenatorComponentModel()
-    {
+	public override IComponentInformation ComponentInformation { get; init; }
+		= new NameConcatenatorInfo();
+	public NameConcatenatorComponentModel()
+	{
 		ValueWrapper = new NameConcatenatorValueWrapper();
 		_concatenator = new NameConcatenator(ValueWrapper);
-    }
+	}
 }
 
 public class NameConcatenatorInfo : ComponentInformation<NameConcatenatorComponentModel>
 {
 	public override string FilterName => "Add to name";
 
-	public override string FilterInstructions => "Update elements name by concatenating to it the value from user input";
+	public override string FilterInstructions =>
+		"Update elements name by concatenating to it the value from user input";
 }
 ``` 
 
