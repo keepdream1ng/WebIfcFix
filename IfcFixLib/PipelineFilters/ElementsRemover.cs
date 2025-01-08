@@ -2,15 +2,34 @@ using GeometryGym.Ifc;
 using IfcFixLib.IfcPipelineDefinition;
 
 namespace IfcFixLib.PipelineFilters;
-public class ElementsRemover : PipeFilter
+public class ElementsRemover (ElementsRemoverOptions Options) : PipeFilter
 {
 	protected override async Task<DataIFC> ProcessDataAsync(DataIFC dataIFC, CancellationToken cancellationToken)
 	{
 		List<IfcElement> allElements = FilterResetter.ExtractAllElements(dataIFC.DatabaseIfc);
+		List<IfcElement> elementsToRemove = dataIFC.Elements;
+		HashSet<string> globalIdsToRemove = elementsToRemove.Select(x => x.GlobalId).ToHashSet();
+		if (Options.RemoveWholeAssembly)
+		{
+			foreach (var el in elementsToRemove)
+			{
+				if (el.Decomposes is null) continue;
+				globalIdsToRemove.Add(el.Decomposes.RelatingObject.GlobalId);
+				foreach (var relatedObject in el.Decomposes.RelatedObjects)
+				{
+					globalIdsToRemove.Add(relatedObject.GlobalId);
+				}
+			}
+		}
 		List<IfcElement> elementsToKeep = allElements
-			.Except(dataIFC.Elements)
+			.Where(x => !globalIdsToRemove.Contains(x.GlobalId))
 			.ToList();
 		DatabaseIfc newDb = await DbDuplicator.DuplicateDbWithElementsAsync(dataIFC.DatabaseIfc, elementsToKeep, false, cancellationToken);
 		return new DataIFC(newDb, elementsToKeep);
 	}
+}
+
+public class ElementsRemoverOptions
+{
+	public bool RemoveWholeAssembly { get; set; } = false;
 }

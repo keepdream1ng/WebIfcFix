@@ -7,7 +7,13 @@ namespace WebIfcFix.Filters;
 public class IfcElementsRemoverModel : ComponentModel<IfcElementsRemover>
 {
 	public override IPipeFilter PipeFilter => _remover;
-    private ElementsRemover _remover = new ElementsRemover();
+    public ElementsRemoverOptions ElementsRemoverOptions { get; set; }
+    private ElementsRemover _remover;
+	public IfcElementsRemoverModel()
+	{
+		ElementsRemoverOptions = new();
+		_remover = new ElementsRemover(ElementsRemoverOptions);
+	}
 
 	public override IComponentInformation ComponentInformation { get; init; } = new IfcElementsRemoverInfo();
 }

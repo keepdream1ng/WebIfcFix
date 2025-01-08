@@ -2,6 +2,10 @@
 @using WebIfcFix.Shared;
 
 <p>@Model.ComponentInformation.FilterInstructions</p>
+<label>
+	<InputCheckbox class="form-check-input" @bind-Value="Model.ElementsRemoverOptions.RemoveWholeAssembly"/>
+	Remove whole assembly of the filtered element
+</label>
 
 @code {
 }

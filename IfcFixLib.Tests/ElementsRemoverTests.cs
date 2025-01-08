@@ -15,7 +15,8 @@ public class ElementsRemoverTests(TestFileFixture testFile) : IClassFixture<Test
 		List<IfcElement> beams = allElements
 			.Where(x => x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
-		ElementsRemover remover = new();
+		ElementsRemoverOptions options = new();
+		ElementsRemover remover = new ElementsRemover(options);
 		List<IfcElement> expected = allElements.Except(beams).ToList();
 
 		remover.Input = new DataIFC(db, beams);
@@ -39,7 +40,7 @@ public class ElementsRemoverTests(TestFileFixture testFile) : IClassFixture<Test
 	}
 
 	[Fact]
-	public async Task ProcessAsync_ShouldNotDeleteAllAssembliesParts()
+	public async Task ProcessAsync_ShouldNotDeleteAllAssembliesParts_WhithoutOption()
 	{
 		// Arrange
 		using Stream stream = new MemoryStream(testFile.TestIfcBytes);
@@ -55,7 +56,9 @@ public class ElementsRemoverTests(TestFileFixture testFile) : IClassFixture<Test
 			.Where(x => x is not IfcElementAssembly)
 			.Single(x => x.Name.Equals("TestBeam1000", StringComparison.InvariantCultureIgnoreCase));
 
-		ElementsRemover remover = new();
+		ElementsRemoverOptions options = new();
+		options.RemoveWholeAssembly = false;
+		ElementsRemover remover = new ElementsRemover(options);
 		List<IfcElement> expected = allElements.Except(beamOnLevel0).ToList();
 
 		remover.Input = new DataIFC(db, beamOnLevel0);
@@ -75,6 +78,50 @@ public class ElementsRemoverTests(TestFileFixture testFile) : IClassFixture<Test
 		Assert.All(beamOnLevel1000.Decomposes.RelatedObjects, part =>
 		{
 			Assert.Contains(part.GlobalId, actualStepString);
+		});
+	}
+
+	[Fact]
+	public async Task ProcessAsync_ShouldDeleteAllSelectedAssembliesParts_IfOptionProvided()
+	{
+		// Arrange
+		using Stream stream = new MemoryStream(testFile.TestIfcBytes);
+		using StreamReader reader = new StreamReader(stream);
+		DatabaseIfc db = new DatabaseIfc(reader);
+		List<IfcElement> allElements = FilterResetter.ExtractAllElements(db);
+		List<IfcElement> beamElements = allElements
+			.Where(x => x is IfcBeam)
+			.ToList();
+
+		ElementsRemoverOptions options = new();
+		options.RemoveWholeAssembly = true;
+		ElementsRemover remover = new ElementsRemover(options);
+		List<IfcElement> expected = allElements
+			.Where(x => !x.Name.Contains("beam", StringComparison.InvariantCultureIgnoreCase))
+			.ToList();
+
+		remover.Input = new DataIFC(db, beamElements);
+
+		// Act
+		await remover.ProcessAsync(CancellationToken.None);
+		List<IfcElement> actual = FilterResetter.ExtractAllElements(remover.Output!.DatabaseIfc);
+		string actualStepString = remover.Output!.DatabaseIfc.ToString(FormatIfcSerialization.STEP);
+
+		var diff = actual
+			.Where(actualElem => !expected.Any(expectedElem => expectedElem.GlobalId == actualElem.GlobalId))
+			.ToList();
+
+		// Assert
+		Assert.Equal(expected.Count, actual.Count);
+		Assert.Empty(diff);
+		Assert.All(actual, ifcElement =>
+		{
+			Assert.Single(expected, x => x.GlobalId == ifcElement.GlobalId);
+			Assert.DoesNotContain(beamElements, x => x.GlobalId == ifcElement.GlobalId);
+		});
+		Assert.All(beamElements, beam =>
+		{
+			Assert.DoesNotContain(beam.GlobalId, actualStepString);
 		});
 	}
 }
