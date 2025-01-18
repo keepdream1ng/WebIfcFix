@@ -24,7 +24,3 @@ function enableDarkMode() {
 function disableDarkMode() {
     document.documentElement.removeAttribute('data-bs-theme');
 }
-
-if (prefersDarkMode) {
-    enableDarkMode();
-}
