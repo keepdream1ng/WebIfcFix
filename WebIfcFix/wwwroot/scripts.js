@@ -13,3 +13,18 @@ function copyTextToClipboard(text) {
         console.error('Could not copy text: ', error);
     });
 }
+
+function prefersDarkMode() {
+    return window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches
+}
+
+function enableDarkMode() {
+    document.documentElement.setAttribute('data-bs-theme', 'dark');
+}
+function disableDarkMode() {
+    document.documentElement.removeAttribute('data-bs-theme');
+}
+
+if (prefersDarkMode) {
+    enableDarkMode();
+}

@@ -8,7 +8,12 @@
 		<LayoutPersistance OnLayoutUpdate="UpdateState" />
 	</div>
 	<div class="col-3">
-		<PipelineProcessControls OnProcessDone="UpdateState" />
+		<div class="row m-5">
+			<div class="d-grid gap-2 d-md-block">
+				<PipelineProcessControls OnProcessDone="UpdateState" />
+				<ThemeToggler/>
+			</div>
+		</div>
 	</div>
 </div>
 

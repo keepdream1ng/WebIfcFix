@@ -1,0 +1,79 @@
+﻿@inject ILocalStorageService ClientStorage
+@inject IJSRuntime JS
+
+<button
+	class="btn btn-primary"
+	@onclick = "@ToggleDarkMode"
+	type="button">
+	@buttonLabel
+</button>
+
+@code {
+	private bool enableDarkMode;
+	private string darkmodeLabel = "Dark mode";
+	private string lightmodeLabel = "Light mode";
+	private string enableDarkModeRecord = "dark mode enabled";
+	private string disableDarkModeRecord = "dark mode disabled";
+	private string darkModeQuery = "(prefers-color-scheme: dark)";
+	private string buttonLabel => enableDarkMode? lightmodeLabel: darkmodeLabel;
+
+	protected override async Task OnInitializedAsync()
+	{
+		await base.OnInitializedAsync();
+		string? darkModeStoredSetting = await ClientStorage.GetItemAsync<string>(nameof(enableDarkMode));
+		if (darkModeStoredSetting is null)
+		{
+			enableDarkMode = await IsPreferredDarkMode();
+			await UpdatePrefencesLocally();
+		}
+		else
+		{
+			enableDarkMode = darkModeStoredSetting.Equals(enableDarkModeRecord);
+		}
+	}
+
+	protected override async Task OnAfterRenderAsync(bool firstRender)
+	{
+		if (enableDarkMode)
+		{
+			await EnableDarkMode();
+		}
+		await base.OnAfterRenderAsync(firstRender);
+	}
+
+	private async Task ToggleDarkMode()
+	{
+		enableDarkMode = !enableDarkMode;
+		await UpdatePrefencesLocally();
+		if (enableDarkMode)
+		{
+			await EnableDarkMode();
+		}
+		else
+		{
+			await DisableDarkMode();
+		}
+	}
+
+	private async Task<bool> IsPreferredDarkMode()
+	{
+		bool prefersDarkMode = await JS.InvokeAsync<bool>("prefersDarkMode");
+		return prefersDarkMode;
+	}
+
+	private async Task UpdatePrefencesLocally()
+	{
+		string settingRecord = enableDarkMode ? enableDarkModeRecord : disableDarkModeRecord;
+		await ClientStorage.SetItemAsync(nameof(enableDarkMode), settingRecord);
+	}
+
+	private async Task EnableDarkMode()
+	{
+		await JS.InvokeVoidAsync("enableDarkMode");
+	}
+
+	private async Task DisableDarkMode()
+	{
+		await JS.InvokeVoidAsync("disableDarkMode");
+	}
+}

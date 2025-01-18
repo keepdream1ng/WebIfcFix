@@ -3,14 +3,12 @@
 
 @if (LayoutManager.DbParser.Output is not null)
 {
-	<div class="row m-5">
-		<button
-			class="btn btn-primary"
-			@onclick="@StartStopToggle"
-			type="button">
-			@_btnLabel
-		</button>
-	</div>
+	<button
+		class="btn btn-primary"
+		@onclick="@StartStopToggle"
+		type="button">
+		@_btnLabel
+	</button>
 }
 
 @code {
