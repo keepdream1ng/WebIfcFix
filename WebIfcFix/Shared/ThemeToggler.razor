@@ -14,7 +14,6 @@
 	private string lightmodeLabel = "Light mode";
 	private string enableDarkModeRecord = "dark mode enabled";
 	private string disableDarkModeRecord = "dark mode disabled";
-	private string darkModeQuery = "(prefers-color-scheme: dark)";
 	private string buttonLabel => enableDarkMode? lightmodeLabel: darkmodeLabel;
 
 	protected override async Task OnInitializedAsync()
@@ -30,15 +29,10 @@
 		{
 			enableDarkMode = darkModeStoredSetting.Equals(enableDarkModeRecord);
 		}
-	}
-
-	protected override async Task OnAfterRenderAsync(bool firstRender)
-	{
-		if (enableDarkMode)
+		if (enableDarkMode == false)
 		{
-			await EnableDarkMode();
+			await DisableDarkMode();
 		}
-		await base.OnAfterRenderAsync(firstRender);
 	}
 
 	private async Task ToggleDarkMode()
