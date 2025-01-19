@@ -8,16 +8,19 @@
 </p>
 <div class="row">
 	<div class="form-floating col">
-		<InputSelect id="filterInSelect"
-					 class="form-select"
-					 @bind-Value="Model.FilterStrategy.FilterInClassName">
+		<input id="filterInSelect"
+					 class="form-control"
+					 list="classNameOptions"
+					 @bind-value="Model.FilterStrategy.FilterInClassName">
+		</input>
+		<datalist id="classNameOptions">
             @foreach (var className in ClassNamesGetter.IfcClassNames)
             {
 				<option value="@className">@className</option>
 			}
-		</InputSelect>
+		</datalist>
 		<label for="filterInSelect">
-			What class filter in:
+			Type to search the class for filtering:
 		</label>
 	</div>
 </div>
