@@ -1,0 +1,28 @@
+﻿@using IfcFixLib.FilterStrategy
+@using WebIfcFix.Shared;
+@inherits DynamicComponentWithModelBase<ChangeClassComponentModel>
+
+<p>
+	@Model.ComponentInformation.FilterInstructions
+</p>
+<div class="row">
+	<div class="form-floating col">
+		<input id="changeToSelect"
+					 class="form-control"
+					 list="classNameOptions"
+					 @bind-value="Model.ClassChangerOptions.TargetClassName">
+		</input>
+		<datalist id="classNameOptions">
+            @foreach (var className in ClassNamesGetter.IfcClassNames)
+            {
+				<option value="@className">@className</option>
+			}
+		</datalist>
+		<label for="changeToSelect">
+			Type to search the class selecting:
+		</label>
+	</div>
+</div>
+
+@code {
+}
