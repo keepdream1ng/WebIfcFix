@@ -4,7 +4,7 @@ using System.Reflection;
 namespace IfcFixLib;
 public class ReflectionPropertyCopier
 {
-	private Dictionary<string, (Type Type, Dictionary<string, PropertyInfo?> properyDict)> _propertyCash = new();
+	private Dictionary<string, (Type Type, Dictionary<string, PropertyInfo?> propertyDict)> _propertyCash = new();
 	private List<PropertyInfo> _targetPropertiesToCopy = new();
 
 	public ReflectionPropertyCopier(List<PropertyInfo> targetProperties)
@@ -30,11 +30,11 @@ public class ReflectionPropertyCopier
 
 		foreach (PropertyInfo property in _targetPropertiesToCopy)
 		{
-			if (!currentSourceCash.properyDict.ContainsKey(property.Name))
+			if (!currentSourceCash.propertyDict.ContainsKey(property.Name))
 			{
-				currentSourceCash.properyDict[property.Name] = currentSourceCash.Type.GetProperty(property.Name);
+				currentSourceCash.propertyDict[property.Name] = currentSourceCash.Type.GetProperty(property.Name);
 			}
-			var sourceProperty = currentSourceCash.properyDict[property.Name];
+			var sourceProperty = currentSourceCash.propertyDict[property.Name];
 			if (sourceProperty is not null
 				&& sourceProperty.CanRead
 				&& property.PropertyType.IsAssignableFrom(sourceProperty.PropertyType))
