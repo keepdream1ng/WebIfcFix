@@ -20,6 +20,7 @@ public class ClassChangerTests(TestFileFixture testFile) : IClassFixture<TestFil
 			.Where(x => x.Name.Equals("TestBeam0", StringComparison.InvariantCultureIgnoreCase))
 			.ToList();
 
+		IfcElement expectedBeam0 = beam0.First();
 		string expectedPropertyName = "Top elevation";
 		var expectedPropertyValue = beam0[0].FindProperty(expectedPropertyName) as IfcPropertySingleValue;
 		var options = new ClassChangerOptions();
@@ -50,6 +51,7 @@ public class ClassChangerTests(TestFileFixture testFile) : IClassFixture<TestFil
 		Assert.Equal(expectedClassName, actualUpdatedBeam0.StepClassName);
 		Assert.NotNull(actualPropertyValue);
 		Assert.Equal(expectedPropertyValue!.NominalValue.ValueString, actualPropertyValue.NominalValue.ValueString);
+		Assert.Equal(expectedBeam0.GlobalId, actualUpdatedBeam0.GlobalId);
 	}
 
 	[Fact]

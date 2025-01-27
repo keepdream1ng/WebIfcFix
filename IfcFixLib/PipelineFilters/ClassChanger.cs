@@ -16,6 +16,7 @@ public class ClassChanger(ClassChangerOptions options) : PipeFilter
 		List<PropertyInfo> propertiesTarget = ifcTypeTarget.GetProperties()
 			.Where(x => x.Name != "Decomposes")
 			.ToList();
+		ReflectionPropertyCopier reflectionCopier = new ReflectionPropertyCopier(propertiesTarget);
 		FactoryIfc factory = dataIFC.DatabaseIfc.Factory;
 		List<IfcElement> elementsCopies = new();
 		foreach (var el in dataIFC.Elements)
@@ -36,20 +37,8 @@ public class ClassChanger(ClassChangerOptions options) : PipeFilter
 				el.ObjectPlacement,
 				el.Representation);
 
-			foreach (var property in propertiesTarget)
-			{
-				if (property.CanRead && property.CanWrite)
-				{
-					var sourceProperty = ifcTypeSource.GetProperty(property.Name);
-					if (sourceProperty is not null
-						&& sourceProperty.CanRead
-						&& property.PropertyType.IsAssignableFrom(sourceProperty.PropertyType))
-					{
-						object? value = sourceProperty.GetValue(el);
-						property.SetValue(copy, value);
-					}
-				}
-			}
+			reflectionCopier.CopyProperies(el, copy);
+
 			if (el.Decomposes is not null)
 			{
 				el.Decomposes.RelatedObjects.Add(copy);
@@ -72,7 +61,10 @@ public class ClassChanger(ClassChangerOptions options) : PipeFilter
 			.ToList();
 		elementsToKeep.AddRange(elementsCopies);
 		DatabaseIfc newDb = await DbDuplicator.DuplicateDbWithElementsAsync(dataIFC.DatabaseIfc, elementsToKeep, false, cancellationToken);
-		return new DataIFC(newDb, elementsCopies);
+		List<IfcElement> copiesFromNewDb = FilterResetter.ExtractAllElements(newDb)
+			.Where(x => elementsCopies.Any(copy => copy.GlobalId == x.GlobalId))
+			.ToList();
+		return new DataIFC(newDb, copiesFromNewDb);
 	}
 }
 
