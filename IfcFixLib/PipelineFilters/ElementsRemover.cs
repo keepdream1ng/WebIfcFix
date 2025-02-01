@@ -13,6 +13,17 @@ public class ElementsRemover (ElementsRemoverOptions Options) : PipeFilter
 		{
 			foreach (var el in elementsToRemove)
 			{
+				if (el is IfcElementAssembly)
+				{
+					foreach (IfcRelAggregates? connection in el.IsDecomposedBy)
+					{
+						if (connection is null) continue;
+						foreach (var assemblyPart in connection.RelatedObjects)
+						{
+							globalIdsToRemove.Add(assemblyPart.GlobalId);
+						}
+					}
+				}
 				if (el.Decomposes is null) continue;
 				globalIdsToRemove.Add(el.Decomposes.RelatingObject.GlobalId);
 				foreach (var relatedObject in el.Decomposes.RelatedObjects)
