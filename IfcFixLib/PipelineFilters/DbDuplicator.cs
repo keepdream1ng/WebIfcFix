@@ -24,7 +24,9 @@ public class DbDuplicator : PipeFilter
                 newDb.Factory.Duplicate(db.Project, options);
 
                 Dictionary<string, IfcElementAssembly>? assembliesDict = null;
-                if (copyWholeAssembly && elements.Any(x => x.Decomposes is not null))
+                if (copyWholeAssembly &&
+					(elements.Any(x => x.Decomposes is not null) ||
+                    elements.Any(x => x is IfcElementAssembly)))
                 {
                     assembliesDict = db.Project.Extract<IfcElementAssembly>()
 						.ToDictionary(x => x.GlobalId);
@@ -33,9 +35,19 @@ public class DbDuplicator : PipeFilter
                 foreach (IfcElement el in elements)
                 {
                     cancellationToken.ThrowIfCancellationRequested();
-                    if (copyWholeAssembly && el.Decomposes is not null)
+                    if (copyWholeAssembly &&
+						(el.Decomposes is not null ||
+						el is IfcElementAssembly))
                     {
-                        string assemblyId = el.Decomposes.RelatingObject.GlobalId;
+                        string assemblyId;
+                        if (el.Decomposes is not null)
+                        {
+							assemblyId = el.Decomposes.RelatingObject.GlobalId;
+                        }
+                        else
+                        {
+							assemblyId = el.GlobalId;
+                        }
                         if (assembliesDict!.TryGetValue(assemblyId, out IfcElementAssembly? assembly))
                         {
 							options.DuplicateDownstream = true;
