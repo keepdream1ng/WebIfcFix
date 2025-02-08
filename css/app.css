@@ -1,3 +1,26 @@
+:root {
+    --DARKBLUE: #1c3252;
+    --LIGHTBLUE: #24497e;
+    --LIGHTCOLOR: white;
+}
+
+html[data-bs-theme="dark"] {
+    --bs-body-bg: var(--DARKBLUE);
+    --bs-body-color: var(--LIGHTCOLOR); 
+    --bs-primary-bg-subtle: var(--LIGHTBLUE);
+    --webifcfix-darktheme-border: color-mix(in hsl, var(--LIGHTCOLOR) 60%, var(--LIGHTBLUE));
+    --bs-border-color: var(--webifcfix-darktheme-border);
+    --bs-border-color-translucent: var(--webifcfix-darktheme-border);
+}
+
+html:not([data-bs-theme="dark"]) {
+    --bs-body-bg: var(--LIGHTCOLOR);
+    --bs-body-color: var(--DARKBLUE); 
+    --bs-primary-bg-subtle: var(--LIGHTBLUE);
+    --bs-border-color: var(--LIGHTBLUE);
+    --bs-border-color-translucent: var(--LIGHTBLUE);
+}
+
 html, body {
     font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif;
 }
@@ -58,8 +81,8 @@ a, .btn-link {
 
 .btn-primary {
     color: #fff;
-    background-color: #1b6ec2;
-    border-color: #1861ac;
+    background-color: var(--LIGHTBLUE);
+    border-color: var(--LIGHTBLUE);
 }
 
 .btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
