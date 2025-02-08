@@ -5,13 +5,26 @@
 
 <div class="sticky-top row" style="background-color: var(--bs-body-bg)">
 	<div class="col">
-		<LayoutPersistance OnLayoutUpdate="UpdateState" />
-	</div>
-	<div class="col-3">
-		<div class="row m-5">
-			<div class="d-grid gap-2 d-md-block">
-				<PipelineProcessControls OnProcessDone="UpdateState" />
-				<ThemeToggler/>
+		<div class="d-md-none row mb-2">
+			<button
+				class="btn btn-primary"
+				type="button"
+				@onclick="MenuToggle"
+				>
+				@collapseBtnText
+			</button>
+		</div>
+		<div class="row @menuCssClass">
+			<div class="col">
+				<LayoutPersistance OnLayoutUpdate="UpdateState" />
+			</div>
+			<div class="col-md-3 d-flex align-items-center justify-content-center">
+				<div class="row m-md-5">
+					<div class="d-grid gap-2 d-md-block">
+						<PipelineProcessControls OnProcessDone="UpdateState" />
+						<ThemeToggler/>
+					</div>
+				</div>
 			</div>
 		</div>
 	</div>
@@ -19,18 +32,18 @@
 
 <div class="no-select">
 	<div class="row">
-		<div class="col">
+		<div class="col-7 col-md">
 			<h3>Ifc editing instructions</h3>
 			<IfcInputParser Parser="LayoutManager.DbParser" OnProcessDone="UpdateState" />
 			<SortableList
-				Group="IfcFilters"
-				Items="LayoutManager.ComponentsLayout"
-				Handle=".handle"
-				OnUpdate="SortList"
-				OnRemove="RemoveComponent"
-				DoCallbackOnMoveToId="true"
-				OnMoveToId=OnMoveToId
-				Context="model">
+			Group="IfcFilters"
+			Items="LayoutManager.ComponentsLayout"
+			Handle=".handle"
+			OnUpdate="SortList"
+			OnRemove="RemoveComponent"
+			DoCallbackOnMoveToId="true"
+			OnMoveToId=OnMoveToId
+			Context="model">
 				<SortableItemTemplate>
 					<div class="card m-1">
 						<div class="row g-0">
@@ -38,7 +51,7 @@
 								<PipeConnectorStatusIndicator Connector="@model.PipelineNode!.Value" />
 							</div>
 							<div class="col p-1"
-								@oninput="() => LayoutManager.ResetFromNode(model.PipelineNode!)">
+							@oninput="() => LayoutManager.ResetFromNode(model.PipelineNode!)">
 								<DynamicComponent Type=@Type.GetType(model.ComponentTypeName!) Parameters="@model.GetParameters()"/>
 							</div>
 						</div>
@@ -47,21 +60,21 @@
 			</SortableList>
 			<IfcOutputSerializer Serializer="LayoutManager.DbSerializer" />
 		</div>
-		<div class="col-3">
+		<div class="col-5 col-md-3">
 			<div
-				style="overflow-y: auto; overflow-x:clip"
-				class="row flex-column h-100 position-relative">
+			style="overflow-y: auto; overflow-x:clip"
+			class="row flex-column h-100 position-relative">
 				<h3>Filters components (drag and drop)</h3>
 				<GarbageBinSVG Fill="white" Class="@svgClass"/>
 				<SortableList
-					Id="@componentsId"
-					Class="@componentClass"
-					Group="IfcFilters"
-					Items="TypesService.ComponentsTypes"
-					Sort="false"
-					Pull="clone"
-					OnRemove="CreateNewComponent"
-					Context="type">
+				Id="@componentsId"
+				Class="@componentClass"
+				Group="IfcFilters"
+				Items="TypesService.ComponentsTypes"
+				Sort="false"
+				Pull="clone"
+				OnRemove="CreateNewComponent"
+				Context="type">
 					<SortableItemTemplate>
 						<div class="card m-1 @componentsOpacity" style="cursor: move">
 							<div class="card-body tooltip-source">
@@ -81,12 +94,15 @@
 
 @code {
 	private bool componentsIsHovered { get; set; }
+	private bool collapseMenu = false;
 	private string componentsId { get; } = "componentsCollection";
 	private string componentBG => componentsIsHovered ? "bg-success" : ".bg-transparent";
 	private string componentClass => $"col-12 flex-fill {componentBG}";
 	private string componentsOpacity => componentsIsHovered ? "opacity-0" : "opacity-100";
 	private string opacityIcon => componentsIsHovered ? "opacity-100" : "opacity-0";
 	private string svgClass => $"background-svg {opacityIcon}";
+	private string menuCssClass => collapseMenu ? "collapse" : String.Empty;
+	private string collapseBtnText => collapseMenu ? "⇩ Menu ⇩" : "⇧ Menu ⇧";
 
 	private void UpdateState()
 	{
@@ -127,5 +143,11 @@
 		LayoutManager.RemoveElementAt(indices.oldIndex);
 		componentsIsHovered = false;
 		UpdateState();
+	}
+
+	private void MenuToggle()
+	{
+		collapseMenu = !collapseMenu;
+		StateHasChanged();
 	}
 }
