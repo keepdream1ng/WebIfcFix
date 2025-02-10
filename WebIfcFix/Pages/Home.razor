@@ -5,12 +5,12 @@
 
 <div class="sticky-top row" style="background-color: var(--bs-body-bg)">
 	<div class="col">
-		<div class="d-md-none row mb-2">
+		<div class="@hiddenCollapseBtnClass row mb-2">
 			<button
-				class="btn btn-primary"
-				type="button"
-				@onclick="MenuToggle"
-				>
+			class="btn btn-primary"
+			type="button"
+			@onclick="MenuToggle"
+			>
 				@collapseBtnText
 			</button>
 		</div>
@@ -63,9 +63,8 @@
 		<div class="col-5 col-md-3">
 			<div
 			style="overflow-y: auto; overflow-x:clip"
-			class="row flex-column h-100 position-relative">
+			class="row flex-column h-100 position-relative @componentBG">
 				<h3>Filters components (drag and drop)</h3>
-				<GarbageBinSVG Fill="white" Class="@svgClass"/>
 				<SortableList
 				Id="@componentsId"
 				Class="@componentClass"
@@ -97,11 +96,11 @@
 	private bool collapseMenu = false;
 	private string componentsId { get; } = "componentsCollection";
 	private string componentBG => componentsIsHovered ? "bg-success" : ".bg-transparent";
-	private string componentClass => $"col-12 flex-fill {componentBG}";
+	private string componentClass => $"col-12 flex-fill {backgroundCss}";
 	private string componentsOpacity => componentsIsHovered ? "opacity-0" : "opacity-100";
-	private string opacityIcon => componentsIsHovered ? "opacity-100" : "opacity-0";
-	private string svgClass => $"background-svg {opacityIcon}";
+	private string backgroundCss => componentsIsHovered ? "background-svg" : "";
 	private string menuCssClass => collapseMenu ? "collapse" : String.Empty;
+	private string hiddenCollapseBtnClass => collapseMenu ? "" : "d-md-none";
 	private string collapseBtnText => collapseMenu ? "⇩ Menu ⇩" : "⇧ Menu ⇧";
 
 	private void UpdateState()
