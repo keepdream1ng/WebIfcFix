@@ -65,7 +65,7 @@ h1:focus {
 }
 
 .background-svg {
-    background-image: url('/garbageBin.svg');
+    background-image: url('../garbageBin.svg');
     background-repeat: repeat;
     background-size: 100px 100px;
 }
