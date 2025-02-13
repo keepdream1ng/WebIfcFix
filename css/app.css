@@ -56,12 +56,22 @@ h1:focus {
     left: 0rem;
 }
 
+.tooltip-source.active .tooltip-text ,
 .tooltip-source:hover .tooltip-text {
     visibility: visible;
 }
 
+.tooltip-source.active .tooltip-popover ,
 .tooltip-source:hover .tooltip-popover {
     opacity: 1;
+}
+
+.w-200 {
+    width:200% !important;
+}
+
+.w-200.mw-vw-60 {
+    max-width:60vw !important;
 }
 
 .background-svg {
