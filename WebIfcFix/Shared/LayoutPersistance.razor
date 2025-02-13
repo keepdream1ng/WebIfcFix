@@ -11,22 +11,34 @@
 <div class="row m-5">
 	<div class="d-grid gap-2 d-md-block">
 		<button
-			class="btn btn-primary"
-			@onclick="@SerializeAndShareLayout"
-			type="button">
+		class="btn btn-primary tooltip-source @_shareBtnClass"
+		@onclick="@SerializeAndShareLayout"
+		type="button">
 			Share layout
+			<span
+				class="alert tooltip-text tooltip-popover w-200 mw-vw-60 @_shareBtnTooltipClass">
+				@_shareBtnTooltipText
+			</span>
 		</button>
 		<button
-			class="btn @_showSaveOptionsBtnClass"
-			@onclick="@ToggleShowSaveOptions"
-			type="button">
+		class="btn @_showSaveOptionsBtnClass tooltip-source"
+		@onclick="@ToggleShowSaveOptions"
+		type="button">
 			Save layout
+			<span
+				class="alert alert-info tooltip-text tooltip-popover w-200 mw-vw-60">
+				Save current instructions layout locally in the browser. Use 'Share layout' to create a link to web app.
+			</span>
 		</button>
 		<button
-			class="btn @_showLoadOptionsBtnClass"
-			@onclick="@ToggleShowLoadOptions"
-			type="button">
+		class="btn @_showLoadOptionsBtnClass tooltip-source"
+		@onclick="@ToggleShowLoadOptions"
+		type="button">
 			Load layout
+			<span
+				class="alert alert-info tooltip-text tooltip-popover w-200 mw-vw-60">
+				Load instructions layout stored locally from the browser.
+			</span>
 		</button>
 		@if (!string.IsNullOrEmpty(_layoutSerialized))
 		{
@@ -63,16 +75,16 @@
 {
 	<div class="input-group m-5">
 		<InputText
-			class="form-control"
-			placeholder="Name for saving layout locally"
-			aria-label="Name for saving layout locally"
-			aria-describedby="saveLayoutBtn"
-			@bind-Value="@_nameToSave"/>
+		class="form-control"
+		placeholder="Name for saving layout locally"
+		aria-label="Name for saving layout locally"
+		aria-describedby="saveLayoutBtn"
+		@bind-Value="@_nameToSave"/>
 		<button
-			class="btn btn-primary"
-			@onclick="@SaveLayout"
-			id="saveLayoutBtn"
-			type="button">
+		class="btn btn-primary"
+		@onclick="@SaveLayout"
+		id="saveLayoutBtn"
+		type="button">
 			Save
 		</button>
 	</div>
@@ -82,20 +94,20 @@
 {
 	<div class="input-group m-5">
 		<InputSelect
-			class="form-select"
-			aria-label="Options to load saved layouts"
-			aria-describedby="loadLayoutBtn"
-			@bind-Value="_layoutToLoad">
+		class="form-select"
+		aria-label="Options to load saved layouts"
+		aria-describedby="loadLayoutBtn"
+		@bind-Value="_layoutToLoad">
 			@foreach (string savedLayout in _savedLayouts!)
 			{
 				<option value="@savedLayout">@savedLayout</option>
 			}
 		</InputSelect>
 		<button
-			class="btn btn-primary"
-			@onclick="@LoadLayout"
-			id="loadLayoutBtn"
-			type="button">
+		class="btn btn-primary"
+		@onclick="@LoadLayout"
+		id="loadLayoutBtn"
+		type="button">
 			Load layout
 		</button>
 	</div>
@@ -115,7 +127,7 @@
 	private List<SerializableModelBase>? layout { get; set; } =
 		[
 			new FilterByStringComponentModel(),
-	new IfcDataDuplicatorModel()
+			new IfcDataDuplicatorModel()
 		];
 
 	private string _layoutSerialized = String.Empty;
@@ -127,6 +139,10 @@
 	private bool _showSaveOptions = false;
 	private string _showSaveOptionsBtnClass => _showSaveOptions? "btn-outline-primary" : "btn-primary";
 	private bool _showSerializedLayout = false;
+	private bool _shareBtnActive = false;
+	private string _shareBtnTooltipText => _shareBtnActive ? "Link succesfully copied to clipboard!" : "Copy link to current instructions layout to clipboard";
+	private string _shareBtnTooltipClass => _shareBtnActive ? "alert-success" : "alert-info";
+	private string _shareBtnClass => _shareBtnActive ? "active" : "";
 
 	public async Task SaveLayout()
 	{
@@ -163,6 +179,10 @@
 		);
 		NavManager.NavigateTo(url);
 		await JS.InvokeVoidAsync("copyTextToClipboard", url);
+		_shareBtnActive = true;
+		StateHasChanged();
+		await Task.Delay(3000);
+		_shareBtnActive = false;
 		StateHasChanged();
 	}
 
