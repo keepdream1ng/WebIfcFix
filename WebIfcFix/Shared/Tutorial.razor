@@ -1,0 +1,107 @@
+﻿@inject ILocalStorageService ClientStorage
+
+@if (Tutorial1Completed == false)
+{
+	<div class="overlay-bg"></div>
+	<div class="row px-3">
+		<button
+		class="btn btn-success mb-2"
+		style="z-index:9999"
+		type="button"
+		@onclick="CompleteTutorial1"
+		>
+			Got it!
+		</button>
+	</div>
+	<div class="row" style="position:relative">
+		<div class="overlay">
+			<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+			<svg
+			viewBox="0 0 165 100"
+			version="1.1"
+			id="tutorialSvg1"
+			class="tutorialSvg"
+			xmlns="http://www.w3.org/2000/svg"
+			xmlns:svg="http://www.w3.org/2000/svg">
+				<defs
+				id="defs1" />
+				<g
+				id="layer1"
+				style="display:inline"
+				transform="translate(0,1)">
+					<path
+					d="M 176.94629,57.862729 C 172.38324,51.642223 166.78646,46.181885 160.45525,41.773722 149.50324,34.148286 136.47316,29.765556 123.22277,28.177845 109.97237,26.590134 96.491367,27.723715 83.430995,30.466049 61.293477,35.114344 40.145024,44.419073 21.761202,57.599037"
+					id="path2"
+					transform="translate(-17.565473,-20.665261)" />
+					<path
+					d="M 4.1630468,37.273127 14.154097,35.874224"
+					id="path4" />
+					<path
+					d="m 2.4582628,27.454441 1.60562,9.598201"
+					id="path5" />
+					<text
+					xml:space="preserve"
+					style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9px;line-height:0;font-family:Arial;letter-spacing:0.264583px;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-dasharray:none;stroke-opacity:1"
+					id="text13">
+						<tspan
+						id="tspan13"
+						x="35"
+						y="23">
+							Drag component
+						</tspan>
+						<tspan
+						id="tspan14"
+						x="2"
+						y="34">
+							to create new instruction step
+						</tspan>
+					</text>
+				</g>
+				<g
+				id="g11"
+				style="display:inline"
+				transform="translate(0,10)">
+					<path
+					d="M 176.94629,57.862729 C 172.35009,51.66957 166.75994,46.215702 160.45525,41.773722 149.45491,34.023416 136.3834,29.442215 123.04201,27.68666 109.70062,25.931106 96.085395,26.934556 82.914363,29.691102 60.801893,34.318989 39.746634,43.927794 21.761202,57.599037"
+					id="path9"
+					transform="rotate(180,90.936324,53.5976)" />
+					<path
+					d="m 159.93708,49.497943 -9.34526,3.142534"
+					id="path10" />
+					<path
+					d="M 161.7424,59.085621 160.13678,49.48742"
+					id="path11" />
+					<text
+					xml:space="preserve"
+					style="font-style:normal;font-variant:normal;font-weight:normal;font-stretch:normal;font-size:9px;line-height:0;font-family:Arial;letter-spacing:0.264583px;display:inline;fill-opacity:1;stroke:none;stroke-width:1;stroke-linecap:round;stroke-dasharray:none;stroke-opacity:1"
+					x="2"
+					y="57"
+					id="text15">
+						<tspan
+						id="tspan15">
+							Drag it back to remove step
+						</tspan>
+					</text>
+				</g>
+			</svg>
+		</div>
+	</div>
+}
+
+@code {
+	private bool Tutorial1Completed;
+
+	protected override async Task OnInitializedAsync()
+	{
+		Tutorial1Completed = await ClientStorage.GetItemAsync<bool>(nameof(Tutorial1Completed));
+		await base.OnInitializedAsync();
+	}
+
+	private async Task CompleteTutorial1()
+	{
+		Tutorial1Completed = true;
+		await ClientStorage.SetItemAsync(nameof(Tutorial1Completed), Tutorial1Completed);
+		StateHasChanged();
+	}
+}
