@@ -4,6 +4,8 @@
     <TargetFramework>net9.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
+	<AssemblyName>WebIfcFix beta</AssemblyName>
+	<Version>1.1.0</Version>
   </PropertyGroup>
 
   <ItemGroup>
