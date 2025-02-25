@@ -1,10 +1,26 @@
 # WebIfcFix
-
 - create pipelines for editing IFC files in the browser, without installing any software.
 - edit IFC file locally, the site doesn't have backend, all you do on the network is download a web assembly app, and your data is never sent elsewhere.
 - share useful pipeline (workflow) with colleagues or the whole community with a link.
 
-Work in progress version is here: https://keepdream1ng.github.io/WebIfcFix/ 
+# Usage
+[![Watch the video](https://img.youtube.com/vi/Oi7u5umSwlM/maxresdefault.jpg)](https://youtu.be/Oi7u5umSwlM)
+
+### [Watch introduction on YouTube](https://youtu.be/Oi7u5umSwlM)
+
+# Technologies
+- .NET 9 as runtime (MIT)
+- Blazor Web Assembly as framework (MIT)
+- [GeometryGymIFC](https://github.com/GeometryGym/GeometryGymIFC) as main IFC processor (MIT)
+- [Bootstrap 5.3](https://github.com/twbs/bootstrap) for styling (MIT)
+- [mganss/HtmlSanitizer](https://github.com/mganss/HtmlSanitizer) for user input sanitization (MIT)
+- [SortableJS](https://github.com/SortableJS/Sortable) for dragging and dropping controls (MIT)
+
+Main branch runs tests for new commits and on success automatically deployes to [github pages](https://keepdream1ng.github.io/WebIfcFix/).
+
+# How to contribute
+Create a fork of this project and open PR with a single commit to this repo's main branch.
+If you are adding the new `PipeFilter` consider writing unit tests for it in the IfcFixLib.Tests project.
 
 Let's walk-through adding a simple pipeline filter (a component that executes some code over `DataIFC` object and passes updated version to the next component) with custom logic:
 1. Add a filter to the library by implementing `PipeFilter` class:
