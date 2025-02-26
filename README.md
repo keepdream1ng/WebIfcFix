@@ -4,7 +4,7 @@
 - share useful pipeline (workflow) with colleagues or the whole community with a link.
 
 # Usage
-[![Watch the video](https://img.youtube.com/vi/Oi7u5umSwlM/maxresdefault.jpg)](https://youtu.be/Oi7u5umSwlM)
+[![Watch the video](https://img.youtube.com/vi/Oi7u5umSwlM/mqdefault.jpg)](https://youtu.be/Oi7u5umSwlM)
 
 ### [Watch introduction on YouTube](https://youtu.be/Oi7u5umSwlM)
 
