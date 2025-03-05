@@ -10,7 +10,6 @@ public class StringValueSetter : IValueSetterStrategy
         get { return _value; }
         set
         {
-            ClearCache();
             _value = value;
         }
     }
@@ -26,8 +25,9 @@ public class StringValueSetter : IValueSetterStrategy
 
     private string _value = string.Empty;
     private string? _propertyName = null;
-    private IfcPropertySet? _cachedPropertySet;
-    private IfcPropertySingleValue? _cachedProperty;
+    private Dictionary<string, IfcPropertySingleValue> _cashedPropertiesByValue = new();
+    private Dictionary<string, IfcPropertySet> _cashedNewPropSetsByOldGuid = new();
+    private Dictionary<string, IfcPropertySet> _cashedNewPropSetsByValue = new();
 
     public void SetValue(IfcElement element)
     {
@@ -69,43 +69,52 @@ public class StringValueSetter : IValueSetterStrategy
         if (prop is not null)
         {
             var sets = prop.PartOfPset.
-                Where(x => x.DefinesOccurrence.Any(occurence => occurence.RelatedObjects.Any(obj => obj.GlobalId == element.GlobalId)))
+                Where(x => x.DefinesOccurrence
+                    .Any(occurence => occurence.RelatedObjects
+						.Any(obj => obj.GlobalId == element.GlobalId)))
                 .ToList();
             foreach (var set in sets)
             {
-                var newSet = element.Database.Factory.Duplicate<IfcPropertySet>(set);
+                if (!_cashedNewPropSetsByOldGuid.TryGetValue(set.GlobalId, out IfcPropertySet? newSet))
+                {
+					newSet = element.Database.Factory.Duplicate<IfcPropertySet>(set);
+					newSet.DefinesOccurrence.Clear();
+					if (!_cashedPropertiesByValue.ContainsKey(Value))
+					{
+						_cashedPropertiesByValue[Value] = new IfcPropertySingleValue(element.Database, PropertyName, Value);
+					}
+					newSet.AddProperty(_cashedPropertiesByValue[Value]);
+                    _cashedNewPropSetsByOldGuid[(set.GlobalId)] = newSet;
+                }
+
                 foreach (IfcRelDefinesByProperties? occurrence in set.DefinesOccurrence)
                 {
                     occurrence?.RelatedObjects.Remove(element);
                 }
 
-				newSet.DefinesOccurrence.Clear();
-                if (_cachedProperty is null)
-                {
-                    _cachedProperty = new IfcPropertySingleValue(element.Database, PropertyName, Value);
-                }
-				newSet.AddProperty(_cachedProperty);
 				newSet.RelateObjectDefinition(element);
 			}
         }
         else
         {
-            if (_cachedPropertySet is null)
+            if (!_cashedNewPropSetsByValue.TryGetValue(Value, out IfcPropertySet? brandNewSet))
             {
-                if (_cachedProperty is null)
+                if (!_cashedPropertiesByValue.ContainsKey(Value))
                 {
-					_cachedProperty = new IfcPropertySingleValue(element.Database, PropertyName, Value);
+					_cashedPropertiesByValue[Value] = new IfcPropertySingleValue(element.Database, PropertyName, Value);
                 }
-				_cachedPropertySet = new IfcPropertySet(element.Database, "PSET_" + PropertyName);
-				_cachedPropertySet.AddProperty(_cachedProperty);
+                brandNewSet = new IfcPropertySet(element.Database, "PSET_" + PropertyName);
+                brandNewSet.AddProperty(_cashedPropertiesByValue[Value]);
+                _cashedNewPropSetsByValue[Value] = brandNewSet;
             }
-            _cachedPropertySet.RelateObjectDefinition(element);
+            brandNewSet.RelateObjectDefinition(element);
         }
     }
 
     private void ClearCache()
     {
-        _cachedProperty = null;
-        _cachedPropertySet = null;
+        _cashedPropertiesByValue.Clear();
+        _cashedNewPropSetsByOldGuid.Clear();
+        _cashedNewPropSetsByValue.Clear();
     }
 }
