@@ -10,6 +10,7 @@ public class StringValueSetter : IValueSetterStrategy
         get { return _value; }
         set
         {
+            _hasValuePlaceholder = value.Contains(_valuePlaceholder);
             _value = value;
         }
     }
@@ -23,8 +24,11 @@ public class StringValueSetter : IValueSetterStrategy
         }
     }
 
-    private string _value = string.Empty;
+    private const string _valuePlaceholder = "{VALUE}";
+    private bool _hasValuePlaceholder = true;
+    private string _value = $"prefix_{_valuePlaceholder}_postfix";
     private string? _propertyName = null;
+    private Dictionary<string, string> _cashedReplacedValues = new();
     private Dictionary<string, IfcPropertySingleValue> _cashedPropertiesByValue = new();
     private Dictionary<string, IfcPropertySet> _cashedNewPropSetsByOldGuid = new();
     private Dictionary<string, IfcPropertySet> _cashedNewPropSetsByValue = new();
@@ -34,22 +38,26 @@ public class StringValueSetter : IValueSetterStrategy
         switch (ValueType)
         {
             case ElementStringValueType.Name:
-                element.Name = Value;
+                element.Name = GetResultValue(element.Name);
                 break;
             case ElementStringValueType.Description:
-                element.Description = Value;
+                element.Description = GetResultValue(element.Description);
                 break;
             case ElementStringValueType.Tag:
-                element.Tag = Value;
+                element.Tag = GetResultValue(element.Tag);
                 break;
             case ElementStringValueType.Property:
                 SetProperty(element);
                 break;
 			default:
 				System.Reflection.PropertyInfo? prop = element.GetType().GetProperty(nameof(ValueType));
-                if (prop is not null && prop.CanWrite)
+                if (prop is not null && prop.CanWrite && prop.PropertyType == typeof(string))
                 {
-                    prop.SetValue(element, Value);
+                    string? currentValue = (string?)prop.GetValue(element);
+                    if (currentValue is not null)
+                    {
+						prop.SetValue(element, GetResultValue(currentValue));
+                    }
                 }
                 else
                 {
@@ -59,6 +67,19 @@ public class StringValueSetter : IValueSetterStrategy
         }
     }
 
+    private string GetResultValue(string originalStringValue)
+    {
+        if (!_hasValuePlaceholder)
+        {
+            return _value;
+        }
+        if (!_cashedReplacedValues.TryGetValue(originalStringValue, out string? replacedValue))
+        {
+            replacedValue = _value.Replace(_valuePlaceholder, originalStringValue);
+            _cashedReplacedValues[originalStringValue] = replacedValue;
+        }
+        return replacedValue;
+    }
     private void SetProperty(IfcElement element)
     {
         if (PropertyName is null)
@@ -68,6 +89,7 @@ public class StringValueSetter : IValueSetterStrategy
 		var prop = element.FindProperty(PropertyName) as IfcPropertySingleValue;
         if (prop is not null)
         {
+            string valueToSet = GetResultValue(prop.NominalValue.ValueString);
             var sets = prop.PartOfPset.
                 Where(x => x.DefinesOccurrence
                     .Any(occurence => occurence.RelatedObjects
@@ -79,11 +101,11 @@ public class StringValueSetter : IValueSetterStrategy
                 {
 					newSet = element.Database.Factory.Duplicate<IfcPropertySet>(set);
 					newSet.DefinesOccurrence.Clear();
-					if (!_cashedPropertiesByValue.ContainsKey(Value))
+					if (!_cashedPropertiesByValue.ContainsKey(valueToSet))
 					{
-						_cashedPropertiesByValue[Value] = new IfcPropertySingleValue(element.Database, PropertyName, Value);
+						_cashedPropertiesByValue[valueToSet] = new IfcPropertySingleValue(element.Database, PropertyName, valueToSet);
 					}
-					newSet.AddProperty(_cashedPropertiesByValue[Value]);
+					newSet.AddProperty(_cashedPropertiesByValue[valueToSet]);
                     _cashedNewPropSetsByOldGuid[(set.GlobalId)] = newSet;
                 }
 
@@ -97,6 +119,7 @@ public class StringValueSetter : IValueSetterStrategy
         }
         else
         {
+            // Not finding the property means there is no placeholder replacing to do and we just use flat Value string.
             if (!_cashedNewPropSetsByValue.TryGetValue(Value, out IfcPropertySet? brandNewSet))
             {
                 if (!_cashedPropertiesByValue.ContainsKey(Value))
@@ -116,5 +139,6 @@ public class StringValueSetter : IValueSetterStrategy
         _cashedPropertiesByValue.Clear();
         _cashedNewPropSetsByOldGuid.Clear();
         _cashedNewPropSetsByValue.Clear();
+        _cashedReplacedValues.Clear();
     }
 }

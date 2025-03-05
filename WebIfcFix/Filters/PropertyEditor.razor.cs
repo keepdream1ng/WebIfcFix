@@ -25,5 +25,5 @@ public class PropertyEditorInfo : ComponentInformation<PropertyEditorModel>
 {
 	public override string FilterName => "Edit property";
 
-	public override string FilterInstructions => "Edit properties of the filtered previously elements.";
+	public override string FilterInstructions => "Edit properties of the filtered previously elements. Keep the {VALUE} placeholder with your input to add prefix and/or postfix to original value";
 }

@@ -141,6 +141,69 @@ public class ValueSetterTests(TestFileFixture testFile) : IClassFixture<TestFile
 	}
 
 	[Fact]
+	public async Task ProcessAsync_ShouldUpdateDatabaseElements_ExistingProperty_WithPrefixAndPostfix()
+	{
+		// Arrange
+		using Stream stream = new MemoryStream(testFile.TestIfcBytes);
+		using StreamReader reader = new StreamReader(stream);
+		string originalIfcString = reader.ReadToEnd();
+		DatabaseIfc db = DatabaseIfc.ParseString(originalIfcString);
+		List<IfcElement> allElements = FilterResetter.ExtractAllElements(db);
+		List<IfcElement> builtElements = allElements
+			.Where(x => x is IfcBuiltElement)
+			.ToList();
+
+		DatabaseIfc notModifiedDb = DatabaseIfc.ParseString(originalIfcString);
+		List<IfcElement> nonModiedElements = FilterResetter.ExtractAllElements(notModifiedDb);
+
+		StringValueSetter strategy = new();
+		strategy.ValueType = ElementStringValueType.Property;
+		strategy.PropertyName = "Top elevation";
+		string expectedPrefix = "testPrefix";
+		string expectedPostfix = "testPostfix";
+		strategy.Value = expectedPrefix + "_{VALUE}_" + expectedPostfix;
+		ValueSetter setter = new ValueSetter(strategy);
+
+		setter.Input = new DataIFC(db, builtElements);
+		var dublicator = new DbDuplicator();
+		var resetter = new FilterResetter();
+		var dbSerializer = new DbSerializer(IfcFormatOutput.STEP);
+		setter.PipeInto(resetter)
+			.PipeInto(dublicator)
+			.PipeInto(dbSerializer);
+
+		// Act
+		await setter.ProcessAsync(CancellationToken.None);
+
+		string actualStepString = dbSerializer.Output!;
+		DatabaseIfc updatedDb = DatabaseIfc.ParseString(actualStepString);
+		List<IfcElement> actual = FilterResetter.ExtractAllElements(updatedDb);
+
+		List<IfcElement> actualUpdatedBuiltElements = actual
+			.Where(x => x is IfcBuiltElement)
+			.ToList();
+
+		List<IfcElement> actualUpdatedElementsOnLvl1000 = actualUpdatedBuiltElements
+			.Where(x => x.Name.Contains("1000"))
+			.ToList();
+
+		var propertyLvl1000 = actualUpdatedElementsOnLvl1000.First().FindProperty(strategy.PropertyName) as IfcPropertySingleValue;
+
+		// Assert
+		Assert.Contains(expectedPrefix, actualStepString);
+		Assert.Contains(expectedPostfix, actualStepString);
+		Assert.All(actualUpdatedBuiltElements, ifcElement =>
+		{
+			var oldElementVersion = nonModiedElements.Single(x => x.GlobalId == ifcElement.GlobalId);
+			var oldElementProperty = oldElementVersion.FindProperty(strategy.PropertyName) as IfcPropertySingleValue;
+			string expected = strategy.Value.Replace("{VALUE}", oldElementProperty!.NominalValue.ValueString);
+			var updatedElementProperty = ifcElement.FindProperty(strategy.PropertyName) as IfcPropertySingleValue;
+			Assert.Equal(expected, updatedElementProperty!.NominalValue.ValueString);
+		});
+		Assert.Equal(actualUpdatedElementsOnLvl1000.Count, propertyLvl1000!.PartOfPset.Count);
+	}
+
+	[Fact]
 	public async Task ProcessAsync_ShouldUpdateDatabaseElements_ExistingProperty()
 	{
 		// Arrange
