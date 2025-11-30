@@ -16,6 +16,11 @@
 	[EditorRequired]
 	public EventCallback OnProcessDone { get; set; }
 
+	public void UpdateState()
+	{
+		StateHasChanged();
+	}
+
 	private bool _pipelineIsProcessing = false;
 	private string _btnLabel => _pipelineIsProcessing ? "Stop" : "Start";
 
@@ -30,7 +35,7 @@
 			Continue();
 		}
 		_pipelineIsProcessing = !_pipelineIsProcessing;
-		StateHasChanged();
+		UpdateState();
 	}
 
 	private void Continue()
@@ -50,7 +55,7 @@
 		processingTask.ContinueWith((x) =>
 		{
 			_pipelineIsProcessing = false;
-			StateHasChanged();
+			UpdateState();
 			OnProcessDone.InvokeAsync();
 		});
 	}

@@ -21,7 +21,7 @@
 			<div class="col-md-3 d-flex align-items-center justify-content-center">
 				<div class="row m-md-5">
 					<div class="d-grid gap-2 d-md-block">
-						<PipelineProcessControls OnProcessDone="UpdateState" />
+						<PipelineProcessControls @ref="ProcessControlsRef" OnProcessDone="UpdateState" />
 						<ThemeToggler/>
 					</div>
 				</div>
@@ -103,9 +103,11 @@
 	private string menuCssClass => collapseMenu ? "collapse" : String.Empty;
 	private string hiddenCollapseBtnClass => collapseMenu ? "" : "d-md-none";
 	private string collapseBtnText => collapseMenu ? "⇩ Menu ⇩" : "⇧ Menu ⇧";
+	private PipelineProcessControls? ProcessControlsRef;
 
 	private void UpdateState()
 	{
+		ProcessControlsRef?.UpdateState();
 		StateHasChanged();
 	}
 
