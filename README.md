@@ -9,7 +9,7 @@
 ### [Watch introduction on YouTube](https://youtu.be/Oi7u5umSwlM)
 
 # Technologies
-- .NET 9 as runtime (MIT)
+- .NET 10 as runtime (MIT)
 - Blazor Web Assembly as framework (MIT)
 - [GeometryGymIFC](https://github.com/GeometryGym/GeometryGymIFC) as main IFC processor (MIT)
 - [Bootstrap 5.3](https://github.com/twbs/bootstrap) for styling (MIT)
